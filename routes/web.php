@@ -1,0 +1,62 @@
+<?php
+
+use App\Http\Controllers\ActivityReportController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GeofenceController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', fn () => redirect()->route('login'));
+
+// ── Authenticated Routes ───────────────────────────────────────────────────────
+Route::middleware(['auth'])->group(function () {
+
+    // Dashboard (role-aware)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Absensi reports (rekap statistik)
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    // Laporan kegiatan / pertanggungjawaban
+    Route::get('/activity-reports/guru', [ActivityReportController::class, 'guruIndex'])
+        ->name('activity-reports.guru');
+    Route::get('/activity-reports/create', [ActivityReportController::class, 'create'])
+        ->name('activity-reports.create');
+    Route::get('/activity-reports/{activityReport}', [ActivityReportController::class, 'show'])
+        ->name('activity-reports.show');
+    Route::delete('/activity-reports/{activityReport}', [ActivityReportController::class, 'destroy'])
+        ->name('activity-reports.destroy');
+    Route::get('/activity-reports', [ActivityReportController::class, 'index'])
+        ->name('activity-reports.index');
+    Route::post('/activity-reports', [ActivityReportController::class, 'store'])
+        ->name('activity-reports.store');
+
+    // Attendance
+    Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+
+    // Permissions (izin) — siswa
+    Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+    Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create');
+    Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
+
+    // Permissions — guru (approval)
+    Route::get('/permissions/approvals', [PermissionController::class, 'approvals'])->name('permissions.approvals');
+    Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
+    Route::patch('/permissions/{permission}/approve', [PermissionController::class, 'approve'])
+        ->name('permissions.approve')
+        ->middleware('can:update,permission');
+
+    // Admin: Geofence settings
+    Route::get('/admin/geofence', [GeofenceController::class, 'index'])->name('admin.geofence');
+    Route::post('/admin/geofence', [GeofenceController::class, 'store'])->name('admin.geofence.store');
+});
+
+require __DIR__ . '/auth.php';

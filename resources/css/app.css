@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        font-family: 'Inter', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-font-smoothing: antialiased;
+        min-height: max(884px, 100dvh);
+    }
+
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+        user-select: none;
+    }
+}
+
+@layer components {
+    /* Geofence pulse ring animation */
+    .geofence-pulse {
+        animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    }
+
+    @keyframes pulse-ring {
+        0%        { transform: scale(0.33); opacity: 0.8; }
+        80%, 100% { opacity: 0; }
+    }
+
+    /* Hide scrollbar utility */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Custom thin scrollbar */
+    .custom-scrollbar::-webkit-scrollbar       { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+    /* Bottom safe area for mobile PWA */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+}
