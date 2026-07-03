@@ -12,6 +12,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    {{-- Override posisi & ukuran tombol install PWA agar tidak menutupi bottom navbar --}}
+    <style>
+        .box-icon {
+            bottom: 86px !important;
+            right: 14px !important;
+        }
+        .box-icon .circle {
+            width: 38px !important;
+            height: 38px !important;
+            background-color: #006c49 !important;
+            box-shadow: 0 2px 8px rgba(0,108,73,0.30) !important;
+        }
+        .box-icon .circle img {
+            max-width: 20px !important;
+            max-height: 20px !important;
+        }
+        .box-icon .circle:after {
+            animation: none !important;
+            box-shadow: none !important;
+        }
+    </style>
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col">
 

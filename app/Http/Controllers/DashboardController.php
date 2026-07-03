@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        return match(true) {
+        return match (true) {
             $user->isAdmin() => $this->adminDashboard(),
             $user->isGuru()  => $this->guruDashboard($user),
             default          => $this->siswaDashboard($user),
@@ -34,7 +34,7 @@ class DashboardController extends Controller
         $todaySiswa = User::where('role', 'siswa')
             ->where(function ($q) {
                 $q->whereNull('tanggal_selesai')
-                  ->orWhere('tanggal_selesai', '>=', today());
+                    ->orWhere('tanggal_selesai', '>=', today());
             })
             ->get();
 
@@ -55,8 +55,8 @@ class DashboardController extends Controller
                 ->count(),
             'alpa'  => $todaySiswa->count()
                 - Attendance::whereDate('tanggal', today())
-                    ->whereIn('user_id', $todaySiswa->pluck('id'))
-                    ->count(),
+                ->whereIn('user_id', $todaySiswa->pluck('id'))
+                ->count(),
         ];
 
         return view('dashboard.guru', compact('user', 'todaySiswa', 'pendingPermissions', 'todayStats'));

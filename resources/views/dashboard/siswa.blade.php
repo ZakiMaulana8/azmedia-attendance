@@ -1,194 +1,356 @@
 @extends('layouts.app')
-@section('title', 'Dashboard Siswa')
+@section('title', 'Dashboard')
+
+@php
+    // ── Logika waktu (Asia/Jakarta) ──────────────────────────────────
+    $now  = \Carbon\Carbon::now('Asia/Jakarta');
+    $hour = $now->hour;
+
+    if ($hour >= 5 && $hour < 11) {
+        $greeting = 'Selamat Pagi';
+        $greetIcon = '☀️';
+    } elseif ($hour >= 11 && $hour < 14) {
+        $greeting = 'Selamat Siang';
+        $greetIcon = '🌤️';
+    } elseif ($hour >= 14 && $hour < 18) {
+        $greeting = 'Selamat Sore';
+        $greetIcon = '🌇';
+    } else {
+        $greeting = 'Selamat Malam';
+        $greetIcon = '🌙';
+    }
+
+    // ── Quote motivasi berputar per hari ─────────────────────────────
+    $quotes = [
+        'Disiplin hari ini adalah investasi masa depanmu.',
+        'Konsistensi kecil membangun pencapaian besar.',
+        'Hadir tepat waktu adalah bentuk profesionalisme.',
+        'Setiap hari adalah kesempatan untuk menjadi lebih baik.',
+        'Kerja keras yang tulus tidak pernah sia-sia.',
+        'Mulai dengan semangat, selesaikan dengan bangga.',
+        'Komitmen membedakan yang biasa dan yang luar biasa.',
+    ];
+    $quote = $quotes[$now->dayOfWeek % count($quotes)];
+@endphp
 
 @section('content')
-<div class="px-md max-w-lg mx-auto pt-lg" x-data="attendanceApp()">
+<div class="max-w-lg mx-auto" x-data="attendanceApp()">
 
-    {{-- Greeting --}}
-    <section class="mb-lg">
-        <h2 class="text-headline-lg-mobile font-bold text-on-surface">Halo, {{ $user->name }}</h2>
-        <p class="text-body-sm text-on-surface-variant">
-            {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+    {{-- ════════════════════════════════════════════════════════════
+         HERO HEADER
+    ════════════════════════════════════════════════════════════ --}}
+    <section class="relative bg-primary overflow-hidden" style="border-radius: 0 0 32px 32px;">
+
+        {{-- Ornamen lingkaran dekoratif --}}
+        <div class="pointer-events-none absolute -top-12 -right-12 w-48 h-48 rounded-full"
+             style="background: rgba(255,255,255,0.08)"></div>
+        <div class="pointer-events-none absolute top-8 -right-4 w-28 h-28 rounded-full"
+             style="background: rgba(255,255,255,0.06)"></div>
+        <div class="pointer-events-none absolute bottom-0 left-0 w-24 h-24 rounded-full"
+             style="background: rgba(255,255,255,0.04)"></div>
+
+        <div class="relative z-10 px-md pt-lg">
+
+            {{-- ── Baris Greeting + Kalender ── --}}
+            <div class="flex items-start justify-between mb-lg">
+
+                {{-- Kiri: salam & nama --}}
+                <div class="flex-1 min-w-0 pr-md">
+                    {{-- Salam waktu (kecil, elegan) --}}
+                    <p class="text-white/70 text-[13px] font-medium tracking-wide mb-1">
+                        {{ $greetIcon }} {{ $greeting }}
+                    </p>
+                    {{-- Nama (besar & bold) --}}
+                    <h2 class="text-white font-extrabold truncate"
+                        style="font-size: 26px; line-height: 32px; letter-spacing: -0.02em;">
+                        Halo, {{ $user->name }}!
+                    </h2>
+                    {{-- Quote motivasi --}}
+                    <p class="text-white/55 text-[12px] leading-[18px] mt-2 max-w-[200px]">
+                        {{ $quote }}
+                    </p>
+                </div>
+
+                {{-- Kanan: kalender tanggal --}}
+                <div class="flex-shrink-0 text-center rounded-2xl px-3 py-2.5 min-w-[72px]"
+                     style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+                    <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
+                        {{ $now->translatedFormat('D') }}
+                    </p>
+                    <p class="text-white font-black leading-none"
+                       style="font-size: 38px; letter-spacing: -0.03em; line-height: 1;">
+                        {{ $now->format('d') }}
+                    </p>
+                    <p class="text-white/80 text-[11px] font-semibold uppercase tracking-wider mt-1 leading-none">
+                        {{ $now->translatedFormat('M Y') }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- ── Flash Notification ── --}}
+            <div x-show="flashMsg"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 :class="flashSuccess ? 'border-white/30' : 'border-red-300/40'"
+                 class="mb-md flex items-center gap-sm rounded-xl px-md py-sm text-white text-[13px] font-semibold border"
+                 style="background: rgba(255,255,255,0.15)">
+                <span class="material-symbols-outlined text-[17px]"
+                      x-text="flashSuccess ? 'check_circle' : 'error'"></span>
+                <span x-text="flashMsg"></span>
+            </div>
+
+            {{-- ── Kartu Jam Masuk & Pulang ── --}}
+            <div class="grid grid-cols-2 gap-sm pb-lg">
+
+                {{-- Jam Masuk --}}
+                <div class="bg-white rounded-2xl p-md">
+                    <div class="flex items-center gap-xs mb-2">
+                        <span class="material-symbols-outlined text-primary text-[15px]">login</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                            Jam Masuk
+                        </span>
+                    </div>
+                    <p class="font-black text-on-surface"
+                       style="font-size: 22px; line-height: 1; letter-spacing: -0.02em;"
+                       :class="jamMasuk ? 'text-on-surface' : 'text-on-surface-variant/50'"
+                       x-text="jamMasuk || '--:--'">--:--</p>
+                    <div class="mt-2">
+                        <span x-show="jamMasuk"
+                              class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full"
+                              :class="statusMasuk === 'terlambat'
+                                  ? 'bg-amber-100 text-amber-700'
+                                  : 'bg-emerald-100 text-emerald-700'"
+                              x-text="statusMasuk === 'terlambat' ? 'Terlambat' : 'Tepat Waktu'">
+                        </span>
+                        <span x-show="!jamMasuk"
+                              class="inline-flex text-[11px] font-semibold text-on-surface-variant/60">
+                            Belum absen
+                        </span>
+                    </div>
+                </div>
+
+                {{-- Jam Pulang --}}
+                <div class="bg-white rounded-2xl p-md">
+                    <div class="flex items-center gap-xs mb-2">
+                        <span class="material-symbols-outlined text-on-surface-variant text-[15px]">logout</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                            Jam Pulang
+                        </span>
+                    </div>
+                    <p class="font-black"
+                       style="font-size: 22px; line-height: 1; letter-spacing: -0.02em;"
+                       :class="jamPulang ? 'text-on-surface' : 'text-on-surface-variant/50'"
+                       x-text="jamPulang || '--:--'">--:--</p>
+                    <div class="mt-2">
+                        <span x-show="jamPulang"
+                              class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                            Sudah Pulang
+                        </span>
+                        <span x-show="!jamPulang"
+                              class="inline-flex text-[11px] font-semibold text-on-surface-variant/60">
+                            Belum absen
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- ════════════════════════════════════════════════════════════
+         TOMBOL ABSEN
+    ════════════════════════════════════════════════════════════ --}}
+    <section class="flex flex-col items-center py-xl px-md">
+
+        {{-- Lingkaran efek background --}}
+        <div class="relative flex items-center justify-center mb-lg">
+            {{-- Ring luar --}}
+            <div class="absolute w-52 h-52 rounded-full border-2 border-primary/10 animate-ping"
+                 style="animation-duration: 3s;"></div>
+            <div class="absolute w-44 h-44 rounded-full border border-primary/15"></div>
+
+            {{-- Tombol utama --}}
+            <button @click="doAbsen"
+                    :disabled="loading || absenDone"
+                    class="relative w-36 h-36 rounded-full bg-primary flex flex-col items-center justify-center
+                           text-white transition-all duration-200 active:scale-90 disabled:opacity-50
+                           focus:outline-none focus:ring-4 focus:ring-primary/30"
+                    style="box-shadow: 0 8px 32px rgba(0,108,73,0.45), 0 2px 8px rgba(0,108,73,0.2);">
+
+                {{-- Shimmer overlay --}}
+                <div class="absolute inset-0 rounded-full pointer-events-none"
+                     style="background: linear-gradient(145deg, rgba(255,255,255,0.18) 0%, transparent 60%)"></div>
+
+                <span class="material-symbols-outlined relative z-10"
+                      style="font-size: 56px; font-variation-settings: 'wght' 200, 'FILL' 0;"
+                      x-text="loading ? 'hourglass_top' : 'fingerprint'">fingerprint</span>
+
+                <span class="text-[11px] font-extrabold uppercase tracking-widest relative z-10 mt-1"
+                      x-text="buttonLabel">
+                    @if($today?->jam_masuk && !$today?->jam_pulang)
+                        Absen Pulang
+                    @elseif(!$today?->jam_masuk)
+                        Absen Masuk
+                    @else
+                        Selesai
+                    @endif
+                </span>
+            </button>
+        </div>
+
+        {{-- Indikator Lokasi --}}
+        <div class="flex items-center gap-xs rounded-full px-md py-2 border transition-all duration-300"
+             :class="locationVerified
+                ? 'bg-emerald-50 border-emerald-200'
+                : 'bg-amber-50 border-amber-200'">
+            <span class="material-symbols-outlined text-[15px]"
+                  :class="locationVerified ? 'text-emerald-600' : 'text-amber-500'"
+                  style="font-variation-settings:'FILL' 1">location_on</span>
+            <p class="text-[12px] font-semibold"
+               :class="locationVerified ? 'text-emerald-700' : 'text-amber-600'"
+               x-text="locationLabel">Mendapatkan lokasi...</p>
+        </div>
+
+        <p class="mt-2 text-[11px] text-on-surface-variant/60 font-medium">
+            {{ $user->asal_sekolah ?? 'Azmedia Office' }}
         </p>
     </section>
 
-    {{-- Flash message --}}
-    <div x-show="flashMsg" x-transition
-         :class="flashSuccess ? 'bg-primary-container text-on-primary-container' : 'bg-error-container text-on-error-container'"
-         class="mb-md p-sm rounded-xl text-body-sm font-semibold flex items-center gap-sm">
-        <span class="material-symbols-outlined text-[18px]" x-text="flashSuccess ? 'check_circle' : 'error'"></span>
-        <span x-text="flashMsg"></span>
-    </div>
-
-    {{-- Status Cards --}}
-    <section class="grid grid-cols-2 gap-md mb-lg">
-        {{-- Jam Masuk --}}
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
-            <div class="flex items-center gap-xs mb-xs text-primary">
-                <span class="material-symbols-outlined text-[18px]">login</span>
-                <span class="text-label-md uppercase tracking-wider">Jam Masuk</span>
-            </div>
-            <p class="text-headline-md font-semibold"
-               :class="jamMasuk ? 'text-on-surface' : 'text-on-surface-variant'"
-               x-text="jamMasuk || '--:--'"></p>
-            <span x-show="jamMasuk"
-                  class="inline-block mt-2 text-status-badge font-bold px-2 py-0.5 rounded-full"
-                  :class="statusMasuk === 'terlambat'
-                      ? 'bg-secondary-container text-on-secondary-container'
-                      : 'bg-primary-container/20 text-primary'"
-                  x-text="statusMasuk === 'terlambat' ? 'Terlambat' : 'Tepat Waktu'">
-            </span>
-            <span x-show="!jamMasuk"
-                  class="inline-block mt-2 text-status-badge font-bold px-2 py-0.5 rounded-full bg-surface-container text-outline">
-                Belum Absen
-            </span>
-        </div>
-
-        {{-- Jam Pulang --}}
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
-            <div class="flex items-center gap-xs mb-xs text-on-surface-variant">
-                <span class="material-symbols-outlined text-[18px]">logout</span>
-                <span class="text-label-md uppercase tracking-wider">Jam Pulang</span>
-            </div>
-            <p class="text-headline-md font-semibold"
-               :class="jamPulang ? 'text-on-surface' : 'text-on-surface-variant'"
-               x-text="jamPulang || '--:--'"></p>
-            <span x-show="jamPulang"
-                  class="inline-block mt-2 text-status-badge font-bold px-2 py-0.5 rounded-full bg-primary-container/20 text-primary">
-                Sudah Pulang
-            </span>
-            <span x-show="!jamPulang"
-                  class="inline-block mt-2 text-status-badge font-bold px-2 py-0.5 rounded-full bg-surface-container text-outline">
-                Belum Absen
-            </span>
-        </div>
-    </section>
-
-    {{-- Main Attendance Button --}}
-    <section class="flex flex-col items-center justify-center py-xl relative">
-        {{-- Pulse background --}}
-        <div class="absolute inset-0 flex items-center justify-center -z-10 overflow-hidden pointer-events-none">
-            <div class="w-64 h-64 bg-primary-container/10 rounded-full animate-pulse"></div>
-        </div>
-
-        {{-- Button --}}
-        <button @click="doAbsen"
-                :disabled="loading || absenDone"
-                class="w-48 h-48 rounded-full bg-primary-container flex flex-col items-center justify-center
-                       text-on-primary-container shadow-xl active:scale-90 transition-transform duration-200
-                       border-4 border-white disabled:opacity-60">
-            <span class="material-symbols-outlined text-[64px] mb-2"
-                  style="font-variation-settings:'wght' 300"
-                  x-text="loading ? 'hourglass_top' : 'fingerprint'">fingerprint</span>
-            <span class="text-headline-md font-extrabold uppercase tracking-tight"
-                  x-text="buttonLabel">
-                @if($today?->jam_masuk && !$today?->jam_pulang)
-                    Absen Pulang
-                @elseif(!$today?->jam_masuk)
-                    Absen Masuk
-                @else
-                    Selesai
-                @endif
-            </span>
-        </button>
-
-        {{-- Location indicator --}}
-        <div class="mt-lg flex items-center gap-1 rounded-full px-md py-sm"
-             :class="locationVerified ? 'bg-primary-container/10' : 'bg-error-container/20'">
-            <span class="material-symbols-outlined text-[18px]"
-                  :class="locationVerified ? 'text-primary' : 'text-error'"
-                  style="font-variation-settings:'FILL' 1">location_on</span>
-            <p class="text-body-sm font-semibold" :class="locationVerified ? 'text-primary' : 'text-error'"
-               x-text="locationLabel">Mendapatkan lokasi...</p>
-        </div>
-        <p class="mt-2 text-label-md text-outline">{{ $user->asal_sekolah ?? 'Azmedia Office' }}</p>
-    </section>
-
-    {{-- Quick Access --}}
-    <section class="mb-xl">
-        <h3 class="text-label-md text-on-surface-variant uppercase tracking-widest mb-md ml-1">
+    {{-- ════════════════════════════════════════════════════════════
+         LAYANAN CEPAT
+    ════════════════════════════════════════════════════════════ --}}
+    <section class="px-md mb-lg">
+        <h3 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/70 mb-md">
             Layanan Cepat
         </h3>
-        <div class="grid grid-cols-3 gap-md">
+
+        <div class="space-y-sm">
+
+            {{-- Izin --}}
             <a href="{{ route('permissions.create') }}"
-               class="flex flex-col items-center gap-sm group">
-                <div class="w-touch-target h-touch-target bg-surface-container rounded-xl flex items-center justify-center
-                            text-on-surface group-active:bg-secondary-container transition-colors">
-                    <span class="material-symbols-outlined">event_busy</span>
+               class="flex items-center gap-md bg-white border border-outline-variant/60
+                      rounded-2xl px-md py-3.5 shadow-sm
+                      active:scale-[0.98] active:bg-surface-container transition-all duration-150 group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                     style="background: rgba(0,108,73,0.10);">
+                    <span class="material-symbols-outlined text-primary text-[20px]"
+                          style="font-variation-settings:'FILL' 1">event_busy</span>
                 </div>
-                <span class="text-label-md text-center">Ajukan Izin</span>
-            </a>
-            <a href="{{ route('activity-reports.create') }}"
-               class="flex flex-col items-center gap-sm group">
-                <div class="w-touch-target h-touch-target bg-surface-container rounded-xl flex items-center justify-center
-                            text-on-surface group-active:bg-primary-container transition-colors">
-                    <span class="material-symbols-outlined">add_photo_alternate</span>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[14px] font-bold text-on-surface">Pengajuan Izin</p>
+                    <p class="text-[12px] text-on-surface-variant mt-0.5">Ajukan dan kelola izin absensi</p>
                 </div>
-                <span class="text-label-md text-center">Upload Kegiatan</span>
+                <span class="material-symbols-outlined text-[18px] text-outline/60 group-active:translate-x-0.5 transition-transform">
+                    chevron_right
+                </span>
             </a>
+
+            {{-- Laporan --}}
+            <a href="{{ route('reports.index') }}"
+               class="flex items-center gap-md bg-white border border-outline-variant/60
+                      rounded-2xl px-md py-3.5 shadow-sm
+                      active:scale-[0.98] active:bg-surface-container transition-all duration-150 group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                     style="background: rgba(133,83,0,0.10);">
+                    <span class="material-symbols-outlined text-secondary text-[20px]"
+                          style="font-variation-settings:'FILL' 1">bar_chart</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[14px] font-bold text-on-surface">Laporan Kehadiran</p>
+                    <p class="text-[12px] text-on-surface-variant mt-0.5">Riwayat dan rekap absensi</p>
+                </div>
+                <span class="material-symbols-outlined text-[18px] text-outline/60 group-active:translate-x-0.5 transition-transform">
+                    chevron_right
+                </span>
+            </a>
+
+            {{-- Kegiatan --}}
             <a href="{{ route('activity-reports.index') }}"
-               class="flex flex-col items-center gap-sm group">
-                <div class="w-touch-target h-touch-target bg-surface-container rounded-xl flex items-center justify-center
-                            text-on-surface group-active:bg-secondary-container transition-colors">
-                    <span class="material-symbols-outlined">photo_library</span>
+               class="flex items-center gap-md bg-white border border-outline-variant/60
+                      rounded-2xl px-md py-3.5 shadow-sm
+                      active:scale-[0.98] active:bg-surface-container transition-all duration-150 group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                     style="background: rgba(164,58,58,0.10);">
+                    <span class="material-symbols-outlined text-tertiary text-[20px]"
+                          style="font-variation-settings:'FILL' 1">photo_library</span>
                 </div>
-                <span class="text-label-md text-center">Laporan Kegiatan</span>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[14px] font-bold text-on-surface">Laporan Kegiatan</p>
+                    <p class="text-[12px] text-on-surface-variant mt-0.5">Upload dan kelola dokumentasi kegiatan</p>
+                </div>
+                <span class="material-symbols-outlined text-[18px] text-outline/60 group-active:translate-x-0.5 transition-transform">
+                    chevron_right
+                </span>
             </a>
+
         </div>
     </section>
 
-    {{-- Info Magang --}}
+    {{-- ════════════════════════════════════════════════════════════
+         INFO MAGANG
+    ════════════════════════════════════════════════════════════ --}}
     @if($user->tanggal_mulai && $user->tanggal_selesai)
-    <section class="mb-xl">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm space-y-md">
-            <div class="flex items-center gap-sm">
-                <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1">
-                    business_center
-                </span>
-                <p class="text-body-lg font-semibold text-on-surface">Info Magang</p>
+    @php $progress = $user->progressMagang(); $sisa = $user->sisaHariMagang(); @endphp
+    <section class="px-md mb-xl">
+        <div class="bg-white border border-outline-variant/60 rounded-2xl p-md shadow-sm">
+
+            {{-- Header --}}
+            <div class="flex items-center gap-sm mb-md">
+                <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary text-[18px]"
+                          style="font-variation-settings:'FILL' 1">business_center</span>
+                </div>
+                <p class="text-[15px] font-bold text-on-surface">Informasi Magang</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-sm text-body-sm">
-                <div>
-                    <p class="text-label-md text-outline uppercase">Asal Sekolah</p>
-                    <p class="text-on-surface font-semibold">{{ $user->asal_sekolah ?? '—' }}</p>
+            {{-- Grid detail --}}
+            <div class="grid grid-cols-2 gap-sm mb-md">
+                <div class="bg-surface-container/50 rounded-xl p-sm">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Asal Sekolah</p>
+                    <p class="text-[13px] font-semibold text-on-surface leading-tight">
+                        {{ $user->asal_sekolah ?? '—' }}
+                    </p>
                 </div>
-                <div>
-                    <p class="text-label-md text-outline uppercase">Jurusan</p>
-                    <p class="text-on-surface font-semibold">{{ $user->jurusan ?? '—' }}</p>
+                <div class="bg-surface-container/50 rounded-xl p-sm">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Jurusan</p>
+                    <p class="text-[13px] font-semibold text-on-surface leading-tight">
+                        {{ $user->jurusan ?? '—' }}
+                    </p>
                 </div>
-                <div>
-                    <p class="text-label-md text-outline uppercase">Mulai</p>
-                    <p class="text-on-surface font-semibold">
+                <div class="bg-surface-container/50 rounded-xl p-sm">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Tanggal Mulai</p>
+                    <p class="text-[13px] font-semibold text-on-surface">
                         {{ $user->tanggal_mulai->translatedFormat('d M Y') }}
                     </p>
                 </div>
-                <div>
-                    <p class="text-label-md text-outline uppercase">Selesai</p>
-                    <p class="text-on-surface font-semibold">
+                <div class="bg-surface-container/50 rounded-xl p-sm">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Tanggal Selesai</p>
+                    <p class="text-[13px] font-semibold text-on-surface">
                         {{ $user->tanggal_selesai->translatedFormat('d M Y') }}
                     </p>
                 </div>
             </div>
 
             {{-- Progress bar --}}
-            @php $progress = $user->progressMagang(); @endphp
             <div>
-                <div class="flex justify-between text-label-md text-on-surface-variant mb-xs">
-                    <span>Progress Magang</span>
-                    <span class="font-semibold text-primary">{{ $progress }}%</span>
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-[11px] font-semibold text-on-surface-variant">Progress Magang</span>
+                    <span class="text-[12px] font-black text-primary">{{ $progress }}%</span>
                 </div>
-                <div class="w-full bg-surface-container rounded-full h-2">
-                    <div class="bg-primary h-2 rounded-full transition-all duration-700"
+                <div class="w-full bg-surface-container rounded-full h-1.5">
+                    <div class="bg-primary h-1.5 rounded-full transition-all duration-700"
                          style="width: {{ $progress }}%"></div>
                 </div>
-                @php $sisa = $user->sisaHariMagang(); @endphp
                 @if($sisa !== null)
-                    <p class="text-label-md text-outline mt-xs">
-                        {{ $sisa > 0 ? $sisa . ' hari lagi' : 'Periode magang telah selesai' }}
-                    </p>
+                <p class="text-[11px] text-on-surface-variant/70 mt-1.5">
+                    {{ $sisa > 0 ? $sisa . ' hari tersisa' : 'Periode magang telah selesai' }}
+                </p>
                 @endif
             </div>
+
         </div>
     </section>
     @endif
@@ -204,38 +366,36 @@
 <script>
 function attendanceApp() {
     return {
-        loading: false,
+        loading:          false,
         locationVerified: false,
-        locationLabel: 'Mendapatkan lokasi...',
-        flashMsg: '',
-        flashSuccess: true,
-        latitude: null,
-        longitude: null,
+        locationLabel:    'Mendapatkan lokasi...',
+        flashMsg:         '',
+        flashSuccess:     true,
+        latitude:         null,
+        longitude:        null,
 
-        // State jam — diisi dari server saat load, diupdate reactive setelah absen
-        jamMasuk:   @json($today?->jam_masuk ? \Carbon\Carbon::parse($today->jam_masuk)->format('H:i') : null),
-        jamPulang:  @json($today?->jam_pulang ? \Carbon\Carbon::parse($today->jam_pulang)->format('H:i') : null),
+        jamMasuk:    @json($today?->jam_masuk  ? \Carbon\Carbon::parse($today->jam_masuk)->format('H:i')  : null),
+        jamPulang:   @json($today?->jam_pulang ? \Carbon\Carbon::parse($today->jam_pulang)->format('H:i') : null),
         statusMasuk: @json($today?->status ?? 'hadir'),
 
         absenDone:   {{ ($today?->jam_masuk && $today?->jam_pulang) ? 'true' : 'false' }},
         buttonLabel: '{{ $today?->jam_masuk && !$today?->jam_pulang ? "Absen Pulang" : (!$today?->jam_masuk ? "Absen Masuk" : "Selesai") }}',
 
         init() {
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(
-                    (pos) => {
-                        this.latitude         = pos.coords.latitude;
-                        this.longitude        = pos.coords.longitude;
-                        this.locationVerified = true;
-                        this.locationLabel    = 'Lokasi terverifikasi ✓';
-                    },
-                    () => {
-                        this.locationVerified = false;
-                        this.locationLabel    = 'Lokasi tidak tersedia';
-                    },
-                    { enableHighAccuracy: true }
-                );
-            }
+            if (!navigator.geolocation) return;
+            navigator.geolocation.watchPosition(
+                (pos) => {
+                    this.latitude         = pos.coords.latitude;
+                    this.longitude        = pos.coords.longitude;
+                    this.locationVerified = true;
+                    this.locationLabel    = 'Lokasi terverifikasi ✓';
+                },
+                () => {
+                    this.locationVerified = false;
+                    this.locationLabel    = 'Lokasi tidak tersedia';
+                },
+                { enableHighAccuracy: true }
+            );
         },
 
         async doAbsen() {
@@ -247,30 +407,27 @@ function attendanceApp() {
             const type   = this.buttonLabel === 'Absen Pulang' ? 'pulang' : 'masuk';
 
             try {
-                const res = await fetch('{{ route('attendance.store') }}', {
-                    method: 'POST',
+                const res  = await fetch('{{ route('attendance.store') }}', {
+                    method:  'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type':  'application/json',
+                        'X-CSRF-TOKEN':  document.querySelector('meta[name="csrf-token"]').content,
                     },
                     body: JSON.stringify({
                         latitude:  this.latitude,
                         longitude: this.longitude,
-                        type:      type,
+                        type,
                     }),
                 });
                 const data = await res.json();
 
                 if (data.success) {
                     this.showFlash(data.message, true);
-
                     if (type === 'masuk') {
-                        // Update kartu jam masuk langsung tanpa reload
                         this.jamMasuk    = data.jam_masuk;
                         this.statusMasuk = data.status;
                         this.buttonLabel = 'Absen Pulang';
                     } else {
-                        // Update kartu jam pulang langsung tanpa reload
                         this.jamPulang   = data.jam_pulang;
                         this.buttonLabel = 'Selesai';
                         this.absenDone   = true;
