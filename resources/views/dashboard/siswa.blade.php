@@ -147,7 +147,9 @@
                        x-text="jamPulang || '--:--'">--:--</p>
                     <div class="mt-2">
                         <span x-show="jamPulang"
-                              class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                              class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full"
+                              :class="keterangan === 'Pulang Cepat' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'"
+                              x-text="keterangan || 'Sudah Pulang'">
                             Sudah Pulang
                         </span>
                         <span x-show="!jamPulang"
@@ -377,6 +379,7 @@ function attendanceApp() {
         jamMasuk:    @json($today?->jam_masuk  ? \Carbon\Carbon::parse($today->jam_masuk)->format('H:i')  : null),
         jamPulang:   @json($today?->jam_pulang ? \Carbon\Carbon::parse($today->jam_pulang)->format('H:i') : null),
         statusMasuk: @json($today?->status ?? 'hadir'),
+        keterangan:  @json($today?->keterangan),
 
         absenDone:   {{ ($today?->jam_masuk && $today?->jam_pulang) ? 'true' : 'false' }},
         buttonLabel: '{{ $today?->jam_masuk && !$today?->jam_pulang ? "Absen Pulang" : (!$today?->jam_masuk ? "Absen Masuk" : "Selesai") }}',
@@ -429,6 +432,7 @@ function attendanceApp() {
                         this.buttonLabel = 'Absen Pulang';
                     } else {
                         this.jamPulang   = data.jam_pulang;
+                        this.keterangan  = data.keterangan;
                         this.buttonLabel = 'Selesai';
                         this.absenDone   = true;
                     }

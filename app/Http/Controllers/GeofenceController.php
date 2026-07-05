@@ -12,10 +12,10 @@ class GeofenceController extends Controller
     public function index(): View
     {
         $geofence = Geofence::active() ?? new Geofence([
-            'nama_lokasi' => '',
-            'latitude'    => -6.2088,
-            'longitude'   => 106.8456,
-            'radius'      => 100,
+            'nama_lokasi' => config('geofence.nama_lokasi'),
+            'latitude'    => config('geofence.latitude'),
+            'longitude'   => config('geofence.longitude'),
+            'radius'      => config('geofence.radius'),
         ]);
 
         return view('admin.geofence', compact('geofence'));

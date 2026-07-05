@@ -91,10 +91,10 @@ class DatabaseSeeder extends Seeder
 
         // ── Geofence default ───────────────────────────────────────
         Geofence::create([
-            'nama_lokasi' => 'Azmedia Office',
-            'latitude'    => -6.2088,
-            'longitude'   => 106.8456,
-            'radius'      => 100,
+            'nama_lokasi' => config('geofence.nama_lokasi'),
+            'latitude'    => config('geofence.latitude'),
+            'longitude'   => config('geofence.longitude'),
+            'radius'      => config('geofence.radius'),
             'is_active'   => true,
         ]);
     }

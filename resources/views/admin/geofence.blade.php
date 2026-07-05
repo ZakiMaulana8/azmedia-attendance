@@ -187,10 +187,10 @@
 <script>
 function geofenceApp() {
     return {
-        lat:        '{{ old('latitude', $geofence->latitude ?? -6.2088) }}',
-        lng:        '{{ old('longitude', $geofence->longitude ?? 106.8456) }}',
-        radius:     '{{ old('radius', $geofence->radius ?? 100) }}',
-        namaLokasi: '{{ old('nama_lokasi', $geofence->nama_lokasi ?? '') }}',
+        lat:        '{{ old('latitude', $geofence->latitude ?? config('geofence.latitude')) }}',
+        lng:        '{{ old('longitude', $geofence->longitude ?? config('geofence.longitude')) }}',
+        radius:     '{{ old('radius', $geofence->radius ?? config('geofence.radius')) }}',
+        namaLokasi: '{{ old('nama_lokasi', $geofence->nama_lokasi ?? config('geofence.nama_lokasi')) }}',
         map:        null,
         marker:     null,
         circle:     null,

@@ -21,7 +21,12 @@ class AttendanceController extends Controller
         ]);
 
         $user     = $request->user();
-        $geofence = Geofence::active();
+        $geofence = Geofence::active() ?? new Geofence([
+            'nama_lokasi' => config('geofence.nama_lokasi'),
+            'latitude'    => config('geofence.latitude'),
+            'longitude'   => config('geofence.longitude'),
+            'radius'      => config('geofence.radius'),
+        ]);
 
         // Validasi geofence
         if ($geofence) {
@@ -33,7 +38,7 @@ class AttendanceController extends Controller
             if ($distance > $geofence->radius) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Anda berada di luar area ({$geofence->nama_lokasi}). Jarak: " . round($distance) . 'm',
+                    'message' => "Anda berada di luar area {$geofence->nama_lokasi}. Silakan lakukan absensi di lokasi kantor.",
                 ], 422);
             }
         }
@@ -51,16 +56,22 @@ class AttendanceController extends Controller
                 'jam_masuk' => now()->format('H:i:s'),
                 'lat_masuk' => $request->latitude,
                 'lng_masuk' => $request->longitude,
-                'status'    => now()->format('H:i') > '07:30' ? 'terlambat' : 'hadir',
+                'status'    => now()->format('H:i') > '08:00' ? 'terlambat' : 'hadir',
             ]);
         } else {
             if (! $attendance->jam_masuk) {
                 return response()->json(['success' => false, 'message' => 'Anda belum absen masuk hari ini.'], 422);
             }
+
+            // Pengecekan jam kerja berakhir (16:00 WIB)
+            $nowInWib = now('Asia/Jakarta');
+            $statusPulang = $nowInWib->hour < 16 ? 'Pulang Cepat' : 'Pulang Tepat Waktu';
+
             $attendance->update([
-                'jam_pulang' => now()->format('H:i:s'),
+                'jam_pulang' => $nowInWib->format('H:i:s'),
                 'lat_pulang' => $request->latitude,
                 'lng_pulang' => $request->longitude,
+                'keterangan' => $statusPulang,
             ]);
         }
 
@@ -74,6 +85,7 @@ class AttendanceController extends Controller
                                 ? \Carbon\Carbon::parse($attendance->fresh()->jam_pulang)->format('H:i')
                                 : null,
             'status'     => $attendance->fresh()->status,
+            'keterangan' => $attendance->fresh()->keterangan,
         ]);
     }
 
