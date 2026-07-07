@@ -11,6 +11,18 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
 
+// Dev login bypass (only in local environment)
+if (app()->environment('local')) {
+    Route::get('/dev/login/{role}', function ($role) {
+        $user = \App\Models\User::where('role', $role)->first();
+        if ($user) {
+            \Illuminate\Support\Facades\Auth::login($user);
+            return redirect()->route('dashboard');
+        }
+        return 'User with role ' . $role . ' not found.';
+    })->name('dev.login');
+}
+
 // ── Authenticated Routes ───────────────────────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
 

@@ -99,6 +99,22 @@
                     </li>
                 </ul>
             </div>
+
+            @if(app()->environment('local'))
+                <div class="mt-md space-y-sm">
+                    <div class="relative flex items-center gap-md">
+                        <div class="flex-1 border-t border-outline-variant/40"></div>
+                        <span class="text-[11px] font-extrabold uppercase tracking-widest text-outline">Dev Login</span>
+                        <div class="flex-1 border-t border-outline-variant/40"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-xs">
+                        <a href="{{ route('dev.login', 'siswa') }}" class="py-sm px-xs bg-primary/10 hover:bg-primary/20 text-primary text-center rounded-xl text-[12px] font-bold transition-all">Siswa</a>
+                        <a href="{{ route('dev.login', 'guru') }}" class="py-sm px-xs bg-secondary/10 hover:bg-secondary/20 text-secondary text-center rounded-xl text-[12px] font-bold transition-all">Guru</a>
+                        <a href="{{ route('dev.login', 'admin') }}" class="py-sm px-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 text-center rounded-xl text-[12px] font-bold transition-all">Admin</a>
+                    </div>
+                </div>
+            @endif
+
         </div>
 
         {{-- Geofence hint --}}

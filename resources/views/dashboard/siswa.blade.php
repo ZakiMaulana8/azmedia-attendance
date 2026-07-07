@@ -365,6 +365,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function attendanceApp() {
     return {
@@ -406,9 +407,41 @@ function attendanceApp() {
                 this.showFlash('Izinkan akses lokasi untuk absen.', false);
                 return;
             }
-            this.loading = true;
-            const type   = this.buttonLabel === 'Absen Pulang' ? 'pulang' : 'masuk';
 
+            const type = this.buttonLabel === 'Absen Pulang' ? 'pulang' : 'masuk';
+
+            if (type === 'pulang') {
+                const getJakartaHour = () => {
+                    return new Date(Date.now() + 7 * 3600000).getUTCHours();
+                };
+
+                const currentHour = getJakartaHour();
+
+                if (currentHour < 16) {
+                    Swal.fire({
+                        title: 'Konfirmasi Absen Pulang',
+                        text: 'Anda akan melakukan absen pulang sebelum jam pulang (16.00). Apakah Anda yakin ingin pulang lebih awal?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#006c49',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, Pulang Sekarang',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.executeAbsen(type);
+                        }
+                    });
+                    return;
+                }
+            }
+
+            this.executeAbsen(type);
+        },
+
+        async executeAbsen(type) {
+            this.loading = true;
             try {
                 const res  = await fetch('{{ route('attendance.store') }}', {
                     method:  'POST',

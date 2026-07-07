@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Permission;
+use App\Models\Geofence;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -64,6 +65,18 @@ class DashboardController extends Controller
 
     private function adminDashboard(): View
     {
-        return view('dashboard.admin');
+        $totalSiswa = User::where('role', 'siswa')->count();
+        $totalGuru = User::where('role', 'guru')->count();
+        $totalAbsenHariIni = Attendance::whereDate('tanggal', today())->count();
+
+        $geofence = Geofence::active() ?? new Geofence([
+            'nama_lokasi' => config('geofence.nama_lokasi'),
+            'latitude'    => config('geofence.latitude'),
+            'longitude'   => config('geofence.longitude'),
+            'radius'      => config('geofence.radius'),
+        ]);
+        $radiusGeofence = $geofence->radius;
+
+        return view('admin.dashboard', compact('totalSiswa', 'totalGuru', 'totalAbsenHariIni', 'radiusGeofence', 'geofence'));
     }
 }
