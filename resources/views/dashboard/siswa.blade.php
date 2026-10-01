@@ -410,54 +410,92 @@ function attendanceApp() {
 
             const type = this.buttonLabel === 'Absen Pulang' ? 'pulang' : 'masuk';
 
-            if (type === 'pulang') {
-                const getJakartaHour = () => {
-                    return new Date(Date.now() + 7 * 3600000).getUTCHours();
-                };
+            if (type === 'masuk') {
+                await this.executeAbsen('masuk');
+                return;
+            }
 
-                const currentHour = getJakartaHour();
+            // Flow Check-out
+            const getJakartaHour = () => {
+                return new Date(Date.now() + 7 * 3600000).getUTCHours();
+            };
 
-                if (currentHour < 16) {
-                    Swal.fire({
-                        title: 'Konfirmasi Absen Pulang',
-                        text: 'Anda akan melakukan absen pulang sebelum jam pulang (16.00). Apakah Anda yakin ingin pulang lebih awal?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#006c49',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ya, Pulang Sekarang',
-                        cancelButtonText: 'Batal',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            this.executeAbsen(type);
-                        }
-                    });
+            const currentHour = getJakartaHour();
+
+            // Konfirmasi jika pulang sebelum jam 16:00 WIB
+            if (currentHour < 16) {
+                const earlyConfirm = await Swal.fire({
+                    title: 'Konfirmasi Absen Pulang',
+                    text: 'Anda akan melakukan absen pulang sebelum jam pulang (16.00). Apakah Anda yakin ingin pulang lebih awal?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#006c49',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Lanjut Pulang',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                });
+
+                if (!earlyConfirm.isConfirmed) {
                     return;
                 }
             }
 
-            this.executeAbsen(type);
+            // Modal input logbook kegiatan harian (wajib diisi)
+            const { value: logbook, isConfirmed } = await Swal.fire({
+                title: 'Logbook Kegiatan Hari Ini',
+                text: 'Tuliskan ringkasan kegiatan atau tugas yang Anda selesaikan hari ini sebelum check-out.',
+                input: 'textarea',
+                inputPlaceholder: 'Contoh: Menyelesaikan slicing halaman dashboard dan testing respon API...',
+                inputAttributes: {
+                    'rows': 4,
+                    'maxlength': 1000,
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#006c49',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Simpan & Check-out',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return 'Logbook kegiatan wajib diisi!';
+                    }
+                }
+            });
+
+            if (!isConfirmed || !logbook || !logbook.trim()) {
+                return;
+            }
+
+            await this.executeAbsen('pulang', logbook.trim());
         },
 
-        async executeAbsen(type) {
+        async executeAbsen(type, logbook = null) {
             this.loading = true;
             try {
+                const payload = {
+                    latitude:  this.latitude,
+                    longitude: this.longitude,
+                    type,
+                };
+
+                if (type === 'pulang') {
+                    payload.logbook = logbook;
+                }
+
                 const res  = await fetch('{{ route('attendance.store') }}', {
                     method:  'POST',
                     headers: {
                         'Content-Type':  'application/json',
+                        'Accept':        'application/json',
                         'X-CSRF-TOKEN':  document.querySelector('meta[name="csrf-token"]').content,
                     },
-                    body: JSON.stringify({
-                        latitude:  this.latitude,
-                        longitude: this.longitude,
-                        type,
-                    }),
+                    body: JSON.stringify(payload),
                 });
                 const data = await res.json();
 
-                if (data.success) {
+                if (res.ok && data.success) {
                     this.showFlash(data.message, true);
                     if (type === 'masuk') {
                         this.jamMasuk    = data.jam_masuk;
@@ -470,10 +508,15 @@ function attendanceApp() {
                         this.absenDone   = true;
                     }
                 } else {
-                    this.showFlash(data.message, false);
+                    let errorMsg = data.message || 'Gagal memproses absensi.';
+                    if (data.errors) {
+                        const firstError = Object.values(data.errors).flat()[0];
+                        if (firstError) errorMsg = firstError;
+                    }
+                    this.showFlash(errorMsg, false);
                 }
             } catch {
-                this.showFlash('Terjadi kesalahan. Coba lagi.', false);
+                this.showFlash('Terjadi kesalahan jaringan atau server. Coba lagi.', false);
             } finally {
                 this.loading = false;
             }
