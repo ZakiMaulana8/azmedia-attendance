@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('geofences', function (Blueprint $table) {
+        Schema::create('geofence', function (Blueprint $table) {
             $table->id();
             $table->string('nama_lokasi');
             $table->decimal('latitude', 10, 7);
@@ -21,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('geofences');
+        Schema::dropIfExists('geofence');
     }
 };

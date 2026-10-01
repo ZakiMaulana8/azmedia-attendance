@@ -16,12 +16,12 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable(); // nullable karena login via Google
-            $table->enum('role', ['admin', 'guru', 'siswa'])->default('siswa');
+            $table->enum('role', ['admin', 'siswa', 'karyawan', 'guru_pembimbing'])->default('siswa');
             $table->string('nis_nip')->nullable()->comment('NIS untuk siswa magang, NIP untuk guru pembimbing');
             $table->string('asal_sekolah')->nullable()->comment('Nama sekolah asal siswa magang');
             $table->string('jurusan')->nullable()->comment('Jurusan siswa magang');
-            $table->date('tanggal_mulai')->nullable()->comment('Tanggal mulai magang');
-            $table->date('tanggal_selesai')->nullable()->comment('Tanggal selesai magang');
+            $table->date('tanggal_mulai')->nullable()->comment('DEPRECATED — gunakan penempatan_pkl.tanggal_mulai');
+            $table->date('tanggal_selesai')->nullable()->comment('DEPRECATED — gunakan penempatan_pkl.tanggal_selesai');
             $table->string('phone')->nullable();
             $table->rememberToken();
             $table->timestamps();

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('permissions', function (Blueprint $table) {
+        Schema::create('izin', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('approver_id')
@@ -23,11 +23,14 @@ return new class extends Migration
             $table->text('catatan_approver')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamps();
+
+            $table->index(['user_id', 'tanggal']);
+            $table->index('status');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('permissions');
+        Schema::dropIfExists('izin');
     }
 };

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('activity_reports', function (Blueprint $table) {
+        Schema::create('laporan_kegiatan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->date('tanggal');
@@ -18,10 +18,10 @@ return new class extends Migration
         });
 
         // File lampiran (bisa lebih dari satu per laporan)
-        Schema::create('activity_report_files', function (Blueprint $table) {
+        Schema::create('lampiran_laporan_kegiatan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('activity_report_id')
-                  ->constrained()
+            $table->foreignId('laporan_kegiatan_id')
+                  ->constrained('laporan_kegiatan')
                   ->cascadeOnDelete();
             $table->string('original_name');   // nama file asli
             $table->string('path');            // path di storage
@@ -33,7 +33,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('activity_report_files');
-        Schema::dropIfExists('activity_reports');
+        Schema::dropIfExists('lampiran_laporan_kegiatan');
+        Schema::dropIfExists('laporan_kegiatan');
     }
 };
