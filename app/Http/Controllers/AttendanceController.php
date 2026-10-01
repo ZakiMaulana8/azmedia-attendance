@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\Geofence;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AttendanceController extends Controller
 {
@@ -18,6 +20,10 @@ class AttendanceController extends Controller
             'latitude'  => ['required', 'numeric'],
             'longitude' => ['required', 'numeric'],
             'type'      => ['required', 'in:masuk,pulang'],
+            'logbook'   => [
+                Rule::requiredIf($request->type === 'pulang'),
+                $request->type === 'pulang' ? 'string' : 'nullable',
+            ],
         ]);
 
         $user     = $request->user();
@@ -29,10 +35,11 @@ class AttendanceController extends Controller
         ]);
 
         // Validasi geofence
+        $distance = null;
         if ($geofence) {
             $distance = $this->haversine(
-                $request->latitude, $request->longitude,
-                $geofence->latitude, $geofence->longitude
+                (float) $request->latitude, (float) $request->longitude,
+                (float) $geofence->latitude, (float) $geofence->longitude
             );
 
             if ($distance > $geofence->radius) {
@@ -48,15 +55,22 @@ class AttendanceController extends Controller
             ['status'  => 'hadir']
         );
 
+        $nowInWib = Carbon::now('Asia/Jakarta');
+
         if ($request->type === 'masuk') {
             if ($attendance->jam_masuk) {
                 return response()->json(['success' => false, 'message' => 'Anda sudah absen masuk hari ini.'], 422);
             }
+
+            $isLate = $nowInWib->format('H:i') > '08:00';
+
             $attendance->update([
-                'jam_masuk' => now()->format('H:i:s'),
-                'lat_masuk' => $request->latitude,
-                'lng_masuk' => $request->longitude,
-                'status'    => now()->format('H:i') > '08:00' ? 'terlambat' : 'hadir',
+                'jam_masuk'   => $nowInWib->format('H:i:s'),
+                'lat_masuk'   => $request->latitude,
+                'lng_masuk'   => $request->longitude,
+                'jarak_masuk' => $distance !== null ? round($distance, 2) : null,
+                'status'      => 'hadir',
+                'keterangan'  => $isLate ? 'Terlambat' : null,
             ]);
         } else {
             if (! $attendance->jam_masuk) {
@@ -64,25 +78,32 @@ class AttendanceController extends Controller
             }
 
             // Pengecekan jam kerja berakhir (16:00 WIB)
-            $nowInWib = now('Asia/Jakarta');
             $statusPulang = $nowInWib->hour < 16 ? 'Pulang Cepat' : 'Pulang Tepat Waktu';
 
-            $attendance->update([
-                'jam_pulang' => $nowInWib->format('H:i:s'),
-                'lat_pulang' => $request->latitude,
-                'lng_pulang' => $request->longitude,
-                'keterangan' => $statusPulang,
-            ]);
+            $keterangan = $attendance->keterangan
+                ? $attendance->keterangan . ', ' . $statusPulang
+                : $statusPulang;
+
+            $updateData = [
+                'jam_pulang'   => $nowInWib->format('H:i:s'),
+                'lat_pulang'   => $request->latitude,
+                'lng_pulang'   => $request->longitude,
+                'jarak_pulang' => $distance !== null ? round($distance, 2) : null,
+                'keterangan'   => $keterangan,
+                'logbook'      => $request->logbook,
+            ];
+
+            $attendance->update($updateData);
         }
 
         return response()->json([
             'success'    => true,
             'message'    => $request->type === 'masuk' ? 'Absen masuk berhasil!' : 'Absen pulang berhasil!',
             'jam_masuk'  => $attendance->fresh()->jam_masuk
-                                ? \Carbon\Carbon::parse($attendance->fresh()->jam_masuk)->format('H:i')
+                                ? Carbon::parse($attendance->fresh()->jam_masuk)->format('H:i')
                                 : null,
             'jam_pulang' => $attendance->fresh()->jam_pulang
-                                ? \Carbon\Carbon::parse($attendance->fresh()->jam_pulang)->format('H:i')
+                                ? Carbon::parse($attendance->fresh()->jam_pulang)->format('H:i')
                                 : null,
             'status'     => $attendance->fresh()->status,
             'keterangan' => $attendance->fresh()->keterangan,

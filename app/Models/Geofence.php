@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Geofence extends Model
 {
+    protected $table = 'geofence';
+
     protected $fillable = [
         'nama_lokasi',
         'latitude',
