@@ -62,7 +62,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Permissions — guru (approval)
     Route::get('/permissions/approvals', [PermissionController::class, 'approvals'])->name('permissions.approvals');
-    Route::get('/permissions/{permission}', [PermissionController::class, 'show'])->name('permissions.show');
     Route::patch('/permissions/{permission}/approve', [PermissionController::class, 'approve'])
         ->name('permissions.approve')
         ->middleware('can:update,permission');

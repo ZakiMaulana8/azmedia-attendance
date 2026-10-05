@@ -71,14 +71,6 @@ class PermissionController extends Controller
         return view('permissions.approvals', compact('permissions', 'status'));
     }
 
-    /** Detail satu izin — guru bisa lihat + approve/tolak di sini */
-    public function show(Permission $permission): View
-    {
-        $permission->load('user', 'approver');
-
-        return view('permissions.show', compact('permission'));
-    }
-
     /** Approve / tolak via AJAX (dari dashboard card atau halaman detail) */
     public function approve(Request $request, Permission $permission): JsonResponse
     {
