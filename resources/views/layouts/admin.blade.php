@@ -27,6 +27,17 @@
         <span class="text-body-lg">Geofence</span>
     </a>
 </nav>
+
+{{-- Aksi akun: Keluar Sesi (route logout bawaan, POST + CSRF) --}}
+<form method="POST" action="{{ route('logout') }}" class="mt-auto pt-md border-t border-outline-variant/50">
+    @csrf
+    <button type="submit"
+            class="w-full flex items-center gap-md p-sm rounded-xl border border-red-200 text-red-600 font-bold
+                   hover:bg-red-50 active:scale-95 transition-all">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="text-body-lg">Keluar Sesi</span>
+    </button>
+</form>
 @endsection
 
 @section('content')

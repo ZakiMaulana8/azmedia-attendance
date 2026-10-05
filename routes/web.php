@@ -67,15 +67,18 @@ Route::middleware(['auth'])->group(function () {
         ->name('permissions.approve')
         ->middleware('can:update,permission');
 
-    // Admin: Geofence settings
-    Route::get('/admin/geofence', [GeofenceController::class, 'index'])->name('admin.geofence');
-    Route::post('/admin/geofence', [GeofenceController::class, 'store'])->name('admin.geofence.store');
+    // Admin area — hanya role `admin` (middleware: auth + admin)
+    Route::middleware('admin')->group(function () {
+        // Admin: Geofence settings
+        Route::get('/admin/geofence', [GeofenceController::class, 'index'])->name('admin.geofence');
+        Route::post('/admin/geofence', [GeofenceController::class, 'store'])->name('admin.geofence.store');
 
-    // Admin: User Management (Siswa & Guru)
-    Route::get('/admin/siswa', [AdminUserController::class, 'indexSiswa'])->name('admin.siswa.index');
-    Route::get('/admin/guru', [AdminUserController::class, 'indexGuru'])->name('admin.guru.index');
-    Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+        // Admin: User Management (Siswa & Guru)
+        Route::get('/admin/siswa', [AdminUserController::class, 'indexSiswa'])->name('admin.siswa.index');
+        Route::get('/admin/guru', [AdminUserController::class, 'indexGuru'])->name('admin.guru.index');
+        Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+    });
 });
 
 require __DIR__ . '/auth.php';
