@@ -5,8 +5,8 @@
 <div class="min-h-full">
 
     {{-- ── Hero Header ─────────────────────────────────────────────── --}}
-    <section class="relative bg-primary overflow-hidden text-white"
-             style="border-radius: 0 0 32px 32px;">
+    <section class="relative overflow-hidden text-white"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 0 0 32px 32px;">
         {{-- Ornamen dekoratif latar belakang --}}
         <div class="pointer-events-none absolute -top-10 -right-10 w-48 h-48 rounded-full"
              style="background: rgba(255,255,255,0.07)"></div>
@@ -39,10 +39,10 @@
 
         {{-- Flash status notification --}}
         @if(session('status'))
-        <div class="flex items-center gap-sm bg-emerald-50 border border-emerald-200 rounded-2xl px-md py-sm shadow-sm">
-            <span class="material-symbols-outlined text-emerald-600 text-[18px] flex-shrink-0"
+        <div class="flex items-center gap-3 bg-[#D1FAE5] border border-[#6EE7B7] rounded-2xl px-4 py-3 shadow-sm">
+            <span class="material-symbols-outlined text-[#059669] text-[18px] flex-shrink-0"
                   style="font-variation-settings:'FILL' 1">check_circle</span>
-            <p class="text-[13px] text-emerald-800 font-semibold">{{ session('status') }}</p>
+            <p class="text-[13px] text-[#065F46] font-semibold">{{ session('status') }}</p>
         </div>
         @endif
 
@@ -80,10 +80,10 @@
                     {{-- Role badge dinamis --}}
                     @php
                         $roleBadge = match($user->role) {
-                            'admin'    => ['label' => 'Administrator',    'class' => 'bg-tertiary-container text-on-tertiary-container', 'icon' => 'admin_panel_settings'],
-                            'guru'     => ['label' => 'Guru Pembimbing', 'class' => 'bg-secondary-container text-on-secondary-container', 'icon' => 'supervisor_account'],
-                            'karyawan' => ['label' => 'Karyawan',        'class' => 'bg-emerald-100 text-emerald-800 border border-emerald-200/80', 'icon' => 'badge'],
-                            default    => ['label' => 'Siswa Magang',    'class' => 'bg-primary-container text-on-primary-container', 'icon' => 'school'],
+                            'admin'    => ['label' => 'Administrator',    'class' => 'bg-[#EDE9FE] text-[#5B21B6]', 'icon' => 'admin_panel_settings'],
+                            'guru'     => ['label' => 'Guru Pembimbing', 'class' => 'bg-[#EFF6FF] text-[#1D4ED8]', 'icon' => 'supervisor_account'],
+                            'karyawan' => ['label' => 'Karyawan',        'class' => 'bg-[#DBEAFE] text-[#1E40AF]', 'icon' => 'badge'],
+                            default    => ['label' => 'Siswa Magang',    'class' => 'bg-[#DBEAFE] text-[#2563EB]', 'icon' => 'school'],
                         };
                     @endphp
                     <span class="inline-flex items-center gap-1.5 text-[11px] sm:text-[12px] font-extrabold px-3.5 py-1.5 rounded-full {{ $roleBadge['class'] }}">
@@ -209,10 +209,10 @@
 
                         <div class="pt-2 flex justify-end">
                             <button type="submit"
-                                    class="w-full sm:w-auto sm:min-w-[180px] h-touch-target px-6 rounded-xl font-extrabold text-[14px] text-white
+                                    class="w-full sm:w-auto sm:min-w-[180px] h-touch-target px-6 rounded-2xl font-extrabold text-[14px] text-white
                                            flex items-center justify-center gap-2
-                                           transition-all duration-200 hover:brightness-105 active:scale-[0.98]"
-                                    style="background: #006c49; box-shadow: 0 4px 16px rgba(0,108,73,0.3);">
+                                           transition-all duration-200 hover:bg-[#1D4ED8] active:scale-[0.98]"
+                                    style="background: #2563EB; box-shadow: 0 4px 16px rgba(37,99,235,0.30);">
                                 <span class="material-symbols-outlined text-[18px]">save</span>
                                 Simpan Perubahan
                             </button>
@@ -293,7 +293,7 @@
                 {{-- Info Pembimbing Sekolah (Khusus Guru) --}}
                 <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm p-5 sm:p-6 space-y-4">
                     <div class="flex items-center gap-3 pb-3 border-b border-outline-variant/40">
-                        <div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center flex-shrink-0">
+                        <div class="w-10 h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined text-[20px]"
                                   style="font-variation-settings:'FILL' 1">supervisor_account</span>
                         </div>
@@ -323,7 +323,7 @@
                 {{-- Informasi Akun (Karyawan / Administrator) --}}
                 <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm p-5 sm:p-6 space-y-4">
                     <div class="flex items-center gap-3 pb-3 border-b border-outline-variant/40">
-                        <div class="w-10 h-10 rounded-xl {{ $user->isAdmin() ? 'bg-tertiary-container text-on-tertiary-container' : 'bg-emerald-100 text-emerald-800' }} flex items-center justify-center flex-shrink-0">
+                        <div class="w-10 h-10 rounded-xl {{ $user->isAdmin() ? 'bg-[#EDE9FE] text-[#5B21B6]' : 'bg-[#DBEAFE] text-[#1E40AF]' }} flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined text-[20px]"
                                   style="font-variation-settings:'FILL' 1">{{ $user->isAdmin() ? 'admin_panel_settings' : 'badge' }}</span>
                         </div>

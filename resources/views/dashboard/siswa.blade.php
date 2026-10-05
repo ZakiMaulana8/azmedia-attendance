@@ -34,346 +34,309 @@
 @endphp
 
 @section('content')
-<div class="max-w-lg mx-auto" x-data="attendanceApp()">
+<div style="min-height: 100vh; background: #F4F8FF; padding-bottom: 80px; position: relative; overflow: hidden;" x-data="attendanceApp()">
 
-    {{-- ════════════════════════════════════════════════════════════
-         HERO HEADER
-    ════════════════════════════════════════════════════════════ --}}
-    <section class="relative bg-primary overflow-hidden" style="border-radius: 0 0 32px 32px;">
+    {{-- Watermark logo A halus di background --}}
+    <div style="position: absolute; top: -10px; left: -10px; width: 220px; height: 220px; opacity: 0.025; color: #2563EB; pointer-events: none; z-index: 0;">
+        <svg viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50 5 L95 90 L70 90 L50 45 L30 90 L5 90 Z"/>
+        </svg>
+    </div>
 
-        {{-- Ornamen lingkaran dekoratif --}}
-        <div class="pointer-events-none absolute -top-12 -right-12 w-48 h-48 rounded-full"
-             style="background: rgba(255,255,255,0.08)"></div>
-        <div class="pointer-events-none absolute top-8 -right-4 w-28 h-28 rounded-full"
-             style="background: rgba(255,255,255,0.06)"></div>
-        <div class="pointer-events-none absolute bottom-0 left-0 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.04)"></div>
+    <div style="max-width: 672px; margin: 0 auto; padding: 16px; position: relative; z-index: 10;">
 
-        <div class="relative z-10 px-md pt-lg">
+        {{-- ════════════════════════════════════════════════════════════
+             1. GREETING CARD — SOLID BLUE GRADIENT (KONTRAS HIGH & RESPONSIVE)
+        ════════════════════════════════════════════════════════════ --}}
+        <section style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E40AF 100%); border-radius: 24px; padding: 24px; color: #ffffff; box-shadow: 0 10px 30px rgba(37,99,235,0.25); position: relative; overflow: hidden; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
 
-            {{-- ── Baris Greeting + Kalender ── --}}
-            <div class="flex items-start justify-between mb-lg">
+            {{-- Ornamen Lingkaran Transparan --}}
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; border-radius: 9999px; background: rgba(255,255,255,0.1); filter: blur(20px); pointer-events: none;"></div>
+            <div style="position: absolute; bottom: -40px; left: -40px; width: 160px; height: 160px; border-radius: 9999px; background: rgba(59,130,246,0.2); filter: blur(16px); pointer-events: none;"></div>
 
-                {{-- Kiri: salam & nama --}}
-                <div class="flex-1 min-w-0 pr-md">
-                    {{-- Salam waktu (kecil, elegan) --}}
-                    <p class="text-white/70 text-[13px] font-medium tracking-wide mb-1">
-                        {{ $greetIcon }} {{ $greeting }}
-                    </p>
-                    {{-- Nama (besar & bold) --}}
-                    <h2 class="text-white font-extrabold truncate"
-                        style="font-size: 26px; line-height: 32px; letter-spacing: -0.02em;">
-                        Halo, {{ $user->name }}!
-                    </h2>
-                    {{-- Quote motivasi --}}
-                    <p class="text-white/55 text-[12px] leading-[18px] mt-2 max-w-[200px]">
-                        {{ $quote }}
-                    </p>
-                </div>
+            <div style="position: relative; z-index: 10; width: 100%;">
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: nowrap; width: 100%;">
 
-                {{-- Kanan: kalender tanggal --}}
-                <div class="flex-shrink-0 text-center rounded-2xl px-3 py-2.5 min-w-[72px]"
-                     style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
-                    <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
-                        {{ $now->translatedFormat('D') }}
-                    </p>
-                    <p class="text-white font-black leading-none"
-                       style="font-size: 38px; letter-spacing: -0.03em; line-height: 1;">
-                        {{ $now->format('d') }}
-                    </p>
-                    <p class="text-white/80 text-[11px] font-semibold uppercase tracking-wider mt-1 leading-none">
-                        {{ $now->translatedFormat('M Y') }}
-                    </p>
-                </div>
-            </div>
-
-            {{-- ── Flash Notification ── --}}
-            <div x-show="flashMsg"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 -translate-y-1"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 :class="flashSuccess ? 'border-white/30' : 'border-red-300/40'"
-                 class="mb-md flex items-center gap-sm rounded-xl px-md py-sm text-white text-[13px] font-semibold border"
-                 style="background: rgba(255,255,255,0.15)">
-                <span class="material-symbols-outlined text-[17px]"
-                      x-text="flashSuccess ? 'check_circle' : 'error'"></span>
-                <span x-text="flashMsg"></span>
-            </div>
-
-            {{-- ── Kartu Jam Masuk & Pulang ── --}}
-            <div class="grid grid-cols-2 gap-sm pb-lg">
-
-                {{-- Jam Masuk --}}
-                <div class="bg-white/95 backdrop-blur-md rounded-2xl p-md border border-white/40 shadow-sm transition-all">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-xs">
-                            <span class="material-symbols-outlined text-primary text-[16px]">login</span>
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant">
-                                Jam Masuk
-                            </span>
-                        </div>
-                        <span class="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/60">
-                            Fleksibel
-                        </span>
+                    {{-- Kiri: Salam, Nama & Quote (Tampil Lengkap & Tidak Terpotong) --}}
+                    <div style="flex: 1 1 auto; min-width: 0;">
+                        <p style="color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 600; margin: 0 0 6px 0; display: flex; align-items: center; gap: 6px;">
+                            <span>{{ $greetIcon }}</span> <span>{{ $greeting }}</span>
+                        </p>
+                        <h2 style="color: #ffffff; font-size: 22px; font-weight: 800; line-height: 1.35; letter-spacing: -0.01em; margin: 0; word-break: break-word; overflow-wrap: break-word; white-space: normal; text-overflow: clip; overflow: visible;">
+                            Halo, {{ $user->name }}!
+                        </h2>
+                        <p style="color: rgba(255,255,255,0.85); font-size: 12px; font-weight: 500; margin-top: 6px; margin-bottom: 0; line-height: 1.5; word-break: break-word; overflow-wrap: break-word; white-space: normal;">
+                            {{ $quote }}
+                        </p>
                     </div>
 
-                    <p class="font-black text-on-surface"
-                       style="font-size: 24px; line-height: 1; letter-spacing: -0.02em;"
-                       :class="jamMasuk ? 'text-on-surface' : 'text-on-surface-variant/40'"
-                       x-text="jamMasuk || '--:--'">--:--</p>
-
-                    <div class="mt-2.5">
-                        <template x-if="jamMasuk">
-                            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                <span class="material-symbols-outlined text-[13px]">check_circle</span>
-                                <span>Hadir</span>
-                            </span>
-                        </template>
-                        <template x-if="!jamMasuk">
-                            <span class="inline-flex items-center gap-1 text-[11px] font-medium text-on-surface-variant/70 bg-surface-container/60 px-2 py-0.5 rounded-full">
-                                <span class="material-symbols-outlined text-[13px] text-outline">hourglass_empty</span>
-                                <span>Belum Absen</span>
-                            </span>
-                        </template>
+                    {{-- Kanan: Card Tanggal Glassmorphism (Ukuran Utuh, Tidak Boleh Terpotong) --}}
+                    <div style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.38); backdrop-filter: blur(10px); border-radius: 16px; padding: 10px 14px; text-align: center; min-width: 80px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box;">
+                        <p style="color: rgba(255,255,255,0.9); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; line-height: 1.2;">
+                            {{ $now->translatedFormat('D') }}
+                        </p>
+                        <p style="color: #ffffff; font-size: 28px; font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; margin: 2px 0;">
+                            {{ $now->format('d') }}
+                        </p>
+                        <p style="color: rgba(255,255,255,0.95); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin: 0; line-height: 1.2; white-space: nowrap;">
+                            {{ $now->translatedFormat('M Y') }}
+                        </p>
                     </div>
                 </div>
 
-                {{-- Jam Pulang --}}
-                <div class="bg-white/95 backdrop-blur-md rounded-2xl p-md border border-white/40 shadow-sm transition-all">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-xs">
-                            <span class="material-symbols-outlined text-amber-600 text-[16px]">logout</span>
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant">
-                                Jam Pulang
-                            </span>
-                        </div>
-                        <span class="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/60">
-                            Fleksibel
-                        </span>
-                    </div>
-
-                    <p class="font-black text-on-surface"
-                       style="font-size: 24px; line-height: 1; letter-spacing: -0.02em;"
-                       :class="jamPulang ? 'text-on-surface' : 'text-on-surface-variant/40'"
-                       x-text="jamPulang || '--:--'">--:--</p>
-
-                    <div class="mt-2.5">
-                        <template x-if="jamPulang">
-                            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                <span class="material-symbols-outlined text-[13px]">task_alt</span>
-                                <span>Sudah Pulang</span>
-                            </span>
-                        </template>
-                        <template x-if="!jamPulang">
-                            <span class="inline-flex items-center gap-1 text-[11px] font-medium text-on-surface-variant/70 bg-surface-container/60 px-2 py-0.5 rounded-full">
-                                <span class="material-symbols-outlined text-[13px] text-outline">hourglass_empty</span>
-                                <span>Belum Absen</span>
-                            </span>
-                        </template>
-                    </div>
+                {{-- Alert Pesan Lokasi / Flash Notification (Modern Soft Red Alert, Dynamic Height & Full Wrapping) --}}
+                @if(session('error'))
+                <div style="background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; box-shadow: 0 4px 14px rgba(220,38,38,0.12); margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; border-radius: 16px; padding: 14px 16px; font-size: 13px; font-weight: 600; line-height: 1.5; width: 100%; box-sizing: border-box; height: auto;">
+                    <span class="material-symbols-outlined" style="color: #DC2626; font-size: 22px; flex-shrink: 0; margin-top: 1px;">error</span>
+                    <span style="flex: 1; word-break: break-word; white-space: normal; height: auto;">{{ session('error') }}</span>
                 </div>
-
-            </div>
-        </div>
-    </section>
-
-    {{-- ════════════════════════════════════════════════════════════
-         TOMBOL ABSEN
-    ════════════════════════════════════════════════════════════ --}}
-    <section class="flex flex-col items-center py-xl px-md">
-
-        {{-- Lingkaran efek background --}}
-        <div class="relative flex items-center justify-center mb-lg">
-            {{-- Ring luar --}}
-            <div class="absolute w-52 h-52 rounded-full border-2 border-primary/10 animate-ping"
-                 style="animation-duration: 3s;"></div>
-            <div class="absolute w-44 h-44 rounded-full border border-primary/15"></div>
-
-            {{-- Tombol utama --}}
-            <button @click="doAbsen"
-                    :disabled="loading || absenDone"
-                    class="relative w-36 h-36 rounded-full flex flex-col items-center justify-center
-                           bg-primary text-white transition-all duration-200 active:scale-90 disabled:opacity-50
-                           focus:outline-none focus:ring-4 focus:ring-primary/30 shadow-lg"
-                    style="box-shadow: 0 8px 32px rgba(0,108,73,0.45), 0 2px 8px rgba(0,108,73,0.2);">
-
-                {{-- Shimmer overlay --}}
-                <div class="absolute inset-0 rounded-full pointer-events-none"
-                     style="background: linear-gradient(145deg, rgba(255,255,255,0.18) 0%, transparent 60%)"></div>
-
-                <span class="material-symbols-outlined relative z-10"
-                      style="font-size: 56px; font-variation-settings: 'wght' 200, 'FILL' 0;"
-                      x-text="loading ? 'hourglass_top' : 'fingerprint'">fingerprint</span>
-
-                <span class="text-[11px] font-extrabold uppercase tracking-widest relative z-10 mt-1"
-                      x-text="buttonLabel">
-                    @if($today?->jam_masuk && !$today?->jam_pulang)
-                        Absen Pulang
-                    @elseif(!$today?->jam_masuk)
-                        Absen Masuk
-                    @else
-                        Selesai
-                    @endif
-                </span>
-            </button>
-        </div>
-
-        {{-- Indikator Lokasi Kantor --}}
-        <div class="flex items-center gap-xs rounded-full px-md py-2 border transition-all duration-300"
-             :class="locationVerified
-                ? 'bg-emerald-50 border-emerald-200'
-                : 'bg-amber-50 border-amber-200'">
-            <span class="material-symbols-outlined text-[15px]"
-                  :class="locationVerified ? 'text-emerald-600' : 'text-amber-500'"
-                  style="font-variation-settings:'FILL' 1">location_on</span>
-            <p class="text-[12px] font-semibold"
-               :class="locationVerified ? 'text-emerald-700' : 'text-amber-600'"
-               x-text="locationLabel">Mendapatkan lokasi...</p>
-        </div>
-
-        <p class="mt-2 text-[11px] text-on-surface-variant/60 font-medium">
-            {{ $user->asal_sekolah ?? 'Azmedia Office' }}
-        </p>
-    </section>
-
-    {{-- ════════════════════════════════════════════════════════════
-         LAYANAN CEPAT
-    ════════════════════════════════════════════════════════════ --}}
-    <section class="px-md mb-lg">
-        <h3 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/70 mb-md">
-            Layanan Cepat
-        </h3>
-
-        <div class="space-y-sm">
-
-            {{-- Izin --}}
-            <a href="{{ route('permissions.create') }}"
-               class="flex items-center gap-md bg-white border border-outline-variant/60
-                      rounded-2xl px-md py-3.5 shadow-sm
-                      active:scale-[0.98] active:bg-surface-container transition-all duration-150 group">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                     style="background: rgba(0,108,73,0.10);">
-                    <span class="material-symbols-outlined text-primary text-[20px]"
-                          style="font-variation-settings:'FILL' 1">event_busy</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[14px] font-bold text-on-surface">Pengajuan Izin</p>
-                    <p class="text-[12px] text-on-surface-variant mt-0.5">Ajukan dan kelola izin absensi</p>
-                </div>
-                <span class="material-symbols-outlined text-[18px] text-outline/60 group-active:translate-x-0.5 transition-transform">
-                    chevron_right
-                </span>
-            </a>
-
-            {{-- Laporan --}}
-            <a href="{{ route('reports.index') }}"
-               class="flex items-center gap-md bg-white border border-outline-variant/60
-                      rounded-2xl px-md py-3.5 shadow-sm
-                      active:scale-[0.98] active:bg-surface-container transition-all duration-150 group">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                     style="background: rgba(133,83,0,0.10);">
-                    <span class="material-symbols-outlined text-secondary text-[20px]"
-                          style="font-variation-settings:'FILL' 1">bar_chart</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[14px] font-bold text-on-surface">Laporan Kehadiran</p>
-                    <p class="text-[12px] text-on-surface-variant mt-0.5">Riwayat dan rekap absensi</p>
-                </div>
-                <span class="material-symbols-outlined text-[18px] text-outline/60 group-active:translate-x-0.5 transition-transform">
-                    chevron_right
-                </span>
-            </a>
-
-            {{-- Kegiatan --}}
-            <a href="{{ route('activity-reports.index') }}"
-               class="flex items-center gap-md bg-white border border-outline-variant/60
-                      rounded-2xl px-md py-3.5 shadow-sm
-                      active:scale-[0.98] active:bg-surface-container transition-all duration-150 group">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                     style="background: rgba(164,58,58,0.10);">
-                    <span class="material-symbols-outlined text-tertiary text-[20px]"
-                          style="font-variation-settings:'FILL' 1">photo_library</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[14px] font-bold text-on-surface">Laporan Kegiatan</p>
-                    <p class="text-[12px] text-on-surface-variant mt-0.5">Upload dan kelola dokumentasi kegiatan</p>
-                </div>
-                <span class="material-symbols-outlined text-[18px] text-outline/60 group-active:translate-x-0.5 transition-transform">
-                    chevron_right
-                </span>
-            </a>
-
-        </div>
-    </section>
-
-    {{-- ════════════════════════════════════════════════════════════
-         INFO MAGANG
-    ════════════════════════════════════════════════════════════ --}}
-    @if($user->tanggal_mulai && $user->tanggal_selesai)
-    @php $progress = $user->progressMagang(); $sisa = $user->sisaHariMagang(); @endphp
-    <section class="px-md mb-xl">
-        <div class="bg-white border border-outline-variant/60 rounded-2xl p-md shadow-sm">
-
-            {{-- Header --}}
-            <div class="flex items-center gap-sm mb-md">
-                <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary text-[18px]"
-                          style="font-variation-settings:'FILL' 1">business_center</span>
-                </div>
-                <p class="text-[15px] font-bold text-on-surface">Informasi Magang</p>
-            </div>
-
-            {{-- Grid detail --}}
-            <div class="grid grid-cols-2 gap-sm mb-md">
-                <div class="bg-surface-container/50 rounded-xl p-sm">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Asal Sekolah</p>
-                    <p class="text-[13px] font-semibold text-on-surface leading-tight">
-                        {{ $user->asal_sekolah ?? '—' }}
-                    </p>
-                </div>
-                <div class="bg-surface-container/50 rounded-xl p-sm">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Jurusan</p>
-                    <p class="text-[13px] font-semibold text-on-surface leading-tight">
-                        {{ $user->jurusan ?? '—' }}
-                    </p>
-                </div>
-                <div class="bg-surface-container/50 rounded-xl p-sm">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Tanggal Mulai</p>
-                    <p class="text-[13px] font-semibold text-on-surface">
-                        {{ $user->tanggal_mulai->translatedFormat('d M Y') }}
-                    </p>
-                </div>
-                <div class="bg-surface-container/50 rounded-xl p-sm">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Tanggal Selesai</p>
-                    <p class="text-[13px] font-semibold text-on-surface">
-                        {{ $user->tanggal_selesai->translatedFormat('d M Y') }}
-                    </p>
-                </div>
-            </div>
-
-            {{-- Progress bar --}}
-            <div>
-                <div class="flex justify-between items-center mb-1.5">
-                    <span class="text-[11px] font-semibold text-on-surface-variant">Progress Magang</span>
-                    <span class="text-[12px] font-black text-primary">{{ $progress }}%</span>
-                </div>
-                <div class="w-full bg-surface-container rounded-full h-1.5">
-                    <div class="bg-primary h-1.5 rounded-full transition-all duration-700"
-                         style="width: {{ $progress }}%"></div>
-                </div>
-                @if($sisa !== null)
-                <p class="text-[11px] text-on-surface-variant/70 mt-1.5">
-                    {{ $sisa > 0 ? $sisa . ' hari tersisa' : 'Periode magang telah selesai' }}
-                </p>
                 @endif
+
+                @if(session('success'))
+                <div style="background: #FFFFFF; border: 1px solid #93C5FD; color: #1E40AF; box-shadow: 0 4px 14px rgba(37,99,235,0.12); margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; border-radius: 16px; padding: 14px 16px; font-size: 13px; font-weight: 600; line-height: 1.5; width: 100%; box-sizing: border-box; height: auto;">
+                    <span class="material-symbols-outlined" style="color: #2563EB; font-size: 22px; flex-shrink: 0; margin-top: 1px;">check_circle</span>
+                    <span style="flex: 1; word-break: break-word; white-space: normal; height: auto;">{{ session('success') }}</span>
+                </div>
+                @endif
+
+                <div x-show="flashMsg"
+                     x-transition
+                     :style="flashSuccess
+                        ? 'background: #FFFFFF; border: 1px solid #93C5FD; color: #1E40AF; box-shadow: 0 4px 14px rgba(37,99,235,0.12);'
+                        : 'background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; box-shadow: 0 4px 14px rgba(220,38,38,0.12);'"
+                     style="margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; border-radius: 16px; padding: 14px 16px; font-size: 13px; font-weight: 600; line-height: 1.5; width: 100%; box-sizing: border-box; height: auto;">
+                    <span class="material-symbols-outlined"
+                          :style="flashSuccess ? 'color: #2563EB;' : 'color: #DC2626;'"
+                          style="font-size: 22px; flex-shrink: 0; margin-top: 1px;"
+                          x-text="flashSuccess ? 'check_circle' : 'error'"></span>
+                    <span x-text="flashMsg" style="flex: 1; word-break: break-word; white-space: normal; height: auto; display: block;"></span>
+                </div>
+            </div>
+        </section>
+
+        {{-- ════════════════════════════════════════════════════════════
+             2. CARD JAM MASUK & JAM PULANG
+        ════════════════════════════════════════════════════════════ --}}
+        <section style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px;">
+
+            {{-- Jam Masuk --}}
+            <div style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 16px; box-shadow: 0 4px 16px rgba(37,99,235,0.06); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-outlined" style="color: #2563EB; font-size: 18px;">login</span>
+                            <span style="color: #0F172A; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;">JAM MASUK</span>
+                        </div>
+                        <span style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 800; font-size: 9px; padding: 2px 8px; border-radius: 9999px;">Fleksibel</span>
+                    </div>
+
+                    <p style="font-weight: 900; font-size: 24px; letter-spacing: -0.02em; margin-top: 4px;"
+                       :style="jamMasuk ? 'color: #0F172A;' : 'color: #0F172A;'"
+                       x-text="jamMasuk || '--:--'">--:--</p>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <template x-if="jamMasuk">
+                        <span style="display: inline-flex; align-items: center; gap: 4px; background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 700; font-size: 11px; padding: 3px 10px; border-radius: 9999px;">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
+                            <span>Hadir</span>
+                        </span>
+                    </template>
+                    <template x-if="!jamMasuk">
+                        <span style="display: inline-flex; align-items: center; gap: 4px; background: #F0F7FF; color: #475569; border: 1px solid #E2E8F0; font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 9999px;">
+                            <span class="material-symbols-outlined" style="font-size: 14px; color: #64748B;">hourglass_empty</span>
+                            <span>Belum Absen</span>
+                        </span>
+                    </template>
+                </div>
             </div>
 
-        </div>
-    </section>
-    @endif
+            {{-- Jam Pulang --}}
+            <div style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 16px; box-shadow: 0 4px 16px rgba(37,99,235,0.06); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-symbols-outlined" style="color: #2563EB; font-size: 18px;">logout</span>
+                            <span style="color: #0F172A; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;">JAM PULANG</span>
+                        </div>
+                        <span style="background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 800; font-size: 9px; padding: 2px 8px; border-radius: 9999px;">Fleksibel</span>
+                    </div>
+
+                    <p style="font-weight: 900; font-size: 24px; letter-spacing: -0.02em; margin-top: 4px;"
+                       :style="jamPulang ? 'color: #0F172A;' : 'color: #0F172A;'"
+                       x-text="jamPulang || '--:--'">--:--</p>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <template x-if="jamPulang">
+                        <span style="display: inline-flex; align-items: center; gap: 4px; background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; font-weight: 700; font-size: 11px; padding: 3px 10px; border-radius: 9999px;">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">task_alt</span>
+                            <span>Sudah Pulang</span>
+                        </span>
+                    </template>
+                    <template x-if="!jamPulang">
+                        <span style="display: inline-flex; align-items: center; gap: 4px; background: #F0F7FF; color: #475569; border: 1px solid #E2E8F0; font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 9999px;">
+                            <span class="material-symbols-outlined" style="font-size: 14px; color: #64748B;">hourglass_empty</span>
+                            <span>Belum Absen</span>
+                        </span>
+                    </template>
+                </div>
+            </div>
+
+        </section>
+
+        {{-- ════════════════════════════════════════════════════════════
+             3. AREA ABSENSI & TOMBOL ABSEN (BIRU KUAT #3B82F6 → #2563EB)
+        ════════════════════════════════════════════════════════════ --}}
+        <section style="background: #EEF5FF; border: 1px solid #DBEAFE; border-radius: 24px; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; margin-bottom: 24px;">
+
+            {{-- Lingkaran Efek Pulse & Glow --}}
+            <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                <div style="position: absolute; width: 176px; height: 176px; border-radius: 9999px; border: 2px solid rgba(37,99,235,0.2);" class="animate-ping"></div>
+
+                {{-- Tombol Utama Absensi --}}
+                <button @click="doAbsen"
+                        :disabled="loading || absenDone"
+                        style="position: relative; width: 144px; height: 144px; border-radius: 28px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; border: none; box-shadow: 0 12px 32px rgba(37,99,235,0.45); cursor: pointer; transition: all 0.2s;"
+                        class="active:scale-95 disabled:opacity-50">
+
+                    <span class="material-symbols-outlined" style="font-size: 52px; color: #ffffff; margin-bottom: 4px;"
+                          x-text="loading ? 'hourglass_top' : 'fingerprint'">fingerprint</span>
+
+                    <span style="color: #ffffff; font-weight: 800; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;"
+                          x-text="buttonLabel">
+                        @if($today?->jam_masuk && !$today?->jam_pulang)
+                            ABSEN PULANG
+                        @elseif(!$today?->jam_masuk)
+                            ABSEN MASUK
+                        @else
+                            SELESAI
+                        @endif
+                    </span>
+                </button>
+            </div>
+
+            {{-- Indikator Status Lokasi --}}
+            <div style="background: #FFFFFF; border: 1px solid #2563EB; border-radius: 9999px; padding: 8px 16px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.1);">
+                <span class="material-symbols-outlined" style="color: #2563EB; font-size: 16px;">location_on</span>
+                <p style="color: #2563EB; font-weight: 700; font-size: 12px; margin: 0;" x-text="locationLabel">📍 Mendapatkan lokasi...</p>
+            </div>
+
+            <p style="color: #64748B; font-weight: 500; font-size: 11px; margin-top: 8px; margin-bottom: 0;">
+                {{ $user->asal_sekolah ?? 'Azmedia Office' }}
+            </p>
+        </section>
+
+        {{-- ════════════════════════════════════════════════════════════
+             4. LAYANAN CEPAT (QUICK SERVICES)
+        ════════════════════════════════════════════════════════════ --}}
+        <section style="margin-bottom: 24px;">
+            <h3 style="color: #475569; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; padding-left: 4px;">Layanan Cepat</h3>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+
+                {{-- Pengajuan Izin --}}
+                <a href="{{ route('permissions.create') }}"
+                   style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 14px; box-shadow: 0 2px 10px rgba(37,99,235,0.04); display: flex; align-items: center; gap: 14px; text-decoration: none;"
+                   class="hover:border-blue-200 transition-all">
+                    <div style="width: 42px; height: 42px; border-radius: 14px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">event_busy</span>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <p style="color: #0F172A; font-weight: 700; font-size: 14px; margin: 0;">Pengajuan Izin</p>
+                        <p style="color: #64748B; font-size: 12px; margin: 2px 0 0 0;">Ajukan dan kelola izin absensi</p>
+                    </div>
+                    <span class="material-symbols-outlined" style="color: #94A3B8; font-size: 18px;">chevron_right</span>
+                </a>
+
+                {{-- Laporan Kehadiran --}}
+                <a href="{{ route('reports.index') }}"
+                   style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 14px; box-shadow: 0 2px 10px rgba(37,99,235,0.04); display: flex; align-items: center; gap: 14px; text-decoration: none;"
+                   class="hover:border-blue-200 transition-all">
+                    <div style="width: 42px; height: 42px; border-radius: 14px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">bar_chart</span>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <p style="color: #0F172A; font-weight: 700; font-size: 14px; margin: 0;">Laporan Kehadiran</p>
+                        <p style="color: #64748B; font-size: 12px; margin: 2px 0 0 0;">Riwayat dan rekap absensi</p>
+                    </div>
+                    <span class="material-symbols-outlined" style="color: #94A3B8; font-size: 18px;">chevron_right</span>
+                </a>
+
+                {{-- Laporan Kegiatan --}}
+                <a href="{{ route('activity-reports.index') }}"
+                   style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 14px; box-shadow: 0 2px 10px rgba(37,99,235,0.04); display: flex; align-items: center; gap: 14px; text-decoration: none;"
+                   class="hover:border-blue-200 transition-all">
+                    <div style="width: 42px; height: 42px; border-radius: 14px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">photo_library</span>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <p style="color: #0F172A; font-weight: 700; font-size: 14px; margin: 0;">Laporan Kegiatan</p>
+                        <p style="color: #64748B; font-size: 12px; margin: 2px 0 0 0;">Upload dan kelola dokumentasi kegiatan</p>
+                    </div>
+                    <span class="material-symbols-outlined" style="color: #94A3B8; font-size: 18px;">chevron_right</span>
+                </a>
+
+            </div>
+        </section>
+
+        {{-- ════════════════════════════════════════════════════════════
+             5. INFORMASI MAGANG
+        ════════════════════════════════════════════════════════════ --}}
+        @if($user->tanggal_mulai && $user->tanggal_selesai)
+        @php $progress = $user->progressMagang(); $sisa = $user->sisaHariMagang(); @endphp
+        <section>
+            <div style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 16px; box-shadow: 0 4px 16px rgba(37,99,235,0.05);">
+
+                {{-- Header --}}
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <div style="width: 32px; height: 32px; border-radius: 10px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">business_center</span>
+                    </div>
+                    <p style="color: #0F172A; font-weight: 800; font-size: 15px; margin: 0;">Informasi Magang</p>
+                </div>
+
+                {{-- Grid Detail --}}
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px;">
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px;">
+                        <p style="color: #64748B; font-weight: 800; font-size: 10px; text-transform: uppercase; margin-bottom: 2px;">Asal Sekolah</p>
+                        <p style="color: #0F172A; font-weight: 700; font-size: 13px; margin: 0;">{{ $user->asal_sekolah ?? 'SMKN 1 BOYOLANGU' }}</p>
+                    </div>
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px;">
+                        <p style="color: #64748B; font-weight: 800; font-size: 10px; text-transform: uppercase; margin-bottom: 2px;">Jurusan</p>
+                        <p style="color: #0F172A; font-weight: 700; font-size: 13px; margin: 0;">{{ $user->jurusan ?? 'RPL' }}</p>
+                    </div>
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px;">
+                        <p style="color: #64748B; font-weight: 800; font-size: 10px; text-transform: uppercase; margin-bottom: 2px;">Tanggal Mulai</p>
+                        <p style="color: #0F172A; font-weight: 700; font-size: 13px; margin: 0;">{{ $user->tanggal_mulai->translatedFormat('d M Y') }}</p>
+                    </div>
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px;">
+                        <p style="color: #64748B; font-weight: 800; font-size: 10px; text-transform: uppercase; margin-bottom: 2px;">Tanggal Selesai</p>
+                        <p style="color: #0F172A; font-weight: 700; font-size: 13px; margin: 0;">{{ $user->tanggal_selesai->translatedFormat('d M Y') }}</p>
+                    </div>
+                </div>
+
+                {{-- Progress Bar --}}
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="color: #475569; font-size: 11px; font-weight: 600;">Progress Magang</span>
+                        <span style="color: #2563EB; font-size: 13px; font-weight: 900;">{{ $progress }}%</span>
+                    </div>
+                    <div style="width: 100%; background: #E2E8F0; border-radius: 9999px; height: 8px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #2563EB 0%, #3B82F6 100%); height: 8px; border-radius: 9999px; width: {{ $progress }}%;"></div>
+                    </div>
+                    @if($sisa !== null)
+                    <p style="color: #64748B; font-size: 11px; margin-top: 6px; font-weight: 500;">
+                        {{ $sisa > 0 ? $sisa . ' hari tersisa' : 'Periode magang telah selesai' }}
+                    </p>
+                    @endif
+                </div>
+
+            </div>
+        </section>
+        @endif
+
+    </div>
 
 </div>
 @endsection
@@ -444,7 +407,7 @@ function attendanceApp() {
                     'maxlength': 1000,
                 },
                 showCancelButton: true,
-                confirmButtonColor: '#006c49',
+                confirmButtonColor: '#2563EB',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Simpan & Check-out',
                 cancelButtonText: 'Batal',

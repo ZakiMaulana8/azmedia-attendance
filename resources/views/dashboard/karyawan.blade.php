@@ -52,7 +52,7 @@
                         Selamat Datang, {{ $user->name }}!
                     </h2>
                     <p class="text-white/60 text-[12px] leading-[18px] mt-1.5 flex items-center gap-1.5">
-                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span class="inline-block w-2 h-2 rounded-full bg-blue-300"></span>
                         Pembimbing Lapangan · AZ Media
                     </p>
                 </div>
@@ -233,7 +233,7 @@
                     </button>
                     <button type="button"
                             @click="filter = 'hadir'"
-                            :class="filter === 'hadir' ? 'bg-emerald-700 text-white font-bold shadow-sm' : 'bg-white text-on-surface-variant border border-outline-variant/60 font-medium hover:bg-surface-container'"
+                            :class="filter === 'hadir' ? 'bg-blue-600 text-white font-bold shadow-sm' : 'bg-white text-on-surface-variant border border-outline-variant/60 font-medium hover:bg-surface-container'"
                             class="px-3 py-1 rounded-full text-[12px] whitespace-nowrap transition-all">
                         Hadir ({{ $todayStats['sudah_absen'] }})
                     </button>

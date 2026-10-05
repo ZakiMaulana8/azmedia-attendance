@@ -42,7 +42,7 @@
             // Warna ikon berdasarkan jenis
             $iconBg  = match($perm->jenis) {
                 'sakit'      => 'background: rgba(133,83,0,0.10)',
-                'dispensasi' => 'background: rgba(0,108,73,0.10)',
+                'dispensasi' => 'background: rgba(37,99,235,0.10)',
                 default      => 'background: rgba(164,58,58,0.10)',
             };
             $iconColor = match($perm->jenis) {
@@ -57,12 +57,12 @@
             };
             // Badge status
             $badgeBg   = match($perm->status) {
-                'disetujui' => 'bg-emerald-100 text-emerald-700',
+                'disetujui' => 'bg-blue-100 text-blue-700',
                 'ditolak'   => 'bg-red-100 text-red-600',
                 default     => 'bg-amber-100 text-amber-700',
             };
             $dotColor  = match($perm->status) {
-                'disetujui' => 'bg-emerald-500',
+                'disetujui' => 'bg-blue-600',
                 'ditolak'   => 'bg-red-500',
                 default     => 'bg-amber-500',
             };

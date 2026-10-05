@@ -85,7 +85,7 @@
                     'value' => $summary['hadir'],
                     'icon'  => 'check_circle',
                     'color' => 'text-primary',
-                    'bg'    => 'rgba(0,108,73,0.10)',
+                    'bg'    => 'rgba(37,99,235,0.10)',
                 ],
                 [
                     'label' => 'Terlambat',
@@ -155,7 +155,7 @@
             <div class="w-full bg-surface-container rounded-full h-2.5">
                 <div class="h-2.5 rounded-full transition-all duration-700"
                      style="width: {{ $pctHadir }}%;
-                            background: {{ $pctHadir >= 80 ? '#006c49' : ($pctHadir >= 60 ? '#855300' : '#ba1a1a') }}">
+                            background: {{ $pctHadir >= 80 ? '#2563EB' : ($pctHadir >= 60 ? '#855300' : '#ba1a1a') }}">
                 </div>
             </div>
 
@@ -191,7 +191,7 @@
                     $isFuture = $day->isFuture();
 
                     [$dotColor, $badgeClass, $badgeText] = match($status) {
-                        'hadir'     => ['bg-emerald-500',    'bg-emerald-100 text-emerald-700',  'Hadir'],
+                        'hadir'     => ['bg-blue-600',      'bg-blue-100 text-blue-700',        'Hadir'],
                         'terlambat' => ['bg-amber-500',      'bg-amber-100 text-amber-700',      'Terlambat'],
                         'izin'      => ['bg-slate-400',      'bg-slate-100 text-slate-600',      'Izin'],
                         default     => ['bg-red-400',        'bg-red-100 text-red-600',          'Alpa'],
@@ -242,11 +242,7 @@
                                             <span class="material-symbols-outlined text-[12px] text-outline">logout</span>
                                             {{ $jamPulang ?? '--:--' }}
                                         </span>
-                                        @if($att->tipe_absen === 'wfh')
-                                            <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200/60">WFH 🏠</span>
-                                        @elseif($att->tipe_absen === 'wfo')
-                                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60">WFO 🏢</span>
-                                        @endif
+                                        <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200/60">WFO 🏢</span>
                                     </div>
                                     @if($att->logbook)
                                         <div class="text-[11px] text-on-surface-variant/80 bg-surface-container/40 px-2 py-1 rounded border border-outline-variant/30">
@@ -295,11 +291,11 @@
             <div class="space-y-sm">
                 @foreach($permissions as $perm)
                 @php
-                    $iconBg    = match($perm->jenis) { 'sakit' => 'rgba(133,83,0,0.10)', 'dispensasi' => 'rgba(0,108,73,0.10)', default => 'rgba(164,58,58,0.10)' };
+                    $iconBg    = match($perm->jenis) { 'sakit' => 'rgba(133,83,0,0.10)', 'dispensasi' => 'rgba(37,99,235,0.10)', default => 'rgba(164,58,58,0.10)' };
                     $iconColor = match($perm->jenis) { 'sakit' => 'text-secondary', 'dispensasi' => 'text-primary', default => 'text-tertiary' };
                     $icon      = match($perm->jenis) { 'sakit' => 'medical_services', 'dispensasi' => 'event_available', default => 'info' };
-                    $badgeBg   = match($perm->status) { 'disetujui' => 'bg-emerald-100 text-emerald-700', 'ditolak' => 'bg-red-100 text-red-600', default => 'bg-amber-100 text-amber-700' };
-                    $dotColor  = match($perm->status) { 'disetujui' => 'bg-emerald-500', 'ditolak' => 'bg-red-500', default => 'bg-amber-500' };
+                    $badgeBg   = match($perm->status) { 'disetujui' => 'bg-blue-100 text-blue-700', 'ditolak' => 'bg-red-100 text-red-600', default => 'bg-amber-100 text-amber-700' };
+                    $dotColor  = match($perm->status) { 'disetujui' => 'bg-blue-600', 'ditolak' => 'bg-red-500', default => 'bg-amber-500' };
                 @endphp
 
                 <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm px-md py-sm

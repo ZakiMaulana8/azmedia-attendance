@@ -203,7 +203,7 @@
                                flex items-center justify-center gap-sm
                                transition-all duration-200 active:scale-[0.98]
                                disabled:opacity-50 disabled:cursor-not-allowed"
-                        style="background: #006c49; box-shadow: 0 6px 24px rgba(0,108,73,0.35);"
+                        style="background: #2563EB; box-shadow: 0 6px 24px rgba(37,99,235,0.35);"
                         :disabled="submitting">
                     <span class="material-symbols-outlined text-[18px]"
                           x-show="!submitting"

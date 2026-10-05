@@ -31,10 +31,10 @@
 
         {{-- ── Flash success ────────────────────────────────────────── --}}
         @if(session('success'))
-        <div class="flex items-start gap-sm bg-emerald-50 border border-emerald-200 rounded-2xl p-md">
-            <span class="material-symbols-outlined text-emerald-600 text-[20px] flex-shrink-0 mt-0.5"
+        <div class="flex items-start gap-sm bg-blue-50 border border-blue-200 rounded-2xl p-md">
+            <span class="material-symbols-outlined text-blue-600 text-[20px] flex-shrink-0 mt-0.5"
                   style="font-variation-settings:'FILL' 1">check_circle</span>
-            <p class="text-[13px] text-emerald-800 font-semibold leading-relaxed">
+            <p class="text-[13px] text-blue-800 font-semibold leading-relaxed">
                 {{ session('success') }}
             </p>
         </div>
@@ -89,7 +89,7 @@
                             $jenisOptions = [
                                 'sakit'      => ['label' => 'Sakit',      'icon' => 'medical_services', 'color' => 'text-secondary', 'bg' => 'rgba(133,83,0,0.10)'],
                                 'izin'       => ['label' => 'Izin',       'icon' => 'info',             'color' => 'text-tertiary',  'bg' => 'rgba(164,58,58,0.10)'],
-                                'dispensasi' => ['label' => 'Dispensasi', 'icon' => 'event_available',  'color' => 'text-primary',   'bg' => 'rgba(0,108,73,0.10)'],
+                                'dispensasi' => ['label' => 'Dispensasi', 'icon' => 'event_available',  'color' => 'text-primary',   'bg' => 'rgba(37,99,235,0.10)'],
                             ];
                         @endphp
 
@@ -228,7 +228,7 @@
                                flex items-center justify-center gap-sm
                                transition-all duration-200 active:scale-[0.98]
                                disabled:opacity-50 disabled:cursor-not-allowed"
-                        style="background: #006c49; box-shadow: 0 6px 24px rgba(0,108,73,0.35);"
+                        style="background: #2563EB; box-shadow: 0 6px 24px rgba(37,99,235,0.35);"
                         :disabled="submitting">
                     <span class="material-symbols-outlined text-[18px]"
                           x-show="!submitting"
@@ -261,11 +261,11 @@
             <div class="space-y-sm">
                 @foreach($recentPerms as $perm)
                 @php
-                    $iconBg    = match($perm->jenis) { 'sakit' => 'rgba(133,83,0,0.10)', 'dispensasi' => 'rgba(0,108,73,0.10)', default => 'rgba(164,58,58,0.10)' };
+                    $iconBg    = match($perm->jenis) { 'sakit' => 'rgba(133,83,0,0.10)', 'dispensasi' => 'rgba(37,99,235,0.10)', default => 'rgba(164,58,58,0.10)' };
                     $iconColor = match($perm->jenis) { 'sakit' => 'text-secondary', 'dispensasi' => 'text-primary', default => 'text-tertiary' };
                     $icon      = match($perm->jenis) { 'sakit' => 'medical_services', 'dispensasi' => 'event_available', default => 'info' };
-                    $badgeBg   = match($perm->status) { 'disetujui' => 'bg-emerald-100 text-emerald-700', 'ditolak' => 'bg-red-100 text-red-600', default => 'bg-amber-100 text-amber-700' };
-                    $dotColor  = match($perm->status) { 'disetujui' => 'bg-emerald-500', 'ditolak' => 'bg-red-500', default => 'bg-amber-500' };
+                    $badgeBg   = match($perm->status) { 'disetujui' => 'bg-blue-100 text-blue-700', 'ditolak' => 'bg-red-100 text-red-600', default => 'bg-amber-100 text-amber-700' };
+                    $dotColor  = match($perm->status) { 'disetujui' => 'bg-blue-600', 'ditolak' => 'bg-red-500', default => 'bg-amber-500' };
                 @endphp
 
                 <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm px-md py-sm

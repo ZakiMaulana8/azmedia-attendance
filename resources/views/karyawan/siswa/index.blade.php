@@ -86,7 +86,7 @@
                 </button>
                 <button type="button"
                         @click="filter = 'hadir'"
-                        :class="filter === 'hadir' ? 'bg-emerald-700 text-white font-bold shadow-sm' : 'bg-white text-on-surface-variant border border-outline-variant/60 font-medium hover:bg-surface-container'"
+                        :class="filter === 'hadir' ? 'bg-blue-600 text-white font-bold shadow-sm' : 'bg-white text-on-surface-variant border border-outline-variant/60 font-medium hover:bg-surface-container'"
                         class="px-3 py-1 rounded-full text-[12px] whitespace-nowrap transition-all">
                     Hadir ({{ $todayStats['sudah_absen'] }})
                 </button>

@@ -38,10 +38,10 @@
 
         {{-- Flash success --}}
         @if(session('success'))
-        <div class="flex items-center gap-sm bg-emerald-50 border border-emerald-200 rounded-2xl px-md py-sm mb-lg">
-            <span class="material-symbols-outlined text-emerald-600 text-[18px] flex-shrink-0"
+        <div class="flex items-center gap-sm bg-blue-50 border border-blue-200 rounded-2xl px-md py-sm mb-lg">
+            <span class="material-symbols-outlined text-blue-600 text-[18px] flex-shrink-0"
                   style="font-variation-settings:'FILL' 1">check_circle</span>
-            <p class="text-[13px] text-emerald-800 font-semibold">{{ session('success') }}</p>
+            <p class="text-[13px] text-blue-800 font-semibold">{{ session('success') }}</p>
         </div>
         @endif
 
@@ -159,7 +159,7 @@
                 <a href="{{ route('activity-reports.create') }}"
                    class="inline-flex items-center gap-xs text-white font-bold text-[13px]
                           px-lg py-sm rounded-2xl active:scale-95 transition-transform"
-                   style="background: #006c49; box-shadow: 0 4px 16px rgba(0,108,73,0.30)">
+                   style="background: #2563EB; box-shadow: 0 4px 16px rgba(37,99,235,0.30)">
                     <span class="material-symbols-outlined text-[18px]">add</span>
                     Upload Laporan Pertama
                 </a>
