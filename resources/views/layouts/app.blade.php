@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#006c49">
-    <title>@yield('title', config('app.name', 'Azmedia Attendance'))</title>
+    <title>@yield('title', config('app.name', 'Azmedia Corpora'))</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
@@ -45,7 +45,7 @@
                          src="{{ auth()->user()->photo_url }}"
                          alt="{{ auth()->user()->name }}">
                 </div>
-                <h1 class="font-bold text-headline-md text-primary">Azmedia Attendance</h1>
+                <h1 class="font-bold text-headline-md text-primary">Azmedia Corpora</h1>
             </div>
             <button class="material-symbols-outlined p-2 rounded-full text-on-surface-variant
                            hover:bg-surface-container transition-colors active:scale-95 duration-150">

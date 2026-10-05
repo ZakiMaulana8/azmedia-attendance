@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+    <defs>
+        <!-- Gradients for realistic metallic/bright look matching official logo -->
+        <linearGradient id="navy-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0F377E" />
+            <stop offset="100%" stop-color="#082255" />
+        </linearGradient>
+        <linearGradient id="blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#008CFF" />
+            <stop offset="100%" stop-color="#0066FF" />
+        </linearGradient>
+        <linearGradient id="plane-light" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00A2FF" />
+            <stop offset="100%" stop-color="#0077FF" />
+        </linearGradient>
+    </defs>
+
+    <g transform="translate(0, 10)">
+        {{-- ── 1. Navy Blue 'A' Base Structure ───────────────────────────── --}}
+        <path d="M 250 60
+                 C 268 60, 280 72, 288 88
+                 L 372 248
+                 C 382 268, 370 285, 348 285
+                 L 152 285
+                 C 130 285, 118 268, 128 248
+                 L 212 88
+                 C 220 72, 232 60, 250 60 Z
+                 M 250 115
+                 L 182 240
+                 L 318 240 Z"
+              fill="url(#navy-grad)" />
+
+        {{-- ── 2. Bright Blue Dynamic Swoosh Ribbon ────────────────────────── --}}
+        {{-- Lower ribbon swoosh across bottom --}}
+        <path d="M 120 270
+                 C 112 258, 122 245, 142 245
+                 C 180 245, 320 245, 360 272
+                 C 375 282, 362 292, 340 292
+                 C 280 292, 145 292, 120 270 Z"
+              fill="url(#blue-grad)" />
+
+        {{-- Upper S-curve ribbon extending to paper plane --}}
+        <path d="M 172 215
+                 C 160 190, 185 168, 220 162
+                 C 270 152, 335 138, 385 118
+                 C 395 114, 400 124, 388 132
+                 C 335 158, 265 174, 215 184
+                 C 188 190, 178 202, 182 218 Z"
+              fill="url(#blue-grad)" />
+
+        {{-- ── 3. Paper Airplane at top-right ────────────────────────────── --}}
+        <g transform="translate(370, 100) rotate(-10)">
+            {{-- Main Top Wing --}}
+            <polygon points="0,25 70,-10 40,45" fill="url(#plane-light)" />
+            {{-- Folded Under Shadow --}}
+            <polygon points="0,25 70,-10 32,26" fill="#0052CC" />
+            {{-- Bottom Wing Flap --}}
+            <polygon points="32,26 70,-10 40,45" fill="#0066FF" />
+            {{-- Center Crease Line --}}
+            <line x1="0" y1="25" x2="70" y2="-10" stroke="#003D99" stroke-width="1.5" />
+        </g>
+    </g>
+
+    {{-- ── 4. Typography ─────────────────────────────────────────────────── --}}
+    {{-- AZMEDIA Text --}}
+    <text x="250" y="390"
+          text-anchor="middle"
+          font-family="'Inter', 'Montserrat', 'Arial Black', -apple-system, sans-serif"
+          font-weight="900"
+          font-size="52"
+          fill="#0B2559"
+          letter-spacing="2">AZMEDIA</text>
+
+    {{-- CORPORATE Text --}}
+    <text x="250" y="440"
+          text-anchor="middle"
+          font-family="'Inter', 'Montserrat', 'Arial Black', -apple-system, sans-serif"
+          font-weight="800"
+          font-size="36"
+          fill="#0084FF"
+          letter-spacing="10">CORPORATE</text>
+</svg>

@@ -181,51 +181,6 @@
     </section>
 
     {{-- ════════════════════════════════════════════════════════════
-         TOGGLE WFO / WFH
-    ════════════════════════════════════════════════════════════ --}}
-    <section class="px-md pt-lg pb-sm">
-        <div class="bg-white border border-outline-variant/60 rounded-2xl p-sm shadow-sm">
-            <div class="flex items-center gap-sm mb-sm px-xs">
-                <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1">work</span>
-                <p class="text-[13px] font-bold text-on-surface">Mode Kerja Hari Ini</p>
-            </div>
-            <div class="grid grid-cols-2 gap-sm px-xs pb-xs">
-                {{-- WFO Button --}}
-                <button @click="setTipeAbsen('wfo')"
-                        :class="tipeAbsen === 'wfo'
-                            ? 'bg-primary text-white border-primary shadow-md'
-                            : 'bg-surface-container/50 text-on-surface-variant border-outline-variant/60 hover:bg-surface-container'"
-                        class="flex flex-col items-center gap-1.5 p-md rounded-xl border-2 transition-all duration-200 active:scale-[0.96]">
-                    <span class="material-symbols-outlined text-[24px]" style="font-variation-settings:'FILL' 1">apartment</span>
-                    <span class="text-[13px] font-extrabold">WFO</span>
-                    <span class="text-[10px] font-medium opacity-80">Kerja di Kantor</span>
-                </button>
-                {{-- WFH Button --}}
-                <button @click="setTipeAbsen('wfh')"
-                        :class="tipeAbsen === 'wfh'
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                            : 'bg-surface-container/50 text-on-surface-variant border-outline-variant/60 hover:bg-surface-container'"
-                        class="flex flex-col items-center gap-1.5 p-md rounded-xl border-2 transition-all duration-200 active:scale-[0.96]">
-                    <span class="material-symbols-outlined text-[24px]" style="font-variation-settings:'FILL' 1">home</span>
-                    <span class="text-[13px] font-extrabold">WFH</span>
-                    <span class="text-[10px] font-medium opacity-80">Kerja dari Rumah</span>
-                </button>
-            </div>
-            {{-- WFH info note --}}
-            <div x-show="tipeAbsen === 'wfh'"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 -translate-y-1"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 class="mx-xs mb-xs mt-xs flex items-start gap-xs bg-blue-50 border border-blue-200 rounded-xl px-sm py-sm">
-                <span class="material-symbols-outlined text-blue-500 text-[15px] flex-shrink-0 mt-0.5" style="font-variation-settings:'FILL' 1">info</span>
-                <p class="text-[11px] text-blue-700 font-medium leading-relaxed">
-                    Mode WFH aktif — absensi tidak memerlukan verifikasi lokasi kantor.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    {{-- ════════════════════════════════════════════════════════════
          TOMBOL ABSEN
     ════════════════════════════════════════════════════════════ --}}
     <section class="flex flex-col items-center py-xl px-md">
@@ -240,15 +195,10 @@
             {{-- Tombol utama --}}
             <button @click="doAbsen"
                     :disabled="loading || absenDone"
-                    :class="tipeAbsen === 'wfh'
-                        ? 'bg-blue-600 focus:ring-blue-300'
-                        : 'bg-primary focus:ring-primary/30'"
                     class="relative w-36 h-36 rounded-full flex flex-col items-center justify-center
-                           text-white transition-all duration-200 active:scale-90 disabled:opacity-50
-                           focus:outline-none focus:ring-4"
-                    :style="tipeAbsen === 'wfh'
-                        ? 'box-shadow: 0 8px 32px rgba(37,99,235,0.45), 0 2px 8px rgba(37,99,235,0.2);'
-                        : 'box-shadow: 0 8px 32px rgba(0,108,73,0.45), 0 2px 8px rgba(0,108,73,0.2);'">
+                           bg-primary text-white transition-all duration-200 active:scale-90 disabled:opacity-50
+                           focus:outline-none focus:ring-4 focus:ring-primary/30 shadow-lg"
+                    style="box-shadow: 0 8px 32px rgba(0,108,73,0.45), 0 2px 8px rgba(0,108,73,0.2);">
 
                 {{-- Shimmer overlay --}}
                 <div class="absolute inset-0 rounded-full pointer-events-none"
@@ -271,9 +221,8 @@
             </button>
         </div>
 
-        {{-- Indikator Lokasi --}}
-        <div x-show="tipeAbsen === 'wfo'"
-             class="flex items-center gap-xs rounded-full px-md py-2 border transition-all duration-300"
+        {{-- Indikator Lokasi Kantor --}}
+        <div class="flex items-center gap-xs rounded-full px-md py-2 border transition-all duration-300"
              :class="locationVerified
                 ? 'bg-emerald-50 border-emerald-200'
                 : 'bg-amber-50 border-amber-200'">
@@ -283,11 +232,6 @@
             <p class="text-[12px] font-semibold"
                :class="locationVerified ? 'text-emerald-700' : 'text-amber-600'"
                x-text="locationLabel">Mendapatkan lokasi...</p>
-        </div>
-        <div x-show="tipeAbsen === 'wfh'"
-             class="flex items-center gap-xs rounded-full px-md py-2 border bg-blue-50 border-blue-200">
-            <span class="material-symbols-outlined text-[15px] text-blue-500" style="font-variation-settings:'FILL' 1">home</span>
-            <p class="text-[12px] font-semibold text-blue-700">Mode WFH — Tanpa verifikasi lokasi 🏠</p>
         </div>
 
         <p class="mt-2 text-[11px] text-on-surface-variant/60 font-medium">
@@ -455,16 +399,9 @@ function attendanceApp() {
         jamPulang:   @json($today?->jam_pulang ? \Carbon\Carbon::parse($today->jam_pulang)->format('H:i') : null),
         statusMasuk: @json($today?->status ?? 'hadir'),
         keterangan:  @json($today?->keterangan),
-        tipeAbsen:   @json($today?->tipe_absen ?? 'wfo'),
 
         absenDone:   {{ ($today?->jam_masuk && $today?->jam_pulang) ? 'true' : 'false' }},
         buttonLabel: '{{ $today?->jam_masuk && !$today?->jam_pulang ? "Absen Pulang" : (!$today?->jam_masuk ? "Absen Masuk" : "Selesai") }}',
-
-        setTipeAbsen(tipe) {
-            // Tidak bisa ganti tipe setelah sudah absen masuk
-            if (this.jamMasuk) return;
-            this.tipeAbsen = tipe;
-        },
 
         init() {
             if (!navigator.geolocation) return;
@@ -484,9 +421,8 @@ function attendanceApp() {
         },
 
         async doAbsen() {
-            // WFO: wajib lokasi terverifikasi
-            if (this.tipeAbsen === 'wfo' && !this.locationVerified) {
-                this.showFlash('Izinkan akses lokasi untuk absen WFO.', false);
+            if (!this.locationVerified) {
+                this.showFlash('Izinkan akses lokasi GPS Anda untuk melakukan absensi.', false);
                 return;
             }
 
@@ -532,9 +468,8 @@ function attendanceApp() {
             try {
                 const payload = {
                     type,
-                    tipe_absen: this.tipeAbsen,
-                    latitude:   this.tipeAbsen === 'wfh' ? 0 : this.latitude,
-                    longitude:  this.tipeAbsen === 'wfh' ? 0 : this.longitude,
+                    latitude:  this.latitude,
+                    longitude: this.longitude,
                 };
 
                 if (type === 'pulang') {
