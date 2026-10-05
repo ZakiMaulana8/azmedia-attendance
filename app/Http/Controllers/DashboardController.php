@@ -7,18 +7,20 @@ use App\Models\Permission;
 use App\Models\Geofence;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|Response
     {
         $user = $request->user();
 
         return match (true) {
-            $user->isAdmin() => $this->adminDashboard(),
-            $user->isGuru()  => $this->guruDashboard($user),
-            default          => $this->siswaDashboard($user),
+            $user->isAdmin()    => $this->adminDashboard(),
+            $user->isGuru()     => $this->guruDashboard($user),
+            $user->isKaryawan() => response('Dashboard Karyawan sedang dalam pengembangan.', 200),
+            default             => $this->siswaDashboard($user),
         };
     }
 

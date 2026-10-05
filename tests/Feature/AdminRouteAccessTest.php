@@ -27,9 +27,9 @@ class AdminRouteAccessTest extends TestCase
         $this->get('/admin/geofence')->assertRedirect(route('login'));
     }
 
-    public function test_guru_and_siswa_are_forbidden_on_admin_get_pages(): void
+    public function test_guru_and_siswa_and_karyawan_are_forbidden_on_admin_get_pages(): void
     {
-        foreach (['guru', 'siswa'] as $role) {
+        foreach (['guru', 'siswa', 'karyawan'] as $role) {
             $user = $this->userWithRole($role);
 
             foreach (['/admin/siswa', '/admin/guru', '/admin/geofence'] as $url) {
@@ -38,9 +38,9 @@ class AdminRouteAccessTest extends TestCase
         }
     }
 
-    public function test_guru_and_siswa_are_forbidden_on_admin_write_requests(): void
+    public function test_guru_and_siswa_and_karyawan_are_forbidden_on_admin_write_requests(): void
     {
-        foreach (['guru', 'siswa'] as $role) {
+        foreach (['guru', 'siswa', 'karyawan'] as $role) {
             $user = $this->userWithRole($role);
 
             $this->actingAs($user)->post('/admin/geofence', [])->assertForbidden();

@@ -72,6 +72,11 @@ class User extends Authenticatable
         return $this->role === 'siswa';
     }
 
+    public function isKaryawan(): bool
+    {
+        return $this->role === 'karyawan';
+    }
+
     // ── Attendance helpers ─────────────────────────────────────────
 
     public function todayAttendance(): ?Attendance
