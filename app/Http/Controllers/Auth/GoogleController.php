@@ -15,7 +15,9 @@ class GoogleController extends Controller
      */
     public function redirect(): RedirectResponse
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')
+            ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
+            ->redirect();
     }
 
     /**
@@ -25,10 +27,16 @@ class GoogleController extends Controller
     public function callback(): RedirectResponse
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')
+                ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
+                ->user();
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Google OAuth Error', [
+                'message' => $e->getMessage(),
+                'class'   => get_class($e),
+            ]);
             return redirect()->route('login')
-                ->withErrors(['google' => 'Login Google gagal. Silakan coba lagi.']);
+                ->withErrors(['google' => 'Login Google gagal: ' . $e->getMessage()]);
         }
 
         // Cari user berdasarkan google_id atau email

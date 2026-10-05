@@ -40,6 +40,21 @@
         </div>
         @endif
 
+        @if($errors->any())
+        <div class="flex items-start gap-sm bg-red-50 border border-red-200 rounded-2xl p-md">
+            <span class="material-symbols-outlined text-red-600 text-[20px] flex-shrink-0 mt-0.5"
+                  style="font-variation-settings:'FILL' 1">error</span>
+            <div class="text-[13px] text-red-800 font-medium leading-relaxed">
+                <p class="font-bold">Gagal mengirim pengajuan:</p>
+                <ul class="list-disc list-inside mt-1 space-y-0.5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+        @endif
+
         {{-- ── Form Card ────────────────────────────────────────────── --}}
         <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm overflow-hidden">
 
@@ -57,7 +72,8 @@
 
             <form method="POST" action="{{ route('permissions.store') }}"
                   enctype="multipart/form-data"
-                  class="p-md space-y-md">
+                  class="p-md space-y-md"
+                  @submit="submitting = true">
                 @csrf
 
                 {{-- ── Jenis Izin ──────────────────────────────────── --}}
@@ -213,8 +229,7 @@
                                transition-all duration-200 active:scale-[0.98]
                                disabled:opacity-50 disabled:cursor-not-allowed"
                         style="background: #006c49; box-shadow: 0 6px 24px rgba(0,108,73,0.35);"
-                        :disabled="submitting"
-                        @click="submitting = true">
+                        :disabled="submitting">
                     <span class="material-symbols-outlined text-[18px]"
                           x-show="!submitting"
                           style="font-variation-settings:'FILL' 1">send</span>
@@ -290,7 +305,7 @@ function permissionForm() {
     return {
         fileName:    '',
         submitting:  false,
-        selectedJenis: '{{ old('jenis', '') }}',
+        selectedJenis: '{{ old('jenis', 'sakit') }}',
         alasan:      '{{ old('alasan', '') }}',
         alasanLen:   {{ strlen(old('alasan', '')) }},
     };

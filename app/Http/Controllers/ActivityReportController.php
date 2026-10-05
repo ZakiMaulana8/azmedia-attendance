@@ -38,7 +38,7 @@ class ActivityReportController extends Controller
             'tanggal'     => ['required', 'date', 'before_or_equal:today'],
             'judul'       => ['required', 'string', 'max:255'],
             'deskripsi'   => ['nullable', 'string', 'max:2000'],
-            'files'       => ['required', 'array', 'min:1', 'max:10'],
+            'files'       => ['nullable', 'array', 'max:10'],
             'files.*'     => [
                 'file',
                 'max:51200', // 50 MB per file

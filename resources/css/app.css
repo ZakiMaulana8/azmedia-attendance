@@ -15,6 +15,14 @@
         vertical-align: middle;
         user-select: none;
     }
+
+    /*
+     * Alpine.js: sembunyikan elemen dengan x-cloak sebelum Alpine selesai init.
+     * WAJIB ada agar modal & dropdown tidak berkedip/flash saat halaman dimuat.
+     */
+    [x-cloak] {
+        display: none !important;
+    }
 }
 
 @layer components {

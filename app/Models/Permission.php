@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Permission extends Model
 {
+    protected $table = 'permissions';
+
     protected $fillable = [
         'user_id',
         'approver_id',

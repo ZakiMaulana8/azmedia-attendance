@@ -21,5 +21,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Set locale Carbon ke Indonesia
         Carbon::setLocale('id');
+
+        if (str_contains(config('app.url'), 'ngrok') || request()->header('x-forwarded-proto') === 'https') {
+            \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }

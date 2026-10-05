@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityReportController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeofenceController;
@@ -69,6 +70,13 @@ Route::middleware(['auth'])->group(function () {
     // Admin: Geofence settings
     Route::get('/admin/geofence', [GeofenceController::class, 'index'])->name('admin.geofence');
     Route::post('/admin/geofence', [GeofenceController::class, 'store'])->name('admin.geofence.store');
+
+    // Admin: User Management (Siswa & Guru)
+    Route::get('/admin/siswa', [AdminUserController::class, 'indexSiswa'])->name('admin.siswa.index');
+    Route::get('/admin/guru', [AdminUserController::class, 'indexGuru'])->name('admin.guru.index');
+    Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 require __DIR__ . '/auth.php';

@@ -33,7 +33,7 @@ class PermissionController extends Controller
         $request->validate([
             'jenis'    => ['required', 'in:sakit,izin,dispensasi'],
             'tanggal'  => ['required', 'date'],
-            'alasan'   => ['required', 'string', 'min:10'],
+            'alasan'   => ['required', 'string', 'min:3'],
             'lampiran' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ]);
 

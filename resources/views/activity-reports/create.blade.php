@@ -68,6 +68,7 @@
 
             <form method="POST" action="{{ route('activity-reports.store') }}"
                   enctype="multipart/form-data"
+                  @submit="submitting = true"
                   class="p-md space-y-md">
                 @csrf
 
@@ -128,8 +129,8 @@
                 {{-- Upload File --}}
                 <div>
                     <label class="block text-[12px] font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
-                        File Dokumentasi <span class="text-red-500">*</span>
-                        <span class="text-outline font-semibold normal-case tracking-normal ml-1">(maks. 10 file, 50MB/file)</span>
+                        File Dokumentasi
+                        <span class="text-outline font-semibold normal-case tracking-normal ml-1">(Opsional, maks. 10 file, 50MB/file)</span>
                     </label>
 
                     {{-- Drop zone --}}
@@ -138,7 +139,7 @@
                              ? 'border-primary bg-primary/5'
                              : 'border-outline-variant/60 bg-surface-container/30 hover:bg-surface-container hover:border-outline'"
                          @dragover.prevent @drop.prevent="handleDrop($event)">
-                        <input type="file" name="files[]" multiple
+                        <input type="file" name="files[]" multiple x-ref="fileInput"
                                accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
                                class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                                @change="handleFiles($event)">
@@ -203,8 +204,7 @@
                                transition-all duration-200 active:scale-[0.98]
                                disabled:opacity-50 disabled:cursor-not-allowed"
                         style="background: #006c49; box-shadow: 0 6px 24px rgba(0,108,73,0.35);"
-                        :disabled="files.length === 0 || submitting"
-                        @click="submitting = true">
+                        :disabled="submitting">
                     <span class="material-symbols-outlined text-[18px]"
                           x-show="!submitting"
                           style="font-variation-settings:'FILL' 1">upload</span>
@@ -236,11 +236,31 @@ function uploadForm() {
         handleDrop(e)  { this.addFiles([...e.dataTransfer.files]); },
 
         addFiles(newFiles) {
-            const available = 10 - this.files.length;
-            newFiles.slice(0, available).forEach(f => this.files.push(f));
+            const maxPerFile = 50 * 1024 * 1024; // 50MB
+            const available  = 10 - this.files.length;
+
+            for (const f of newFiles.slice(0, available)) {
+                if (f.size > maxPerFile) {
+                    alert(`File "${f.name}" terlalu besar (${this.formatSize(f.size)}). Maksimal ukuran file adalah 50 MB.`);
+                    continue;
+                }
+                this.files.push(f);
+            }
+            this.syncInput();
         },
 
-        removeFile(index) { this.files.splice(index, 1); },
+        removeFile(index) {
+            this.files.splice(index, 1);
+            this.syncInput();
+        },
+
+        syncInput() {
+            if (this.$refs.fileInput) {
+                const dt = new DataTransfer();
+                this.files.forEach(f => dt.items.add(f));
+                this.$refs.fileInput.files = dt.files;
+            }
+        },
 
         getPreviewUrl(file) {
             if (!this.previews[file.name]) {

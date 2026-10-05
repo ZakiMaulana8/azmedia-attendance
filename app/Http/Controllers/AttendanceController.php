@@ -17,16 +17,20 @@ class AttendanceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'latitude'  => ['required', 'numeric'],
-            'longitude' => ['required', 'numeric'],
-            'type'      => ['required', 'in:masuk,pulang'],
-            'logbook'   => [
+            'latitude'    => ['required_if:tipe_absen,wfo', 'nullable', 'numeric'],
+            'longitude'   => ['required_if:tipe_absen,wfo', 'nullable', 'numeric'],
+            'type'        => ['required', 'in:masuk,pulang'],
+            'tipe_absen'  => ['required', 'in:wfo,wfh'],
+            'logbook'     => [
                 Rule::requiredIf($request->type === 'pulang'),
                 $request->type === 'pulang' ? 'string' : 'nullable',
             ],
         ]);
 
-        $user     = $request->user();
+        $user       = $request->user();
+        $tipeAbsen  = $request->tipe_absen;
+        $isWfh      = $tipeAbsen === 'wfh';
+
         $geofence = Geofence::active() ?? new Geofence([
             'nama_lokasi' => config('geofence.nama_lokasi'),
             'latitude'    => config('geofence.latitude'),
@@ -34,9 +38,9 @@ class AttendanceController extends Controller
             'radius'      => config('geofence.radius'),
         ]);
 
-        // Validasi geofence
+        // Validasi geofence hanya untuk WFO
         $distance = null;
-        if ($geofence) {
+        if (!$isWfh && $geofence) {
             $distance = $this->haversine(
                 (float) $request->latitude, (float) $request->longitude,
                 (float) $geofence->latitude, (float) $geofence->longitude
@@ -45,68 +49,65 @@ class AttendanceController extends Controller
             if ($distance > $geofence->radius) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Anda berada di luar area {$geofence->nama_lokasi}. Silakan lakukan absensi di lokasi kantor.",
+                    'message' => "Anda berada di luar area {$geofence->nama_lokasi}. Silakan lakukan absensi di lokasi kantor atau pilih mode WFH.",
                 ], 422);
             }
         }
 
         $attendance = Attendance::firstOrCreate(
             ['user_id' => $user->id, 'tanggal' => today()],
-            ['status'  => 'hadir']
+            [
+                'status'     => 'hadir',
+                'tipe_absen' => $tipeAbsen,
+            ]
         );
 
         $nowInWib = Carbon::now('Asia/Jakarta');
+        $keterangan = $isWfh ? 'WFH' : 'Hadir';
 
         if ($request->type === 'masuk') {
             if ($attendance->jam_masuk) {
                 return response()->json(['success' => false, 'message' => 'Anda sudah absen masuk hari ini.'], 422);
             }
 
-            $isLate = $nowInWib->format('H:i') > '08:00';
-
             $attendance->update([
                 'jam_masuk'   => $nowInWib->format('H:i:s'),
-                'lat_masuk'   => $request->latitude,
-                'lng_masuk'   => $request->longitude,
+                'lat_masuk'   => $isWfh ? null : $request->latitude,
+                'lng_masuk'   => $isWfh ? null : $request->longitude,
                 'jarak_masuk' => $distance !== null ? round($distance, 2) : null,
+                'tipe_absen'  => $tipeAbsen,
                 'status'      => 'hadir',
-                'keterangan'  => $isLate ? 'Terlambat' : null,
+                'keterangan'  => $keterangan,
             ]);
         } else {
             if (! $attendance->jam_masuk) {
                 return response()->json(['success' => false, 'message' => 'Anda belum absen masuk hari ini.'], 422);
             }
 
-            // Pengecekan jam kerja berakhir (16:00 WIB)
-            $statusPulang = $nowInWib->hour < 16 ? 'Pulang Cepat' : 'Pulang Tepat Waktu';
-
-            $keterangan = $attendance->keterangan
-                ? $attendance->keterangan . ', ' . $statusPulang
-                : $statusPulang;
-
-            $updateData = [
+            $attendance->update([
                 'jam_pulang'   => $nowInWib->format('H:i:s'),
-                'lat_pulang'   => $request->latitude,
-                'lng_pulang'   => $request->longitude,
+                'lat_pulang'   => $isWfh ? null : $request->latitude,
+                'lng_pulang'   => $isWfh ? null : $request->longitude,
                 'jarak_pulang' => $distance !== null ? round($distance, 2) : null,
                 'keterangan'   => $keterangan,
                 'logbook'      => $request->logbook,
-            ];
-
-            $attendance->update($updateData);
+            ]);
         }
 
+        $fresh = $attendance->fresh();
+
         return response()->json([
-            'success'    => true,
-            'message'    => $request->type === 'masuk' ? 'Absen masuk berhasil!' : 'Absen pulang berhasil!',
-            'jam_masuk'  => $attendance->fresh()->jam_masuk
-                                ? Carbon::parse($attendance->fresh()->jam_masuk)->format('H:i')
-                                : null,
-            'jam_pulang' => $attendance->fresh()->jam_pulang
-                                ? Carbon::parse($attendance->fresh()->jam_pulang)->format('H:i')
-                                : null,
-            'status'     => $attendance->fresh()->status,
-            'keterangan' => $attendance->fresh()->keterangan,
+            'success'      => true,
+            'message'      => $request->type === 'masuk'
+                ? ($isWfh ? 'Absen masuk WFH berhasil! 🏠' : 'Absen masuk berhasil! ✅')
+                : ($isWfh ? 'Absen pulang WFH berhasil! 🏠' : 'Absen pulang berhasil! ✅'),
+            'jam_masuk'    => $fresh->jam_masuk  ? Carbon::parse($fresh->jam_masuk)->format('H:i')  : null,
+            'jam_pulang'   => $fresh->jam_pulang ? Carbon::parse($fresh->jam_pulang)->format('H:i') : null,
+            'status'       => $fresh->status,
+            'tipe_absen'   => $fresh->tipe_absen,
+            'statusMasuk'  => 'hadir',
+            'statusPulang' => 'selesai',
+            'keterangan'   => $fresh->keterangan,
         ]);
     }
 

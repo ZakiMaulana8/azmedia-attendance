@@ -236,17 +236,29 @@ function approvalPage() {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'ngrok-skip-browser-warning': 'true',
                     },
                     body: JSON.stringify({ action, catatan: this.catatan }),
                 });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('Server error:', res.status, text);
+                    alert(`Terjadi kesalahan (${res.status}). Silakan coba lagi.`);
+                    return;
+                }
+
                 const data = await res.json();
                 if (data.success) {
-                    // Reload untuk update status di list
                     window.location.reload();
+                } else {
+                    alert('Gagal memproses izin. Silakan coba lagi.');
                 }
             } catch (e) {
                 console.error(e);
+                alert('Terjadi kesalahan koneksi. Silakan coba lagi.');
             } finally {
                 this.processing = false;
             }

@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
-    protected $table = 'absensi';
+    protected $table = 'attendances';
 
     protected $fillable = [
         'user_id',
+        'tipe_absen',
         'tanggal',
         'jam_masuk',
         'jam_pulang',

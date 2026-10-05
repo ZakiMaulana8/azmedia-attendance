@@ -231,16 +231,28 @@
                             @if($isFuture)
                                 <p class="text-[12px] text-on-surface-variant/60 mt-0.5">Belum terjadi</p>
                             @elseif($att)
-                                <div class="flex items-center gap-sm mt-0.5">
-                                    <span class="flex items-center gap-0.5 text-[12px] text-on-surface-variant">
-                                        <span class="material-symbols-outlined text-[12px] text-primary">login</span>
-                                        {{ $jamMasuk ?? '--:--' }}
-                                    </span>
-                                    <span class="text-outline/50 text-[10px]">→</span>
-                                    <span class="flex items-center gap-0.5 text-[12px] text-on-surface-variant">
-                                        <span class="material-symbols-outlined text-[12px] text-outline">logout</span>
-                                        {{ $jamPulang ?? '--:--' }}
-                                    </span>
+                                <div class="flex flex-col gap-1.5 mt-1">
+                                    <div class="flex items-center gap-sm flex-wrap">
+                                        <span class="flex items-center gap-0.5 text-[12px] text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[12px] text-primary">login</span>
+                                            {{ $jamMasuk ?? '--:--' }}
+                                        </span>
+                                        <span class="text-outline/50 text-[10px]">→</span>
+                                        <span class="flex items-center gap-0.5 text-[12px] text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-[12px] text-outline">logout</span>
+                                            {{ $jamPulang ?? '--:--' }}
+                                        </span>
+                                        @if($att->tipe_absen === 'wfh')
+                                            <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200/60">WFH 🏠</span>
+                                        @elseif($att->tipe_absen === 'wfo')
+                                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60">WFO 🏢</span>
+                                        @endif
+                                    </div>
+                                    @if($att->logbook)
+                                        <div class="text-[11px] text-on-surface-variant/80 bg-surface-container/40 px-2 py-1 rounded border border-outline-variant/30">
+                                            <span class="font-semibold text-on-surface">📝 Logbook:</span> {{ $att->logbook }}
+                                        </div>
+                                    @endif
                                 </div>
                             @else
                                 <p class="text-[12px] text-on-surface-variant/60 mt-0.5">Tidak ada catatan</p>
