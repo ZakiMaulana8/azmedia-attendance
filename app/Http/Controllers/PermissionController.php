@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\Permission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PermissionController extends Controller
@@ -85,12 +87,34 @@ class PermissionController extends Controller
             'catatan' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $permission->update([
-            'status'           => $request->action,
-            'approver_id'      => $request->user()->id,
-            'catatan_approver' => $request->catatan,
-            'approved_at'      => now(),
-        ]);
+        DB::transaction(function () use ($request, $permission) {
+            $permission->update([
+                'status'           => $request->action,
+                'approver_id'      => $request->user()->id,
+                'catatan_approver' => $request->catatan,
+                'approved_at'      => now(),
+            ]);
+
+            if ($request->action === 'disetujui') {
+                $attendance = Attendance::where('user_id', $permission->user_id)
+                    ->whereDate('tanggal', $permission->tanggal)
+                    ->first();
+
+                if (! $attendance) {
+                    Attendance::create([
+                        'user_id'    => $permission->user_id,
+                        'tanggal'    => $permission->tanggal,
+                        'status'     => 'izin',
+                        'keterangan' => $permission->jenis_label ?: 'Izin',
+                    ]);
+                } elseif (! $attendance->jam_masuk && $attendance->status !== 'hadir') {
+                    $attendance->update([
+                        'status'     => 'izin',
+                        'keterangan' => $attendance->keterangan ?: ($permission->jenis_label ?: 'Izin'),
+                    ]);
+                }
+            }
+        });
 
         return response()->json([
             'success'      => true,
