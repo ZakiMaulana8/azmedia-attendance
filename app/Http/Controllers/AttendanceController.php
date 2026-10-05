@@ -50,7 +50,7 @@ class AttendanceController extends Controller
 
         $attendance = Attendance::firstOrCreate(
             ['user_id' => $user->id, 'tanggal' => today()],
-            ['status' => 'hadir', 'tipe_absen' => 'wfo']
+            ['status' => 'hadir']
         );
 
         $nowInWib = Carbon::now('Asia/Jakarta');
@@ -65,7 +65,6 @@ class AttendanceController extends Controller
                 'lat_masuk'   => $request->latitude,
                 'lng_masuk'   => $request->longitude,
                 'jarak_masuk' => round($distance, 2),
-                'tipe_absen'  => 'wfo',
                 'status'      => 'hadir',
                 'keterangan'  => 'Hadir',
             ]);
@@ -94,7 +93,6 @@ class AttendanceController extends Controller
             'jam_masuk'    => $fresh->jam_masuk  ? Carbon::parse($fresh->jam_masuk)->format('H:i')  : null,
             'jam_pulang'   => $fresh->jam_pulang ? Carbon::parse($fresh->jam_pulang)->format('H:i') : null,
             'status'       => $fresh->status,
-            'tipe_absen'   => $fresh->tipe_absen,
             'statusMasuk'  => 'hadir',
             'statusPulang' => 'selesai',
             'keterangan'   => $fresh->keterangan,
