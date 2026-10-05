@@ -15,7 +15,7 @@
         <div class="pointer-events-none absolute -bottom-10 left-10 w-36 h-36 rounded-full"
              style="background: rgba(255,255,255,0.03)"></div>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-8 sm:pb-10 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 lg:pt-10 pb-12 sm:pb-14 relative z-10">
             <p class="text-white/60 text-[11px] sm:text-[12px] font-semibold uppercase tracking-widest mb-1">
                 Akun & Pengaturan
             </p>
@@ -35,7 +35,7 @@
     </section>
 
     {{-- ── Main Container ──────────────────────────────────────────── --}}
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-6 pb-28 sm:pb-32 space-y-6">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-6 pb-8 md:pb-28 space-y-6 relative z-10">
 
         {{-- Flash status notification --}}
         @if(session('status'))
