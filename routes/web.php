@@ -74,7 +74,6 @@ Route::middleware(['auth'])->group(function () {
     // Admin: User Management (Siswa & Guru)
     Route::get('/admin/siswa', [AdminUserController::class, 'indexSiswa'])->name('admin.siswa.index');
     Route::get('/admin/guru', [AdminUserController::class, 'indexGuru'])->name('admin.guru.index');
-    Route::post('/admin/users', [AdminUserController::class, 'store'])->name('admin.users.store');
     Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 });

@@ -69,31 +69,6 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Tambah Pengguna Baru (Siswa atau Guru).
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'name'            => ['required', 'string', 'max:255'],
-            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'role'            => ['required', 'string', 'in:siswa,guru,admin'],
-            'nis_nip'         => ['nullable', 'string', 'max:50'],
-            'asal_sekolah'    => ['nullable', 'string', 'max:255'],
-            'jurusan'         => ['nullable', 'string', 'max:255'],
-            'phone'           => ['nullable', 'string', 'max:20'],
-            'tanggal_mulai'   => ['nullable', 'date'],
-            'tanggal_selesai' => ['nullable', 'date', 'after_or_equal:tanggal_mulai'],
-            'password'        => ['nullable', 'string', 'min:6'],
-        ]);
-
-        $validated['password'] = Hash::make($request->password ?: 'password');
-
-        User::create($validated);
-
-        return redirect()->back()->with('success', 'Pengguna baru berhasil ditambahkan.');
-    }
-
-    /**
      * Update data Pengguna.
      */
     public function update(Request $request, User $user): RedirectResponse

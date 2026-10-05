@@ -10,11 +10,6 @@
             id: '', name: '', email: '', nis_nip: '', asal_sekolah: '',
             phone: '', role: 'guru', password: ''
         },
-        openAdd() {
-            this.editMode = false;
-            this.form = { id: '', name: '', email: '', nis_nip: '', asal_sekolah: '', phone: '', role: 'guru', password: '' };
-            this.showModal = true;
-        },
         openEdit(data) {
             this.editMode = true;
             this.form = data;
@@ -48,12 +43,6 @@
                 </p>
             </div>
 
-            <button @click="openAdd()"
-                    class="flex items-center gap-xs px-md py-sm rounded-xl font-bold transition-all active:scale-95 shadow-md hover:shadow-lg whitespace-nowrap"
-                    style="background: rgba(255,255,255,0.95); color: #855300;">
-                <span class="material-symbols-outlined text-[20px]">person_add</span>
-                <span>Tambah Guru</span>
-            </button>
         </div>
     </div>
 
@@ -287,22 +276,12 @@
                                                 Belum ada data guru pembimbing
                                             @endif
                                         </p>
-                                        <p class="text-[12px] text-on-surface-variant">
-                                            @if(request('search'))
+                                        @if(request('search'))
+                                            <p class="text-[12px] text-on-surface-variant">
                                                 Coba ubah kata kunci pencarian.
-                                            @else
-                                                Klik tombol "Tambah Guru" untuk menambahkan guru pertama.
-                                            @endif
-                                        </p>
+                                            </p>
+                                        @endif
                                     </div>
-                                    @if(!request('search'))
-                                        <button @click="openAdd()"
-                                                class="text-white font-bold px-md py-sm rounded-xl flex items-center gap-xs transition-all active:scale-95"
-                                                style="background: #855300;">
-                                            <span class="material-symbols-outlined text-[18px]">person_add</span>
-                                            Tambah Guru Pertama
-                                        </button>
-                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -320,7 +299,7 @@
     </div>
 
     {{-- ════════════════════════════════════════════════════════════
-         MODAL FORM (TAMBAH / EDIT)
+         MODAL FORM (EDIT)
     ════════════════════════════════════════════════════════════ --}}
     <div x-show="showModal"
          x-cloak
@@ -342,14 +321,11 @@
             <div class="px-lg py-md border-b border-outline-variant/50 flex items-center justify-between sticky top-0 bg-white z-10">
                 <div class="flex items-center gap-sm">
                     <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(133,83,0,0.10)">
-                        <span class="material-symbols-outlined text-[18px] text-secondary" style="font-variation-settings:'FILL' 1"
-                              x-text="editMode ? 'edit' : 'person_add'">person_add</span>
+                        <span class="material-symbols-outlined text-[18px] text-secondary" style="font-variation-settings:'FILL' 1">edit</span>
                     </div>
                     <div>
-                        <h3 class="text-[15px] font-extrabold text-on-surface"
-                            x-text="editMode ? 'Edit Data Guru' : 'Tambah Guru Pembimbing'"></h3>
-                        <p class="text-[11px] text-on-surface-variant"
-                           x-text="editMode ? 'Perbarui informasi guru pembimbing' : 'Isi data untuk mendaftarkan guru baru'"></p>
+                        <h3 class="text-[15px] font-extrabold text-on-surface">Edit Data Guru</h3>
+                        <p class="text-[11px] text-on-surface-variant">Perbarui informasi guru pembimbing</p>
                     </div>
                 </div>
                 <button @click="showModal = false"
@@ -358,7 +334,7 @@
                 </button>
             </div>
 
-            <form :action="editMode ? '/admin/users/' + form.id : '{{ route('admin.users.store') }}'"
+            <form :action="'/admin/users/' + form.id"
                   method="POST"
                   class="p-lg space-y-md">
                 @csrf
@@ -439,8 +415,8 @@
                     <button type="submit"
                             class="px-md py-sm text-white font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-xs hover:opacity-90"
                             style="background: #855300;">
-                        <span class="material-symbols-outlined text-[18px]" x-text="editMode ? 'save' : 'person_add'">save</span>
-                        <span x-text="editMode ? 'Simpan Perubahan' : 'Tambah Guru'">Simpan</span>
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        <span>Simpan Perubahan</span>
                     </button>
                 </div>
             </form>

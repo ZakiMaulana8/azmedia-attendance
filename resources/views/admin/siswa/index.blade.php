@@ -12,11 +12,6 @@
             jurusan: '', phone: '', tanggal_mulai: '', tanggal_selesai: '',
             role: 'siswa', password: ''
         },
-        openAdd() {
-            this.editMode = false;
-            this.form = { id: '', name: '', email: '', nis_nip: '', asal_sekolah: '', jurusan: '', phone: '', tanggal_mulai: '', tanggal_selesai: '', role: 'siswa', password: '' };
-            this.showModal = true;
-        },
         openEdit(data) {
             this.editMode = true;
             this.form = data;
@@ -49,12 +44,6 @@
                 </p>
             </div>
 
-            <button @click="openAdd()"
-                    class="flex items-center gap-xs px-md py-sm rounded-xl font-bold text-primary transition-all active:scale-95 shadow-md hover:shadow-lg whitespace-nowrap"
-                    style="background: rgba(255,255,255,0.95);">
-                <span class="material-symbols-outlined text-[20px]">person_add</span>
-                <span>Tambah Siswa</span>
-            </button>
         </div>
     </div>
 
@@ -302,21 +291,12 @@
                                                 Belum ada data siswa magang
                                             @endif
                                         </p>
-                                        <p class="text-[12px] text-on-surface-variant">
-                                            @if(request('search'))
+                                        @if(request('search'))
+                                            <p class="text-[12px] text-on-surface-variant">
                                                 Coba ubah kata kunci pencarian.
-                                            @else
-                                                Klik tombol "Tambah Siswa" untuk menambahkan siswa baru.
-                                            @endif
-                                        </p>
+                                            </p>
+                                        @endif
                                     </div>
-                                    @if(!request('search'))
-                                        <button @click="openAdd()"
-                                                class="bg-primary text-white font-bold px-md py-sm rounded-xl flex items-center gap-xs transition-all active:scale-95">
-                                            <span class="material-symbols-outlined text-[18px]">person_add</span>
-                                            Tambah Siswa Pertama
-                                        </button>
-                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -334,7 +314,7 @@
     </div>
 
     {{-- ════════════════════════════════════════════════════════════
-         MODAL FORM (TAMBAH / EDIT)
+         MODAL FORM (EDIT)
     ════════════════════════════════════════════════════════════ --}}
     <div x-show="showModal"
          x-cloak
@@ -356,14 +336,11 @@
             <div class="px-lg py-md border-b border-outline-variant/50 flex items-center justify-between sticky top-0 bg-white z-10">
                 <div class="flex items-center gap-sm">
                     <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1"
-                              x-text="editMode ? 'edit' : 'person_add'">person_add</span>
+                        <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1">edit</span>
                     </div>
                     <div>
-                        <h3 class="text-[15px] font-extrabold text-on-surface"
-                            x-text="editMode ? 'Edit Data Siswa' : 'Tambah Siswa Magang'"></h3>
-                        <p class="text-[11px] text-on-surface-variant"
-                           x-text="editMode ? 'Perbarui informasi siswa' : 'Isi data untuk mendaftarkan siswa baru'"></p>
+                        <h3 class="text-[15px] font-extrabold text-on-surface">Edit Data Siswa</h3>
+                        <p class="text-[11px] text-on-surface-variant">Perbarui informasi siswa</p>
                     </div>
                 </div>
                 <button @click="showModal = false"
@@ -372,7 +349,7 @@
                 </button>
             </div>
 
-            <form :action="editMode ? '/admin/users/' + form.id : '{{ route('admin.users.store') }}'"
+            <form :action="'/admin/users/' + form.id"
                   method="POST"
                   class="p-lg space-y-md">
                 @csrf
@@ -469,8 +446,8 @@
                     </button>
                     <button type="submit"
                             class="px-md py-sm bg-primary text-white font-bold rounded-xl hover:bg-primary/90 shadow-md transition-all active:scale-95 flex items-center gap-xs">
-                        <span class="material-symbols-outlined text-[18px]" x-text="editMode ? 'save' : 'person_add'">save</span>
-                        <span x-text="editMode ? 'Simpan Perubahan' : 'Tambah Siswa'">Simpan</span>
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        <span>Simpan Perubahan</span>
                     </button>
                 </div>
             </form>
