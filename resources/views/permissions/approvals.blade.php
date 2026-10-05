@@ -32,15 +32,18 @@
                     flex items-center gap-3 cursor-pointer hover:bg-surface-container-low transition-colors
                     active:scale-[0.99] duration-100"
              @click="openModal({{ $perm->id }}, {{ json_encode([
-                 'id'       => $perm->id,
-                 'nama'     => $perm->user->name,
-                 'avatar'   => $perm->user->photo_url,
-                 'jurusan'  => $perm->user->jurusan ?? '—',
-                 'jenis'    => $perm->jenis_label,
-                 'tanggal'  => $perm->tanggal->translatedFormat('d F Y'),
-                 'alasan'   => $perm->alasan,
-                 'lampiran' => $perm->lampiran ? asset('storage/'.$perm->lampiran) : null,
-                 'status'   => $perm->status,
+                 'id'               => $perm->id,
+                 'nama'             => $perm->user->name,
+                 'avatar'           => $perm->user->photo_url,
+                 'jurusan'          => $perm->user->jurusan ?? '—',
+                 'jenis'            => $perm->jenis_label,
+                 'tanggal'          => $perm->tanggal->translatedFormat('d F Y'),
+                 'alasan'           => $perm->alasan,
+                 'lampiran'         => $perm->lampiran ? asset('storage/'.$perm->lampiran) : null,
+                 'status'           => $perm->status,
+                 'approver'         => $perm->approver?->name,
+                 'approved_at'      => $perm->approved_at?->translatedFormat('d M Y H:i'),
+                 'catatan_approver' => $perm->catatan_approver,
              ]) }})">
             <div class="w-12 h-12 rounded-xl overflow-hidden bg-surface-container-high shrink-0">
                 <img src="{{ $perm->user->photo_url }}" alt="{{ $perm->user->name }}"
@@ -161,14 +164,30 @@
                 </div>
 
                 <template x-if="modal.status !== 'menunggu'">
-                    <div class="flex items-center justify-center gap-sm p-md rounded-xl"
-                         :class="modal.status === 'disetujui'
-                             ? 'bg-primary-container/20 text-primary'
-                             : 'bg-error-container/20 text-error'">
-                        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1"
-                              x-text="modal.status === 'disetujui' ? 'check_circle' : 'cancel'"></span>
-                        <span class="text-body-sm font-semibold"
-                              x-text="modal.status === 'disetujui' ? 'Izin telah disetujui' : 'Izin telah ditolak'"></span>
+                    <div class="space-y-sm">
+                        <div class="flex items-center justify-center gap-sm p-md rounded-xl"
+                             :class="modal.status === 'disetujui'
+                                 ? 'bg-primary-container/20 text-primary'
+                                 : 'bg-error-container/20 text-error'">
+                            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1"
+                                  x-text="modal.status === 'disetujui' ? 'check_circle' : 'cancel'"></span>
+                            <span class="text-body-sm font-semibold"
+                                  x-text="modal.status === 'disetujui' ? 'Izin telah disetujui' : 'Izin telah ditolak'"></span>
+                        </div>
+                        <template x-if="modal.approver">
+                            <p class="text-center text-[12px] text-on-surface-variant font-medium">
+                                Diproses oleh <span class="font-bold text-on-surface" x-text="modal.approver"></span>
+                                <template x-if="modal.approved_at">
+                                    <span x-text="' · ' + modal.approved_at"></span>
+                                </template>
+                            </p>
+                        </template>
+                        <template x-if="modal.catatan_approver">
+                            <div class="bg-surface-container-low rounded-xl px-md py-sm">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-0.5">Catatan Pembimbing</p>
+                                <p class="text-body-sm text-on-surface" x-text="modal.catatan_approver"></p>
+                            </div>
+                        </template>
                     </div>
                 </template>
             </div>
@@ -202,7 +221,7 @@
 @endsection
 
 @section('bottom-nav')
-    <x-bottom-nav active="approval" role="guru" />
+    <x-bottom-nav active="approval" :role="auth()->user()->role" />
 @endsection
 
 @push('scripts')
@@ -244,9 +263,13 @@ function approvalPage() {
                 });
 
                 if (!res.ok) {
-                    const text = await res.text();
-                    console.error('Server error:', res.status, text);
-                    alert(`Terjadi kesalahan (${res.status}). Silakan coba lagi.`);
+                    let errMsg = `Terjadi kesalahan (${res.status}). Silakan coba lagi.`;
+                    try {
+                        const errData = await res.json();
+                        if (errData?.message) errMsg = errData.message;
+                    } catch (e) {}
+                    alert(errMsg);
+                    window.location.reload();
                     return;
                 }
 

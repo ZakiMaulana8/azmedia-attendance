@@ -21,7 +21,15 @@
                 style="font-size: 24px; line-height: 30px; letter-spacing: -0.02em;">
                 Profil Saya
             </h2>
-            <p class="text-white/60 text-[13px] mt-1">Informasi akun dan data magang</p>
+            @php
+                $profileSubtitle = match($user->role) {
+                    'admin'    => 'Informasi akun dan hak akses administrator',
+                    'guru'     => 'Informasi akun dan profil guru pembimbing',
+                    'karyawan' => 'Informasi akun dan profil karyawan',
+                    default    => 'Informasi akun dan data magang',
+                };
+            @endphp
+            <p class="text-white/60 text-[13px] mt-1">{{ $profileSubtitle }}</p>
         </div>
     </section>
 
@@ -60,9 +68,10 @@
             {{-- Role badge --}}
             @php
                 $roleBadge = match($user->role) {
-                    'admin' => ['label' => 'Administrator',     'class' => 'bg-tertiary-container text-on-tertiary-container', 'icon' => 'admin_panel_settings'],
-                    'guru'  => ['label' => 'Guru Pembimbing',  'class' => 'bg-secondary-container text-on-secondary-container', 'icon' => 'supervisor_account'],
-                    default => ['label' => 'Siswa Magang',     'class' => 'bg-primary-container text-on-primary-container', 'icon' => 'school'],
+                    'admin'    => ['label' => 'Administrator',    'class' => 'bg-tertiary-container text-on-tertiary-container', 'icon' => 'admin_panel_settings'],
+                    'guru'     => ['label' => 'Guru Pembimbing', 'class' => 'bg-secondary-container text-on-secondary-container', 'icon' => 'supervisor_account'],
+                    'karyawan' => ['label' => 'Karyawan',        'class' => 'bg-emerald-100 text-emerald-800 border border-emerald-200/80', 'icon' => 'badge'],
+                    default    => ['label' => 'Siswa Magang',    'class' => 'bg-primary-container text-on-primary-container', 'icon' => 'school'],
                 };
             @endphp
             <span class="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-3 py-1.5 rounded-full {{ $roleBadge['class'] }}">

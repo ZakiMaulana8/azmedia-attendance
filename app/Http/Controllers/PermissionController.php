@@ -58,12 +58,12 @@ class PermissionController extends Controller
 
     // ── Guru ───────────────────────────────────────────────────────────────────
 
-    /** Daftar semua izin siswa (untuk guru) */
+    /** Daftar semua izin siswa (untuk guru dan karyawan) */
     public function approvals(Request $request): View
     {
         $status = $request->get('status', 'menunggu');
 
-        $permissions = Permission::with('user')
+        $permissions = Permission::with(['user', 'approver'])
             ->when($status !== 'semua', fn ($q) => $q->where('status', $status))
             ->latest()
             ->paginate(15);
@@ -71,7 +71,7 @@ class PermissionController extends Controller
         return view('permissions.approvals', compact('permissions', 'status'));
     }
 
-    /** Approve / tolak via AJAX (dari dashboard card atau halaman detail) */
+    /** Approve / tolak via AJAX (dari guru atau karyawan) */
     public function approve(Request $request, Permission $permission): JsonResponse
     {
         $request->validate([
@@ -79,8 +79,22 @@ class PermissionController extends Controller
             'catatan' => ['nullable', 'string', 'max:500'],
         ]);
 
-        DB::transaction(function () use ($request, $permission) {
-            $permission->update([
+        return DB::transaction(function () use ($request, $permission) {
+            // Kunci row untuk mencegah race condition (SELECT ... FOR UPDATE)
+            $lockedPermission = Permission::where('id', $permission->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // Hanya pengajuan dengan status 'menunggu' yang bisa diproses
+            if ($lockedPermission->status !== 'menunggu') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pengajuan izin ini sudah diproses dan tidak dapat diubah.',
+                    'status'  => $lockedPermission->status,
+                ], 422);
+            }
+
+            $lockedPermission->update([
                 'status'           => $request->action,
                 'approver_id'      => $request->user()->id,
                 'catatan_approver' => $request->catatan,
@@ -88,30 +102,30 @@ class PermissionController extends Controller
             ]);
 
             if ($request->action === 'disetujui') {
-                $attendance = Attendance::where('user_id', $permission->user_id)
-                    ->whereDate('tanggal', $permission->tanggal)
+                $attendance = Attendance::where('user_id', $lockedPermission->user_id)
+                    ->whereDate('tanggal', $lockedPermission->tanggal)
                     ->first();
 
                 if (! $attendance) {
                     Attendance::create([
-                        'user_id'    => $permission->user_id,
-                        'tanggal'    => $permission->tanggal,
+                        'user_id'    => $lockedPermission->user_id,
+                        'tanggal'    => $lockedPermission->tanggal,
                         'status'     => 'izin',
-                        'keterangan' => $permission->jenis_label ?: 'Izin',
+                        'keterangan' => $lockedPermission->jenis_label ?: 'Izin',
                     ]);
                 } elseif (! $attendance->jam_masuk && $attendance->status !== 'hadir') {
                     $attendance->update([
                         'status'     => 'izin',
-                        'keterangan' => $attendance->keterangan ?: ($permission->jenis_label ?: 'Izin'),
+                        'keterangan' => $attendance->keterangan ?: ($lockedPermission->jenis_label ?: 'Izin'),
                     ]);
                 }
             }
-        });
 
-        return response()->json([
-            'success'      => true,
-            'status'       => $permission->status,
-            'status_label' => $permission->status_label,
-        ]);
+            return response()->json([
+                'success'      => true,
+                'status'       => $lockedPermission->status,
+                'status_label' => $lockedPermission->status_label,
+            ]);
+        });
     }
 }

@@ -30,12 +30,24 @@
             <span class="material-symbols-outlined" @if($active === 'approval') style="font-variation-settings:'FILL' 1" @endif>fact_check</span>
             <span class="text-label-md">Approval</span>
         </a>
+        @elseif($role === 'karyawan')
+        {{-- Karyawan: pemantauan siswa PKL & approval izin --}}
+        <a href="{{ route('karyawan.siswa.index') }}" class="{{ $active === 'siswa' ? $activeClass : $inactiveClass }}">
+            <span class="material-symbols-outlined" @if($active === 'siswa') style="font-variation-settings:'FILL' 1" @endif>school</span>
+            <span class="text-label-md">Siswa PKL</span>
+        </a>
+        <a href="{{ route('permissions.approvals') }}" class="{{ $active === 'approval' ? $activeClass : $inactiveClass }}">
+            <span class="material-symbols-outlined" @if($active === 'approval') style="font-variation-settings:'FILL' 1" @endif>fact_check</span>
+            <span class="text-label-md">Approval</span>
+        </a>
         @endif
 
+        @if($role !== 'karyawan')
         <a href="{{ route('reports.index') }}" class="{{ $active === 'reports' ? $activeClass : $inactiveClass }}">
             <span class="material-symbols-outlined" @if($active === 'reports') style="font-variation-settings:'FILL' 1" @endif>assessment</span>
             <span class="text-label-md">Laporan</span>
         </a>
+        @endif
 
         @if($role === 'siswa')
         <a href="{{ route('activity-reports.index') }}" class="{{ $active === 'activity' ? $activeClass : $inactiveClass }}">

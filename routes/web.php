@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeofenceController;
+use App\Http\Controllers\KaryawanSiswaController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -60,11 +61,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create');
     Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
 
-    // Permissions — guru (approval)
-    Route::get('/permissions/approvals', [PermissionController::class, 'approvals'])->name('permissions.approvals');
+    // Permissions — approval (guru & karyawan)
+    Route::get('/permissions/approvals', [PermissionController::class, 'approvals'])
+        ->name('permissions.approvals')
+        ->middleware('can:viewAny,App\Models\Permission');
     Route::patch('/permissions/{permission}/approve', [PermissionController::class, 'approve'])
         ->name('permissions.approve')
         ->middleware('can:update,permission');
+
+    // Karyawan area — pemantauan siswa PKL (middleware: auth + karyawan)
+    Route::middleware('karyawan')->group(function () {
+        Route::get('/karyawan/siswa', [KaryawanSiswaController::class, 'index'])->name('karyawan.siswa.index');
+    });
 
     // Admin area — hanya role `admin` (middleware: auth + admin)
     Route::middleware('admin')->group(function () {

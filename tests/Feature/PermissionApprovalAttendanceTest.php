@@ -93,6 +93,13 @@ class PermissionApprovalAttendanceTest extends TestCase
         ]);
     }
 
+    private function createKaryawan(): User
+    {
+        return User::factory()->create([
+            'role' => 'karyawan',
+        ]);
+    }
+
     /**
      * Test 1: approve → permission `disetujui` + attendance `izin`
      */
@@ -198,9 +205,9 @@ class PermissionApprovalAttendanceTest extends TestCase
     }
 
     /**
-     * Test 4: approve dua kali → tidak membuat duplicate
+     * Test 4: approve dua kali → hanya satu yang berhasil dan tidak membuat duplicate
      */
-    public function test_approve_twice_does_not_create_duplicate_attendance(): void
+    public function test_approve_twice_only_first_succeeds_and_does_not_create_duplicate_attendance(): void
     {
         $guru  = $this->createGuru();
         $siswa = $this->createSiswa();
@@ -213,15 +220,16 @@ class PermissionApprovalAttendanceTest extends TestCase
             'status'   => 'menunggu',
         ]);
 
-        // Approval pertama
+        // Approval pertama: berhasil
         $this->actingAs($guru)->patchJson(route('permissions.approve', $permission), [
             'action' => 'disetujui',
         ])->assertOk();
 
-        // Approval kedua (misal klik ulang)
+        // Approval kedua (misal klik ulang atau tab lain): ditolak karena izin sudah terkunci
         $this->actingAs($guru)->patchJson(route('permissions.approve', $permission), [
             'action' => 'disetujui',
-        ])->assertOk();
+        ])->assertStatus(422)
+          ->assertJson(['success' => false]);
 
         $count = Attendance::where('user_id', $siswa->id)
             ->whereDate('tanggal', '2026-10-13')
@@ -274,5 +282,202 @@ class PermissionApprovalAttendanceTest extends TestCase
         $this->assertEquals('07:15', $attendance->jam_masuk->format('H:i'));
         $this->assertEquals(-8.0311337, (float) $attendance->lat_masuk);
         $this->assertEquals('Hadir tepat waktu', $attendance->keterangan);
+    }
+
+    /**
+     * Test 6: Karyawan approve → berhasil & attendance izin terbuat
+     */
+    public function test_karyawan_can_approve_permission_and_creates_attendance_izin(): void
+    {
+        $karyawan = $this->createKaryawan();
+        $siswa    = $this->createSiswa();
+
+        $permission = Permission::create([
+            'user_id'  => $siswa->id,
+            'jenis'    => 'sakit',
+            'tanggal'  => '2026-10-15',
+            'alasan'   => 'Flu berat',
+            'status'   => 'menunggu',
+        ]);
+
+        $response = $this->actingAs($karyawan)->patchJson(route('permissions.approve', $permission), [
+            'action'  => 'disetujui',
+            'catatan' => 'Istirahat yang cukup ya',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['success' => true, 'status' => 'disetujui']);
+
+        $permission->refresh();
+        $this->assertEquals('disetujui', $permission->status);
+        $this->assertEquals($karyawan->id, $permission->approver_id);
+        $this->assertEquals('Istirahat yang cukup ya', $permission->catatan_approver);
+
+        $attendance = Attendance::where('user_id', $siswa->id)
+            ->whereDate('tanggal', '2026-10-15')
+            ->first();
+        $this->assertNotNull($attendance);
+        $this->assertEquals('izin', $attendance->status);
+    }
+
+    /**
+     * Test 7: Karyawan reject → berhasil & tidak membuat attendance
+     */
+    public function test_karyawan_can_reject_permission_without_creating_attendance(): void
+    {
+        $karyawan = $this->createKaryawan();
+        $siswa    = $this->createSiswa();
+
+        $permission = Permission::create([
+            'user_id'  => $siswa->id,
+            'jenis'    => 'izin',
+            'tanggal'  => '2026-10-16',
+            'alasan'   => 'Acara santai',
+            'status'   => 'menunggu',
+        ]);
+
+        $response = $this->actingAs($karyawan)->patchJson(route('permissions.approve', $permission), [
+            'action'  => 'ditolak',
+            'catatan' => 'Alasan tidak memenuhi kriteria',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['success' => true, 'status' => 'ditolak']);
+
+        $permission->refresh();
+        $this->assertEquals('ditolak', $permission->status);
+        $this->assertEquals($karyawan->id, $permission->approver_id);
+
+        $attendance = Attendance::where('user_id', $siswa->id)
+            ->whereDate('tanggal', '2026-10-16')
+            ->first();
+        $this->assertNull($attendance);
+    }
+
+    /**
+     * Test 8: Siswa cannot approve/reject → 403 Forbidden
+     */
+    public function test_siswa_cannot_approve_permission(): void
+    {
+        $siswa1 = $this->createSiswa();
+        $siswa2 = $this->createSiswa();
+
+        $permission = Permission::create([
+            'user_id'  => $siswa1->id,
+            'jenis'    => 'izin',
+            'tanggal'  => '2026-10-17',
+            'alasan'   => 'Coba approve sendiri',
+            'status'   => 'menunggu',
+        ]);
+
+        // Siswa sendiri tidak bisa approve
+        $this->actingAs($siswa1)->patchJson(route('permissions.approve', $permission), [
+            'action' => 'disetujui',
+        ])->assertForbidden();
+
+        // Siswa lain juga tidak bisa approve
+        $this->actingAs($siswa2)->patchJson(route('permissions.approve', $permission), [
+            'action' => 'disetujui',
+        ])->assertForbidden();
+
+        $permission->refresh();
+        $this->assertEquals('menunggu', $permission->status);
+    }
+
+    /**
+     * Test 9: Siapa cepat dia dapat & terkunci: Karyawan approve duluan → Guru tidak bisa mengubah
+     */
+    public function test_karyawan_approves_first_locks_permission_from_guru(): void
+    {
+        $karyawan = $this->createKaryawan();
+        $guru     = $this->createGuru();
+        $siswa    = $this->createSiswa();
+
+        $permission = Permission::create([
+            'user_id'  => $siswa->id,
+            'jenis'    => 'izin',
+            'tanggal'  => '2026-10-18',
+            'alasan'   => 'Keperluan keluarga',
+            'status'   => 'menunggu',
+        ]);
+
+        // Karyawan approve terlebih dahulu
+        $this->actingAs($karyawan)->patchJson(route('permissions.approve', $permission), [
+            'action'  => 'disetujui',
+            'catatan' => 'Disetujui oleh Karyawan',
+        ])->assertOk();
+
+        // Guru mencoba menolak izin yang sudah disetujui karyawan
+        $resGuru = $this->actingAs($guru)->patchJson(route('permissions.approve', $permission), [
+            'action'  => 'ditolak',
+            'catatan' => 'Guru mau tolak',
+        ]);
+
+        $resGuru->assertStatus(422)
+            ->assertJson(['success' => false]);
+
+        $permission->refresh();
+        // Keputusan tetap milik Karyawan
+        $this->assertEquals('disetujui', $permission->status);
+        $this->assertEquals($karyawan->id, $permission->approver_id);
+        $this->assertEquals('Disetujui oleh Karyawan', $permission->catatan_approver);
+    }
+
+    /**
+     * Test 10: Guru reject duluan → Karyawan tidak bisa mengubah
+     */
+    public function test_guru_rejects_first_locks_permission_from_karyawan(): void
+    {
+        $karyawan = $this->createKaryawan();
+        $guru     = $this->createGuru();
+        $siswa    = $this->createSiswa();
+
+        $permission = Permission::create([
+            'user_id'  => $siswa->id,
+            'jenis'    => 'izin',
+            'tanggal'  => '2026-10-19',
+            'alasan'   => 'Alasan diragukan',
+            'status'   => 'menunggu',
+        ]);
+
+        // Guru tolak terlebih dahulu
+        $this->actingAs($guru)->patchJson(route('permissions.approve', $permission), [
+            'action'  => 'ditolak',
+            'catatan' => 'Ditolak Guru',
+        ])->assertOk();
+
+        // Karyawan mencoba menyetujui izin yang sudah ditolak guru
+        $resKaryawan = $this->actingAs($karyawan)->patchJson(route('permissions.approve', $permission), [
+            'action'  => 'disetujui',
+            'catatan' => 'Karyawan mau setujui',
+        ]);
+
+        $resKaryawan->assertStatus(422)
+            ->assertJson(['success' => false]);
+
+        $permission->refresh();
+        $this->assertEquals('ditolak', $permission->status);
+        $this->assertEquals($guru->id, $permission->approver_id);
+        $this->assertEquals('Ditolak Guru', $permission->catatan_approver);
+
+        // Pastikan tidak ada attendance izin yang terbuat
+        $attendance = Attendance::where('user_id', $siswa->id)
+            ->whereDate('tanggal', '2026-10-19')
+            ->first();
+        $this->assertNull($attendance);
+    }
+
+    /**
+     * Test 11: Karyawan dan Guru bisa akses halaman approvals, Siswa ditolak
+     */
+    public function test_karyawan_and_guru_can_access_approvals_page_but_siswa_cannot(): void
+    {
+        $guru     = $this->createGuru();
+        $karyawan = $this->createKaryawan();
+        $siswa    = $this->createSiswa();
+
+        $this->actingAs($guru)->get('/permissions/approvals')->assertOk();
+        $this->actingAs($karyawan)->get('/permissions/approvals')->assertOk();
+        $this->actingAs($siswa)->get('/permissions/approvals')->assertForbidden();
     }
 }
