@@ -118,6 +118,9 @@
     ════════════════════════════════════════════════════════════ --}}
     <div class="bg-white rounded-2xl border border-outline-variant/60 shadow-sm p-md">
         <form method="GET" action="{{ route('admin.guru.index') }}" class="flex gap-sm">
+            @if(request('view'))
+                <input type="hidden" name="view" value="{{ request('view') }}">
+            @endif
             <div class="relative flex-1">
                 <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
                 <input type="text" name="search" value="{{ request('search') }}"
@@ -131,13 +134,36 @@
                 <span class="hidden sm:inline">Cari</span>
             </button>
             @if(request('search'))
-                <a href="{{ route('admin.guru.index') }}"
+                <a href="{{ route('admin.guru.index', array_filter(['view' => request('view')])) }}"
                    class="bg-surface-container-high hover:bg-surface-container text-on-surface-variant font-semibold px-md py-sm rounded-xl flex items-center gap-xs transition-all whitespace-nowrap">
                     <span class="material-symbols-outlined text-[18px]">close</span>
                     <span class="hidden sm:inline">Reset</span>
                 </a>
             @endif
         </form>
+    </div>
+
+    {{-- ════════════════════════════════════════════════════════════
+         FILTER TAB: GURU vs SOFT DELETED
+    ════════════════════════════════════════════════════════════ --}}
+    <div class="flex items-center gap-2">
+        <a href="{{ route('admin.guru.index', array_filter(['search' => request('search'), 'view' => 'active'])) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all {{ ($currentView ?? 'active') === 'active' ? 'bg-primary text-white shadow-sm' : 'bg-white text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/60' }}">
+            <span class="material-symbols-outlined text-[18px]">school</span>
+            <span>Guru</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full {{ ($currentView ?? 'active') === 'active' ? 'bg-white/20 text-white' : 'bg-surface-container text-on-surface-variant' }}">
+                {{ $totalGuru }}
+            </span>
+        </a>
+
+        <a href="{{ route('admin.guru.index', array_filter(['search' => request('search'), 'view' => 'deleted'])) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all {{ ($currentView ?? 'active') === 'deleted' ? 'bg-red-600 text-white shadow-sm' : 'bg-white text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/60' }}">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+            <span>Soft Deleted</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full {{ ($currentView ?? 'active') === 'deleted' ? 'bg-white/20 text-white' : 'bg-red-50 text-red-600' }}">
+                {{ $deletedGuru }}
+            </span>
+        </a>
     </div>
 
     {{-- ════════════════════════════════════════════════════════════
@@ -148,16 +174,29 @@
         {{-- Table header bar --}}
         <div class="px-lg py-md border-b border-outline-variant/50 flex items-center justify-between">
             <div class="flex items-center gap-sm">
-                <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(133,83,0,0.10)">
-                    <span class="material-symbols-outlined text-[18px] text-secondary" style="font-variation-settings:'FILL' 1">school</span>
-                </div>
-                <div>
-                    <p class="text-[14px] font-bold text-on-surface">Daftar Guru Pembimbing</p>
-                    <p class="text-[11px] text-on-surface-variant">
-                        {{ $gurus->total() }} guru terdaftar
-                        @if(request('search')) — hasil pencarian "{{ request('search') }}" @endif
-                    </p>
-                </div>
+                @if(($currentView ?? 'active') === 'deleted')
+                    <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-red-600 text-[18px]" style="font-variation-settings:'FILL' 1">delete</span>
+                    </div>
+                    <div>
+                        <p class="text-[14px] font-bold text-on-surface">Daftar Guru Soft Deleted</p>
+                        <p class="text-[11px] text-on-surface-variant">
+                            {{ $gurus->total() }} guru soft deleted
+                            @if(request('search')) — hasil pencarian "{{ request('search') }}" @endif
+                        </p>
+                    </div>
+                @else
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(133,83,0,0.10)">
+                        <span class="material-symbols-outlined text-[18px] text-secondary" style="font-variation-settings:'FILL' 1">school</span>
+                    </div>
+                    <div>
+                        <p class="text-[14px] font-bold text-on-surface">Daftar Guru Pembimbing</p>
+                        <p class="text-[11px] text-on-surface-variant">
+                            {{ $gurus->total() }} guru terdaftar
+                            @if(request('search')) — hasil pencarian "{{ request('search') }}" @endif
+                        </p>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -183,8 +222,13 @@
                                         <img src="{{ $guru->photo_url }}"
                                              alt="{{ $guru->name }}"
                                              class="w-10 h-10 rounded-full object-cover ring-2 ring-outline-variant/30">
-                                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full {{ $guru->is_active ? 'bg-emerald-500' : 'bg-slate-400' }} border-2 border-white"
-                                              title="{{ $guru->is_active ? 'Akun Aktif' : 'Akun Nonaktif' }}"></span>
+                                        @if(($currentView ?? 'active') === 'deleted')
+                                            <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-white"
+                                                  title="Soft Deleted"></span>
+                                        @else
+                                            <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full {{ $guru->is_active ? 'bg-emerald-500' : 'bg-slate-400' }} border-2 border-white"
+                                                  title="{{ $guru->is_active ? 'Akun Aktif' : 'Akun Nonaktif' }}"></span>
+                                        @endif
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-[13px] font-bold text-on-surface truncate">{{ $guru->name }}</p>
@@ -227,7 +271,12 @@
                             </td>
                             {{-- Status Akun --}}
                             <td class="py-md px-md text-center">
-                                @if($guru->is_active)
+                                @if(($currentView ?? 'active') === 'deleted')
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-red-800 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                                        Soft Deleted
+                                    </span>
+                                @elseif($guru->is_active)
                                     <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                                         Aktif
@@ -242,68 +291,95 @@
                             {{-- Aksi --}}
                             <td class="py-md px-md text-right">
                                 <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                                    {{-- Tombol Toggle Status (Aktifkan / Nonaktifkan) --}}
-                                    @if($guru->is_active)
-                                        @if(auth()->id() === $guru->id)
-                                            <button type="button"
-                                                    disabled
-                                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed opacity-60"
-                                                    title="Anda tidak dapat menonaktifkan akun Anda sendiri">
-                                                <span class="material-symbols-outlined text-[15px]">block</span>
-                                                <span>Nonaktifkan</span>
-                                            </button>
-                                        @else
-                                            <form method="POST" action="{{ route('admin.users.deactivate', $guru) }}"
-                                                  onsubmit="return confirm('Nonaktifkan akun guru {{ addslashes($guru->name) }}? Guru tidak dapat login ke aplikasi.')"
-                                                  class="inline">
-                                                @csrf
-                                                <button type="submit"
-                                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-all active:scale-95"
-                                                        title="Nonaktifkan akun guru">
-                                                    <span class="material-symbols-outlined text-[15px]">person_off</span>
-                                                    <span>Nonaktifkan</span>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    @else
-                                        <form method="POST" action="{{ route('admin.users.activate', $guru) }}"
-                                              onsubmit="return confirm('Aktifkan kembali akun guru {{ addslashes($guru->name) }}?')"
+                                    @if(($currentView ?? 'active') === 'deleted')
+                                        {{-- Tab Soft Deleted: Tombol Restore --}}
+                                        <form method="POST" action="{{ route('admin.users.restore', $guru) }}"
+                                              onsubmit="return confirm('Restore akun guru {{ addslashes($guru->name) }}?')"
                                               class="inline">
                                             @csrf
                                             <button type="submit"
                                                     class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all active:scale-95"
-                                                    title="Aktifkan akun guru">
-                                                <span class="material-symbols-outlined text-[15px]">check_circle</span>
-                                                <span>Aktifkan</span>
+                                                    title="Restore">
+                                                <span class="material-symbols-outlined text-[15px]">restore_from_trash</span>
+                                                <span>Restore</span>
                                             </button>
                                         </form>
-                                    @endif
+                                    @else
+                                        {{-- Tab Normal: Tombol Toggle Status (Aktifkan / Nonaktifkan) --}}
+                                        @if($guru->is_active)
+                                            @if(auth()->id() === $guru->id)
+                                                <button type="button"
+                                                        disabled
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed opacity-60"
+                                                        title="Anda tidak dapat menonaktifkan akun Anda sendiri">
+                                                    <span class="material-symbols-outlined text-[15px]">block</span>
+                                                    <span>Nonaktifkan</span>
+                                                </button>
+                                            @else
+                                                <form method="POST" action="{{ route('admin.users.deactivate', $guru) }}"
+                                                      onsubmit="return confirm('Nonaktifkan akun guru {{ addslashes($guru->name) }}? Guru tidak dapat login ke aplikasi.')"
+                                                      class="inline">
+                                                    @csrf
+                                                    <button type="submit"
+                                                            class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-all active:scale-95"
+                                                            title="Nonaktifkan akun guru">
+                                                        <span class="material-symbols-outlined text-[15px]">person_off</span>
+                                                        <span>Nonaktifkan</span>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @else
+                                            <form method="POST" action="{{ route('admin.users.activate', $guru) }}"
+                                                  onsubmit="return confirm('Aktifkan kembali akun guru {{ addslashes($guru->name) }}?')"
+                                                  class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all active:scale-95"
+                                                        title="Aktifkan akun guru">
+                                                    <span class="material-symbols-outlined text-[15px]">check_circle</span>
+                                                    <span>Aktifkan</span>
+                                                </button>
+                                            </form>
+                                        @endif
 
-                                    <button @click="openEdit({
-                                                id: '{{ $guru->id }}',
-                                                name: '{{ addslashes($guru->name) }}',
-                                                email: '{{ addslashes($guru->email) }}',
-                                                nis_nip: '{{ $guru->nis_nip }}',
-                                                asal_sekolah: '{{ addslashes($guru->asal_sekolah) }}',
-                                                phone: '{{ $guru->phone }}',
-                                                role: 'guru',
-                                                password: ''
-                                            })"
-                                            class="w-8 h-8 rounded-xl flex items-center justify-center text-secondary bg-secondary/5 hover:bg-secondary/15 transition-all active:scale-90"
-                                            title="Edit data guru">
-                                        <span class="material-symbols-outlined text-[18px]">edit</span>
-                                    </button>
-                                    <form method="POST" action="{{ route('admin.users.destroy', $guru) }}"
-                                          onsubmit="return confirm('Hapus guru {{ addslashes($guru->name) }}? Tindakan ini tidak dapat dibatalkan!')"
-                                          class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="w-8 h-8 rounded-xl flex items-center justify-center text-red-600 bg-red-50 hover:bg-red-100 transition-all active:scale-90"
-                                                title="Hapus guru">
-                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        {{-- Tombol Edit Modal --}}
+                                        <button @click="openEdit({
+                                                    id: '{{ $guru->id }}',
+                                                    name: '{{ addslashes($guru->name ?? '') }}',
+                                                    email: '{{ addslashes($guru->email ?? '') }}',
+                                                    nis_nip: '{{ $guru->nis_nip }}',
+                                                    asal_sekolah: '{{ addslashes($guru->asal_sekolah ?? '') }}',
+                                                    phone: '{{ $guru->phone }}',
+                                                    role: 'guru',
+                                                    password: ''
+                                                })"
+                                                class="w-8 h-8 rounded-xl flex items-center justify-center text-secondary bg-secondary/5 hover:bg-secondary/15 transition-all active:scale-90"
+                                                title="Edit data guru">
+                                            <span class="material-symbols-outlined text-[18px]">edit</span>
                                         </button>
-                                    </form>
+
+                                        {{-- Tombol Soft Delete --}}
+                                        @if(auth()->id() === $guru->id)
+                                            <button type="button"
+                                                    disabled
+                                                    class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 bg-slate-100 cursor-not-allowed opacity-60"
+                                                    title="Anda tidak dapat melakukan Soft Delete pada akun Anda sendiri">
+                                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                                            </button>
+                                        @else
+                                            <form method="POST" action="{{ route('admin.users.destroy', $guru) }}"
+                                                  onsubmit="return confirm('Lakukan Soft Delete pada akun guru {{ addslashes($guru->name) }}?')"
+                                                  class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="w-8 h-8 rounded-xl flex items-center justify-center text-red-600 bg-red-50 hover:bg-red-100 transition-all active:scale-90"
+                                                        title="Soft Delete">
+                                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -312,12 +388,14 @@
                             <td colspan="6" class="py-2xl text-center">
                                 <div class="flex flex-col items-center gap-md">
                                     <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-[36px] text-outline">person_search</span>
+                                        <span class="material-symbols-outlined text-[36px] text-outline">{{ ($currentView ?? 'active') === 'deleted' ? 'delete_sweep' : 'person_search' }}</span>
                                     </div>
                                     <div>
                                         <p class="text-[14px] font-bold text-on-surface mb-1">
                                             @if(request('search'))
                                                 Guru tidak ditemukan
+                                            @elseif(($currentView ?? 'active') === 'deleted')
+                                                Tidak ada data guru soft deleted
                                             @else
                                                 Belum ada data guru pembimbing
                                             @endif

@@ -60,7 +60,13 @@ class AdminUserController extends Controller
      */
     public function indexGuru(Request $request): View
     {
-        $query = User::where('role', 'guru');
+        $currentView = $request->query('view', 'active');
+        if ($currentView === 'deleted') {
+            $query = User::onlyTrashed()->where('role', 'guru');
+        } else {
+            $query = User::where('role', 'guru');
+            $currentView = 'active';
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -68,19 +74,29 @@ class AdminUserController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('nis_nip', 'like', "%{$search}%")
-                  ->orWhere('asal_sekolah', 'like', "%{$search}%");
+                  ->orWhere('asal_sekolah', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
         $gurus = $query->orderBy('name')->paginate(10)->withQueryString();
 
-        // Stats (always from full dataset)
+        // Stats (always from full normal dataset)
         $totalGuru      = User::where('role', 'guru')->count();
         $withNip        = User::where('role', 'guru')->whereNotNull('nis_nip')->where('nis_nip', '!=', '')->count();
         $instansiCount  = User::where('role', 'guru')->whereNotNull('asal_sekolah')->distinct('asal_sekolah')->count('asal_sekolah');
         $withPhone      = User::where('role', 'guru')->whereNotNull('phone')->where('phone', '!=', '')->count();
+        $deletedGuru    = User::onlyTrashed()->where('role', 'guru')->count();
 
-        return view('admin.guru.index', compact('gurus', 'totalGuru', 'withNip', 'instansiCount', 'withPhone'));
+        return view('admin.guru.index', compact(
+            'gurus',
+            'totalGuru',
+            'withNip',
+            'instansiCount',
+            'withPhone',
+            'deletedGuru',
+            'currentView'
+        ));
     }
 
     /**
