@@ -13,6 +13,10 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
     protected $fillable = [
         'name',
         'email',
@@ -26,6 +30,7 @@ class User extends Authenticatable
         'tanggal_mulai',
         'tanggal_selesai',
         'phone',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -40,6 +45,7 @@ class User extends Authenticatable
             'password'          => 'hashed',
             'tanggal_mulai'     => 'date',
             'tanggal_selesai'   => 'date',
+            'is_active'         => 'boolean',
         ];
     }
 

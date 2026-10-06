@@ -56,15 +56,15 @@
             </div>
         </div>
 
-        {{-- Ada Kontak --}}
+        {{-- Akun Aktif --}}
         <div class="bg-white rounded-2xl border border-outline-variant/60 shadow-sm p-md flex items-center gap-md">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(16,185,129,0.12)">
-                <span class="material-symbols-outlined text-[26px] text-emerald-600" style="font-variation-settings:'FILL' 1">phone</span>
+                <span class="material-symbols-outlined text-[26px] text-emerald-600" style="font-variation-settings:'FILL' 1">check_circle</span>
             </div>
             <div>
-                <p class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Ada Kontak</p>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Akun Aktif</p>
                 <p class="text-[28px] font-black text-emerald-600 leading-none" style="letter-spacing: -0.03em;">
-                    {{ $withPhone }}
+                    {{ $activeKaryawan }}
                 </p>
             </div>
         </div>
@@ -171,6 +171,7 @@
                     <tr>
                         <th class="py-sm px-lg text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Karyawan</th>
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Telepon</th>
+                        <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Status</th>
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Role</th>
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant text-right">Aksi</th>
                     </tr>
@@ -185,8 +186,8 @@
                                         <img src="{{ $karyawan->photo_url }}"
                                              alt="{{ $karyawan->name }}"
                                              class="w-10 h-10 rounded-full object-cover ring-2 ring-outline-variant/30">
-                                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-primary border-2 border-white"
-                                              title="Karyawan"></span>
+                                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full {{ $karyawan->is_active ? 'bg-emerald-500' : 'bg-slate-400' }} border-2 border-white"
+                                              title="{{ $karyawan->is_active ? 'Akun Aktif' : 'Akun Nonaktif' }}"></span>
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-[13px] font-bold text-on-surface truncate">{{ $karyawan->name }}</p>
@@ -205,6 +206,20 @@
                                     <span class="text-[12px] text-outline italic">—</span>
                                 @endif
                             </td>
+                            {{-- Status Akun --}}
+                            <td class="py-md px-md">
+                                @if($karyawan->is_active)
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        Nonaktif
+                                    </span>
+                                @endif
+                            </td>
                             {{-- Role --}}
                             <td class="py-md px-md">
                                 <span class="inline-flex items-center gap-1 text-[12px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg">
@@ -214,7 +229,45 @@
                             </td>
                             {{-- Aksi --}}
                             <td class="py-md px-md text-right">
-                                <div class="flex items-center justify-end gap-xs opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    {{-- Tombol Toggle Status (Aktifkan / Nonaktifkan) --}}
+                                    @if($karyawan->is_active)
+                                        @if(auth()->id() === $karyawan->id)
+                                            <button type="button"
+                                                    disabled
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed opacity-60"
+                                                    title="Anda tidak dapat menonaktifkan akun Anda sendiri">
+                                                <span class="material-symbols-outlined text-[15px]">block</span>
+                                                <span>Nonaktifkan</span>
+                                            </button>
+                                        @else
+                                            <form method="POST" action="{{ route('admin.karyawan.deactivate', $karyawan) }}"
+                                                  onsubmit="return confirm('Nonaktifkan akun karyawan {{ addslashes($karyawan->name) }}? User tidak dapat login ke aplikasi.')"
+                                                  class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-all active:scale-95"
+                                                        title="Nonaktifkan akun karyawan">
+                                                    <span class="material-symbols-outlined text-[15px]">person_off</span>
+                                                    <span>Nonaktifkan</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <form method="POST" action="{{ route('admin.karyawan.activate', $karyawan) }}"
+                                              onsubmit="return confirm('Aktifkan kembali akun karyawan {{ addslashes($karyawan->name) }}?')"
+                                              class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all active:scale-95"
+                                                    title="Aktifkan akun karyawan">
+                                                <span class="material-symbols-outlined text-[15px]">check_circle</span>
+                                                <span>Aktifkan</span>
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    {{-- Tombol Edit Modal --}}
                                     <button @click="openEdit({
                                                 id: '{{ $karyawan->id }}',
                                                 name: '{{ addslashes($karyawan->name) }}',
@@ -223,7 +276,7 @@
                                                 role: 'karyawan',
                                                 password: ''
                                             })"
-                                            class="w-9 h-9 rounded-xl flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/15 transition-all active:scale-90"
+                                            class="w-8 h-8 rounded-xl flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/15 transition-all active:scale-90"
                                             title="Edit data karyawan">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
                                     </button>
@@ -232,7 +285,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="py-2xl text-center">
+                            <td colspan="5" class="py-2xl text-center">
                                 <div class="flex flex-col items-center gap-md">
                                     <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center">
                                         <span class="material-symbols-outlined text-[36px] text-outline">person_search</span>

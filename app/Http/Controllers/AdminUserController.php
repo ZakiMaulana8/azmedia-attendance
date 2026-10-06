@@ -87,12 +87,13 @@ class AdminUserController extends Controller
         $karyawans = $query->orderBy('name')->paginate(10)->withQueryString();
 
         // Stats (always from full dataset)
-        $totalKaryawan = User::where('role', 'karyawan')->count();
-        $withPhone     = User::where('role', 'karyawan')->whereNotNull('phone')->where('phone', '!=', '')->count();
-        $withGoogle    = User::where('role', 'karyawan')->whereNotNull('google_id')->count();
-        $withAvatar    = User::where('role', 'karyawan')->whereNotNull('avatar')->where('avatar', '!=', '')->count();
+        $totalKaryawan  = User::where('role', 'karyawan')->count();
+        $activeKaryawan = User::where('role', 'karyawan')->where('is_active', true)->count();
+        $withPhone      = User::where('role', 'karyawan')->whereNotNull('phone')->where('phone', '!=', '')->count();
+        $withGoogle     = User::where('role', 'karyawan')->whereNotNull('google_id')->count();
+        $withAvatar     = User::where('role', 'karyawan')->whereNotNull('avatar')->where('avatar', '!=', '')->count();
 
-        return view('admin.karyawan.index', compact('karyawans', 'totalKaryawan', 'withPhone', 'withGoogle', 'withAvatar'));
+        return view('admin.karyawan.index', compact('karyawans', 'totalKaryawan', 'activeKaryawan', 'withPhone', 'withGoogle', 'withAvatar'));
     }
 
 
@@ -137,5 +138,29 @@ class AdminUserController extends Controller
         $user->delete();
 
         return redirect()->back()->with('success', 'Pengguna berhasil dihapus.');
+    }
+
+    /**
+     * Aktifkan akun pengguna.
+     */
+    public function activate(User $user): RedirectResponse
+    {
+        $user->update(['is_active' => true]);
+
+        return redirect()->back()->with('success', "Akun {$user->name} berhasil diaktifkan.");
+    }
+
+    /**
+     * Nonaktifkan akun pengguna.
+     */
+    public function deactivate(User $user): RedirectResponse
+    {
+        if (auth()->id() === $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+        }
+
+        $user->update(['is_active' => false]);
+
+        return redirect()->back()->with('success', "Akun {$user->name} berhasil dinonaktifkan.");
     }
 }

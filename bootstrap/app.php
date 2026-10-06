@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin'    => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'karyawan' => \App\Http\Middleware\EnsureUserIsKaryawan::class,
+            'active'   => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
         $middleware->prependToPriorityList(
             before: \Illuminate\Routing\Middleware\SubstituteBindings::class,

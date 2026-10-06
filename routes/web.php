@@ -26,7 +26,7 @@ if (app()->environment('local')) {
 }
 
 // ── Authenticated Routes ───────────────────────────────────────────────────────
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
 
     // Dashboard (role-aware)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -84,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/siswa', [AdminUserController::class, 'indexSiswa'])->name('admin.siswa.index');
         Route::get('/admin/guru', [AdminUserController::class, 'indexGuru'])->name('admin.guru.index');
         Route::get('/admin/karyawan', [AdminUserController::class, 'indexKaryawan'])->name('admin.karyawan.index');
+        Route::post('/admin/karyawan/{user}/activate', [AdminUserController::class, 'activate'])->name('admin.karyawan.activate');
+        Route::post('/admin/karyawan/{user}/deactivate', [AdminUserController::class, 'deactivate'])->name('admin.karyawan.deactivate');
         Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
     });
