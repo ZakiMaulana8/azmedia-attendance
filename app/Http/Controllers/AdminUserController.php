@@ -73,7 +73,13 @@ class AdminUserController extends Controller
      */
     public function indexKaryawan(Request $request): View
     {
-        $query = User::where('role', 'karyawan');
+        $currentView = $request->query('view', 'active');
+        if ($currentView === 'deleted') {
+            $query = User::onlyTrashed()->where('role', 'karyawan');
+        } else {
+            $query = User::where('role', 'karyawan');
+            $currentView = 'active';
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -87,13 +93,23 @@ class AdminUserController extends Controller
         $karyawans = $query->orderBy('name')->paginate(10)->withQueryString();
 
         // Stats (always from full dataset)
-        $totalKaryawan  = User::where('role', 'karyawan')->count();
-        $activeKaryawan = User::where('role', 'karyawan')->where('is_active', true)->count();
-        $withPhone      = User::where('role', 'karyawan')->whereNotNull('phone')->where('phone', '!=', '')->count();
-        $withGoogle     = User::where('role', 'karyawan')->whereNotNull('google_id')->count();
-        $withAvatar     = User::where('role', 'karyawan')->whereNotNull('avatar')->where('avatar', '!=', '')->count();
+        $totalKaryawan   = User::where('role', 'karyawan')->count();
+        $activeKaryawan  = User::where('role', 'karyawan')->where('is_active', true)->count();
+        $withPhone       = User::where('role', 'karyawan')->whereNotNull('phone')->where('phone', '!=', '')->count();
+        $withGoogle      = User::where('role', 'karyawan')->whereNotNull('google_id')->count();
+        $withAvatar      = User::where('role', 'karyawan')->whereNotNull('avatar')->where('avatar', '!=', '')->count();
+        $deletedKaryawan = User::onlyTrashed()->where('role', 'karyawan')->count();
 
-        return view('admin.karyawan.index', compact('karyawans', 'totalKaryawan', 'activeKaryawan', 'withPhone', 'withGoogle', 'withAvatar'));
+        return view('admin.karyawan.index', compact(
+            'karyawans',
+            'totalKaryawan',
+            'activeKaryawan',
+            'withPhone',
+            'withGoogle',
+            'withAvatar',
+            'deletedKaryawan',
+            'currentView'
+        ));
     }
 
 
@@ -127,35 +143,35 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Arsipkan Pengguna (Soft Delete).
+     * Soft Delete Pengguna.
      */
     public function destroy(User $user): RedirectResponse
     {
         if (auth()->id() === $user->id) {
-            return redirect()->back()->with('error', 'Anda tidak dapat mengarsipkan akun Anda sendiri.');
+            return redirect()->back()->with('error', 'Anda tidak dapat melakukan Soft Delete pada akun Anda sendiri.');
         }
 
         if ($user->isAdmin()) {
-            return redirect()->back()->with('error', 'Akun dengan role Admin tidak dapat diarsipkan.');
+            return redirect()->back()->with('error', 'Akun dengan role Admin tidak dapat di-Soft Delete.');
         }
 
         $user->delete();
 
-        return redirect()->back()->with('success', "Akun {$user->name} berhasil diarsipkan.");
+        return redirect()->back()->with('success', "Akun {$user->name} berhasil di-Soft Delete.");
     }
 
     /**
-     * Pulihkan akun pengguna yang diarsipkan (Restore Soft Delete).
+     * Restore akun pengguna yang Soft Deleted.
      */
     public function restore(User $user): RedirectResponse
     {
         if (! $user->trashed()) {
-            return redirect()->back()->with('info', "Akun {$user->name} tidak dalam status terarsip.");
+            return redirect()->back()->with('info', "Akun {$user->name} tidak dalam status Soft Deleted.");
         }
 
         $user->restore();
 
-        return redirect()->back()->with('success', "Akun {$user->name} berhasil dipulihkan.");
+        return redirect()->back()->with('success', "Akun {$user->name} berhasil di-Restore.");
     }
 
     /**
