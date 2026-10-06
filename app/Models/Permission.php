@@ -31,12 +31,12 @@ class Permission extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approver_id');
+        return $this->belongsTo(User::class, 'approver_id')->withTrashed();
     }
 
     public function getJenisLabelAttribute(): string
