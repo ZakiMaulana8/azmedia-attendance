@@ -86,6 +86,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/admin/karyawan', [AdminUserController::class, 'indexKaryawan'])->name('admin.karyawan.index');
         Route::post('/admin/karyawan/{user}/activate', [AdminUserController::class, 'activate'])->name('admin.karyawan.activate');
         Route::post('/admin/karyawan/{user}/deactivate', [AdminUserController::class, 'deactivate'])->name('admin.karyawan.deactivate');
+        Route::post('/admin/users/{user}/activate', [AdminUserController::class, 'activate'])->name('admin.users.activate');
+        Route::post('/admin/users/{user}/deactivate', [AdminUserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
     });

@@ -33,7 +33,7 @@ class AdminUserController extends Controller
         // Stats (always from full dataset, not just current page)
         $allSiswa       = User::where('role', 'siswa');
         $totalSiswa     = $allSiswa->count();
-        $activeSiswa    = User::where('role', 'siswa')->whereNotNull('tanggal_selesai')->where('tanggal_selesai', '>=', today())->count();
+        $activeSiswa    = User::where('role', 'siswa')->where('is_active', true)->whereNotNull('tanggal_selesai')->where('tanggal_selesai', '>=', today())->count();
         $schoolCount    = User::where('role', 'siswa')->whereNotNull('asal_sekolah')->distinct('asal_sekolah')->count('asal_sekolah');
         $totalAbsensi   = \App\Models\Attendance::whereHas('user', fn($q) => $q->where('role', 'siswa'))->count();
 
@@ -157,6 +157,10 @@ class AdminUserController extends Controller
     {
         if (auth()->id() === $user->id) {
             return redirect()->back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+        }
+
+        if ($user->isAdmin()) {
+            return redirect()->back()->with('error', 'Akun dengan role Admin tidak dapat dinonaktifkan.');
         }
 
         $user->update(['is_active' => false]);

@@ -170,6 +170,7 @@
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">NIS / Telepon</th>
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Sekolah & Jurusan</th>
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Periode Magang</th>
+                        <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant text-center">Status</th>
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant text-center">Absensi</th>
                         <th class="py-sm px-md text-[11px] font-bold uppercase tracking-widest text-on-surface-variant text-right">Aksi</th>
                     </tr>
@@ -184,9 +185,8 @@
                                         <img src="{{ $siswa->photo_url }}"
                                              alt="{{ $siswa->name }}"
                                              class="w-10 h-10 rounded-full object-cover ring-2 ring-outline-variant/30">
-                                        @if($siswa->tanggal_selesai && $siswa->tanggal_selesai->isFuture())
-                                            <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white"></span>
-                                        @endif
+                                        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full {{ $siswa->is_active ? 'bg-emerald-500' : 'bg-slate-400' }} border-2 border-white"
+                                              title="{{ $siswa->is_active ? 'Akun Aktif' : 'Akun Nonaktif' }}"></span>
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-[13px] font-bold text-on-surface truncate">{{ $siswa->name }}</p>
@@ -228,6 +228,20 @@
                                     <span class="text-[12px] text-outline italic">Belum diatur</span>
                                 @endif
                             </td>
+                            {{-- Status Akun --}}
+                            <td class="py-md px-md text-center">
+                                @if($siswa->is_active)
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                        Nonaktif
+                                    </span>
+                                @endif
+                            </td>
                             {{-- Total Absen --}}
                             <td class="py-md px-md text-center">
                                 <div class="inline-flex flex-col items-center">
@@ -239,7 +253,45 @@
                             </td>
                             {{-- Aksi --}}
                             <td class="py-md px-md text-right">
-                                <div class="flex items-center justify-end gap-xs opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    {{-- Tombol Toggle Status (Aktifkan / Nonaktifkan) --}}
+                                    @if($siswa->is_active)
+                                        @if(auth()->id() === $siswa->id)
+                                            <button type="button"
+                                                    disabled
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed opacity-60"
+                                                    title="Anda tidak dapat menonaktifkan akun Anda sendiri">
+                                                <span class="material-symbols-outlined text-[15px]">block</span>
+                                                <span>Nonaktifkan</span>
+                                            </button>
+                                        @else
+                                            <form method="POST" action="{{ route('admin.users.deactivate', $siswa) }}"
+                                                  onsubmit="return confirm('Nonaktifkan akun siswa {{ addslashes($siswa->name) }}? Siswa tidak dapat login ke aplikasi.')"
+                                                  class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-all active:scale-95"
+                                                        title="Nonaktifkan akun siswa">
+                                                    <span class="material-symbols-outlined text-[15px]">person_off</span>
+                                                    <span>Nonaktifkan</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <form method="POST" action="{{ route('admin.users.activate', $siswa) }}"
+                                              onsubmit="return confirm('Aktifkan kembali akun siswa {{ addslashes($siswa->name) }}?')"
+                                              class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all active:scale-95"
+                                                    title="Aktifkan akun siswa">
+                                                <span class="material-symbols-outlined text-[15px]">check_circle</span>
+                                                <span>Aktifkan</span>
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    {{-- Tombol Edit Modal --}}
                                     <button @click="openEdit({
                                                 id: '{{ $siswa->id }}',
                                                 name: '{{ addslashes($siswa->name) }}',
@@ -253,17 +305,18 @@
                                                 role: 'siswa',
                                                 password: ''
                                             })"
-                                            class="w-9 h-9 rounded-xl flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/15 transition-all active:scale-90"
+                                            class="w-8 h-8 rounded-xl flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/15 transition-all active:scale-90"
                                             title="Edit data siswa">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
                                     </button>
+                                    {{-- Tombol Delete --}}
                                     <form method="POST" action="{{ route('admin.users.destroy', $siswa) }}"
                                           onsubmit="return confirm('Hapus siswa {{ addslashes($siswa->name) }}? Semua data absensi juga akan dihapus!')"
                                           class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                                class="w-9 h-9 rounded-xl flex items-center justify-center text-red-600 bg-red-50 hover:bg-red-100 transition-all active:scale-90"
+                                                class="w-8 h-8 rounded-xl flex items-center justify-center text-red-600 bg-red-50 hover:bg-red-100 transition-all active:scale-90"
                                                 title="Hapus siswa">
                                             <span class="material-symbols-outlined text-[18px]">delete</span>
                                         </button>
@@ -273,7 +326,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-2xl text-center">
+                            <td colspan="7" class="py-2xl text-center">
                                 <div class="flex flex-col items-center gap-md">
                                     <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center">
                                         <span class="material-symbols-outlined text-[36px] text-outline">person_search</span>
