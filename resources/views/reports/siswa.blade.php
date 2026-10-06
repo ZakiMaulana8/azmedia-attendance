@@ -2,18 +2,20 @@
 @section('title', 'Laporan Absensi')
 
 @section('content')
-<div class="max-w-lg mx-auto">
+<div class="max-w-lg mx-auto pt-3">
 
     {{-- ════════════════════════════════════════════════════════════
          HERO HEADER
     ════════════════════════════════════════════════════════════ --}}
-    <section class="relative bg-primary overflow-hidden px-md pt-lg pb-lg"
-             style="border-radius: 0 0 32px 32px;">
+    <section class="relative bg-primary px-md pb-lg pt-6"
+             style="border-radius: 0 0 32px 32px; margin-top: 4px;">
         {{-- Ornamen --}}
-        <div class="pointer-events-none absolute -top-10 -right-10 w-44 h-44 rounded-full"
-             style="background: rgba(255,255,255,0.07)"></div>
-        <div class="pointer-events-none absolute top-6 -right-2 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.05)"></div>
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 0 0 32px 32px;">
+            <div class="absolute -top-10 -right-10 w-44 h-44 rounded-full"
+                 style="background: rgba(255,255,255,0.07)"></div>
+            <div class="absolute top-6 -right-2 w-24 h-24 rounded-full"
+                 style="background: rgba(255,255,255,0.05)"></div>
+        </div>
 
         <div class="relative z-10">
             <p class="text-white/60 text-[11px] font-semibold uppercase tracking-widest mb-1">

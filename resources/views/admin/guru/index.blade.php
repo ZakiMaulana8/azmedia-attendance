@@ -2,7 +2,7 @@
 @section('title', 'Kelola Guru Pembimbing')
 
 @section('content')
-<div class="p-md md:p-lg max-w-6xl mx-auto w-full space-y-lg"
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6"
      x-data="{
         showModal: false,
         editMode: false,
@@ -20,31 +20,25 @@
     {{-- ════════════════════════════════════════════════════════════
          HERO HEADER
     ════════════════════════════════════════════════════════════ --}}
-    <div class="relative overflow-hidden rounded-2xl shadow-md"
-         style="background: linear-gradient(135deg, #855300 0%, #a06800 100%);">
-        {{-- Decorative circles --}}
-        <div class="pointer-events-none absolute -top-10 -right-10 w-44 h-44 rounded-full"
-             style="background: rgba(255,255,255,0.07)"></div>
-        <div class="pointer-events-none absolute top-6 -right-2 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.05)"></div>
-        <div class="pointer-events-none absolute -bottom-6 left-10 w-32 h-32 rounded-full"
-             style="background: rgba(255,255,255,0.04)"></div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
+        </div>
 
-        <div class="relative z-10 p-lg flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-                <p class="text-white/60 text-[11px] font-bold uppercase tracking-widest mb-1">
-                    Data Master → Guru
-                </p>
-                <h2 class="text-white font-extrabold" style="font-size: 26px; letter-spacing: -0.02em; line-height: 1.2;">
+                <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">Data Master → Guru</p>
+                <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight">
                     Guru Pembimbing
-                </h2>
-                <p class="text-white/65 text-[13px] mt-1">
+                </h1>
+                <p class="text-white/80 text-[13px] font-medium mt-1">
                     Kelola daftar guru yang berhak memantau & menyetujui izin siswa.
                 </p>
             </div>
-
         </div>
-    </div>
+    </section>
 
     {{-- ════════════════════════════════════════════════════════════
          STATISTIK CARDS

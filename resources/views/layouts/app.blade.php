@@ -37,39 +37,41 @@
       @hasSection('sidebar') x-data="{ navOpen: false }" @keydown.escape.window="navOpen = false" @endif>
 
     {{-- ── TopAppBar ─────────────────────────────────────────────── --}}
-    <header class="fixed top-0 w-full z-50 bg-white border-b border-slate-100 shadow-xs">
-        <div class="flex justify-between items-center px-4 h-14 w-full max-w-screen-xl mx-auto">
+    <header class="fixed top-0 w-full z-50 bg-white border-b border-slate-200/80 shadow-xs" style="height: 52px;">
+        <div class="flex justify-between items-center px-4 w-full max-w-screen-xl mx-auto" style="height: 52px;">
             {{-- Kiri: Logo Azmedia Corporate + Brand --}}
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
                 @hasSection('sidebar')
                 <button type="button" @click="navOpen = true" aria-label="Buka menu"
-                        class="md:hidden material-symbols-outlined p-1 rounded-full text-slate-600 hover:bg-slate-100 transition-colors active:scale-95">
+                        class="md:hidden material-symbols-outlined p-1 rounded-full text-slate-600 hover:bg-slate-100 transition-colors active:scale-95 text-[20px]">
                     menu
                 </button>
                 @endif
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2.5">
                     <img src="{{ asset('images/azmedia-logo-transparent.png') }}"
                          alt="Azmedia Corporate Logo"
-                         class="h-8 w-auto object-contain">
-                    <span class="font-extrabold text-[16px] tracking-tight text-[#0F172A]">
+                         style="height: 30px;"
+                         class="w-auto object-contain">
+                    <span class="font-extrabold tracking-tight text-[#0F172A]"
+                          style="font-size: 17px; line-height: 1;">
                         Azmedia <span class="text-[#2563EB]">Corporate</span>
                     </span>
                 </div>
             </div>
 
             {{-- Kanan: Notifikasi + Avatar Profile User --}}
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2">
                 <button type="button"
-                        class="w-9 h-9 rounded-full flex items-center justify-center text-slate-600 hover:text-[#2563EB] hover:bg-blue-50 transition-colors active:scale-95"
+                        class="w-8 h-8 rounded-full flex items-center justify-center text-slate-600 hover:text-[#2563EB] hover:bg-blue-50 transition-colors active:scale-95"
                         title="Notifikasi">
-                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <span class="material-symbols-outlined text-[18px]">notifications</span>
                 </button>
-                <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
+                <div class="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
                      style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); border: 1px solid #BFDBFE; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
                     @if(auth()->user()->foto && auth()->user()->foto !== 'default.png')
                         <img class="w-full h-full object-cover" src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->name }}">
                     @else
-                        <span class="font-extrabold text-white text-[13px] uppercase leading-none">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                        <span class="font-extrabold text-white text-[11px] uppercase leading-none">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
                     @endif
                 </div>
             </div>
@@ -77,12 +79,12 @@
     </header>
 
     {{-- ── Body wrapper ─────────────────────────────────────────── --}}
-    <div class="flex flex-1 pt-14">
+    <div class="flex flex-1" style="padding-top: 52px;">
 
         {{-- Desktop Sidebar --}}
         @hasSection('sidebar')
-        <aside class="hidden md:flex flex-col w-64 bg-white border-r border-slate-200
-                      h-[calc(100vh-56px)] sticky top-14 p-4 gap-4 shrink-0">
+        <aside class="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 p-4 gap-4 shrink-0"
+               style="position: sticky; top: 52px; height: calc(100vh - 52px); overflow-y: auto;">
             @yield('sidebar')
         </aside>
         @endif
@@ -106,7 +108,7 @@
         @endif
 
         {{-- Main content --}}
-        <main class="flex-1 pb-20 md:pb-0 overflow-y-auto">
+        <main class="flex-1 pb-20 md:pb-0">
             @yield('content')
         </main>
     </div>

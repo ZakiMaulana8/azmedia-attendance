@@ -2,11 +2,11 @@
 @section('title', 'Laporan Kegiatan')
 
 @section('content')
-<div class="max-w-lg mx-auto">
+<div class="max-w-lg mx-auto pt-3">
 
     {{-- ── Hero Header ─────────────────────────────────────────────── --}}
-    <section class="relative bg-primary overflow-hidden px-md pt-lg pb-lg"
-             style="border-radius: 0 0 32px 32px;">
+    <section class="relative bg-primary overflow-hidden px-md pt-6 pb-lg"
+             style="border-radius: 0 0 32px 32px; margin-top: 4px;">
         <div class="pointer-events-none absolute -top-10 -right-10 w-44 h-44 rounded-full"
              style="background: rgba(255,255,255,0.07)"></div>
         <div class="pointer-events-none absolute top-6 -right-2 w-24 h-24 rounded-full"

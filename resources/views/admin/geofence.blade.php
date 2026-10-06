@@ -2,16 +2,24 @@
 @section('title', 'Pengaturan Geofence')
 
 @section('content')
-<div class="p-md md:p-lg max-w-5xl mx-auto w-full" x-data="geofenceApp()">
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6" x-data="geofenceApp()">
 
-    <div class="mb-lg">
-        <h2 class="text-headline-lg-mobile md:text-headline-lg font-bold text-on-background">
-            Pengaturan Geofence
-        </h2>
-        <p class="text-body-sm text-on-surface-variant">
-            Konfigurasi radius kehadiran otomatis berdasarkan lokasi kantor atau sekolah.
-        </p>
-    </div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
+        </div>
+        <div class="relative z-10">
+            <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">Pengaturan</p>
+            <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight">
+                Pengaturan Geofence
+            </h1>
+            <p class="text-white/80 text-[13px] font-medium mt-1">
+                Konfigurasi radius kehadiran otomatis berdasarkan lokasi kantor atau sekolah.
+            </p>
+        </div>
+    </section>
 
     @if(session('success'))
         <div class="mb-lg p-md bg-primary-container text-on-primary-container rounded-xl flex items-center gap-sm">

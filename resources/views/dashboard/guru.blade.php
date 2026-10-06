@@ -2,77 +2,94 @@
 @section('title', 'Dashboard Guru Pembimbing')
 
 @section('content')
-<div x-data="guruDashboard()"
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6"
+     x-data="guruDashboard()"
      x-on:keydown.escape.window="closeModal()">
 
     {{-- ══════════════════════════════════════════════════════════
-         HERO HEADER — Biru gradient dengan ornamen
+         HERO HEADER CARD
     ══════════════════════════════════════════════════════════ --}}
-    <section class="relative" style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #3B82F6 100%); border-radius: 0 0 32px 32px;">
-
-        {{-- Ornamen lingkaran dekoratif (overflow hidden hanya untuk ornamen, bukan seluruh section) --}}
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 0 0 32px 32px;">
-            <div class="absolute -top-10 -right-10 w-48 h-48 rounded-full" style="background: rgba(255,255,255,0.07)"></div>
-            <div class="absolute top-6 -right-4 w-28 h-28 rounded-full" style="background: rgba(255,255,255,0.05)"></div>
-            <div class="absolute -bottom-6 -left-6 w-36 h-36 rounded-full" style="background: rgba(255,255,255,0.06)"></div>
-            <div class="absolute bottom-4 right-20 w-16 h-16 rounded-full" style="background: rgba(255,255,255,0.08)"></div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        {{-- Decorative circles --}}
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
         </div>
 
-        <div class="relative z-10 px-5 pt-6 pb-8">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
 
-            {{-- Greeting row — flex responsif, teks tidak terpotong --}}
-            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 24px;">
-                <div style="flex: 1 1 auto; min-width: 0;">
-                    <p style="color: rgba(255,255,255,0.65); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 4px 0;">Guru Pembimbing</p>
-                    <h2 style="color: #ffffff; font-size: 22px; font-weight: 800; line-height: 1.35; letter-spacing: -0.02em; margin: 0; word-break: break-word; overflow-wrap: break-word; white-space: normal; text-overflow: clip; overflow: visible;">
+            {{-- Greeting --}}
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">Guru Pembimbing</p>
+                    <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight">
                         Halo, {{ auth()->user()->name }}!
-                    </h2>
-                    <p style="color: rgba(255,255,255,0.65); font-size: 12px; margin: 4px 0 0 0; word-break: break-word;">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
-                </div>
-                {{-- Kalender — flex-shrink-0, tidak boleh terpotong --}}
-                <div style="flex-shrink: 0; text-align: center; border-radius: 16px; padding: 10px 14px; min-width: 72px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.28); box-sizing: border-box;">
-                    <p style="color: rgba(255,255,255,0.8); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; line-height: 1.2;">
-                        {{ \Carbon\Carbon::now()->translatedFormat('D') }}
+                    </h1>
+                    <p class="text-white/80 text-[13px] font-medium mt-1">
+                        {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
                     </p>
-                    <p style="color: #ffffff; font-size: 26px; font-weight: 900; line-height: 1.1; margin: 2px 0; letter-spacing: -0.02em;">{{ \Carbon\Carbon::now()->day }}</p>
-                    <p style="color: rgba(255,255,255,0.8); font-size: 10px; font-weight: 700; margin: 0; white-space: nowrap;">{{ \Carbon\Carbon::now()->translatedFormat('M Y') }}</p>
                 </div>
             </div>
 
-            {{-- Stat cards --}}
-            <div class="grid grid-cols-3 gap-3">
-                {{-- Hadir --}}
-                <div class="rounded-2xl p-3 text-center" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px)">
-                    <p class="text-white font-black text-[28px] leading-none">{{ $todayStats['hadir'] }}</p>
-                    <p class="text-white/70 text-[10px] font-semibold mt-1">Hadir</p>
-                    <div class="mt-2 w-8 h-8 rounded-full flex items-center justify-center mx-auto" style="background:rgba(255,255,255,0.2)">
-                        <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings:'FILL' 1">how_to_reg</span>
-                    </div>
-                </div>
-                {{-- Izin --}}
-                <div class="rounded-2xl p-3 text-center" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);backdrop-filter:blur(8px)">
-                    <p class="text-white font-black text-[28px] leading-none">{{ $todayStats['izin'] }}</p>
-                    <p class="text-white/70 text-[10px] font-semibold mt-1">Izin</p>
-                    <div class="mt-2 w-8 h-8 rounded-full flex items-center justify-center mx-auto" style="background:rgba(255,255,255,0.2)">
-                        <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings:'FILL' 1">event_busy</span>
-                    </div>
-                </div>
-                {{-- Alpa --}}
-                <div class="rounded-2xl p-3 text-center" style="background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.3);backdrop-filter:blur(8px)">
-                    <p class="text-white font-black text-[28px] leading-none">{{ $todayStats['alpa'] }}</p>
-                    <p class="text-white/70 text-[10px] font-semibold mt-1">Alpa</p>
-                    <div class="mt-2 w-8 h-8 rounded-full flex items-center justify-center mx-auto" style="background:rgba(255,100,100,0.3)">
-                        <span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings:'FILL' 1">person_off</span>
-                    </div>
-                </div>
+            {{-- Kalender Date Badge Glassmorphism --}}
+            <div class="flex-shrink-0 text-center rounded-2xl px-4 py-3 min-w-[84px] shadow-md"
+                 style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.38); backdrop-filter: blur(10px);">
+                <p class="text-white/90 text-[10px] font-extrabold uppercase tracking-widest leading-none mb-1">
+                    {{ \Carbon\Carbon::now()->translatedFormat('D') }}
+                </p>
+                <p class="text-white font-black text-[28px] leading-none tracking-tight my-0.5">
+                    {{ \Carbon\Carbon::now()->day }}
+                </p>
+                <p class="text-white/90 text-[11px] font-bold uppercase tracking-wider leading-none">
+                    {{ \Carbon\Carbon::now()->translatedFormat('M Y') }}
+                </p>
             </div>
         </div>
     </section>
 
     {{-- ══════════════════════════════════════════════════════════
+         STAT CARDS (HIGH CONTRAST DESKTOP / MOBILE GRID)
+    ══════════════════════════════════════════════════════════ --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {{-- Hadir --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex items-center justify-between transition-all hover:shadow-md">
+            <div>
+                <p class="text-[12px] font-bold uppercase tracking-wider text-slate-500">Hadir</p>
+                <h4 class="text-[26px] font-black text-emerald-700 leading-tight mt-0.5">{{ $todayStats['hadir'] }}</h4>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                <span class="material-symbols-outlined text-[26px]" style="font-variation-settings:'FILL' 1">how_to_reg</span>
+            </div>
+        </div>
+
+        {{-- Izin --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex items-center justify-between transition-all hover:shadow-md">
+            <div>
+                <p class="text-[12px] font-bold uppercase tracking-wider text-slate-500">Izin</p>
+                <h4 class="text-[26px] font-black text-blue-700 leading-tight mt-0.5">{{ $todayStats['izin'] }}</h4>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                <span class="material-symbols-outlined text-[26px]" style="font-variation-settings:'FILL' 1">event_busy</span>
+            </div>
+        </div>
+
+        {{-- Alpa --}}
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 flex items-center justify-between transition-all hover:shadow-md">
+            <div>
+                <p class="text-[12px] font-bold uppercase tracking-wider text-slate-500">Alpa</p>
+                <h4 class="text-[26px] font-black text-red-700 leading-tight mt-0.5">{{ $todayStats['alpa'] }}</h4>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shrink-0">
+                <span class="material-symbols-outlined text-[26px]" style="font-variation-settings:'FILL' 1">person_off</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════
          BODY CONTENT
     ══════════════════════════════════════════════════════════ --}}
-    <div class="px-4 pt-5 pb-6 max-w-screen-xl mx-auto space-y-6">
+    <div class="space-y-6 pt-2">
 
         {{-- Search & Filter --}}
         <section class="space-y-3">

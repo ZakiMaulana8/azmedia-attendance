@@ -2,40 +2,48 @@
 @section('title', 'Approval Izin Siswa')
 
 @section('content')
-<div x-data="approvalPage()"
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6"
+     x-data="approvalPage()"
      x-on:keydown.escape.window="closeModal()">
 
     {{-- ══════════════════════════════════════════════════════════
          HERO HEADER
     ══════════════════════════════════════════════════════════ --}}
-    <section class="relative" style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 0 0 28px 28px;">
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 0 0 28px 28px;">
-            <div class="absolute -top-8 -right-8 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.07)"></div>
-            <div class="absolute -bottom-4 -left-4 w-32 h-32 rounded-full" style="background:rgba(255,255,255,0.05)"></div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        {{-- Decorative circles --}}
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
         </div>
 
-        <div class="relative z-10 px-5 pt-6 pb-7">
-            <div class="flex items-center gap-3 mb-1">
-                <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-white text-[20px]" style="font-variation-settings:'FILL' 1">fact_check</span>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+
+            {{-- Judul & Subtitle --}}
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md"
+                     style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(8px);">
+                    <span class="material-symbols-outlined text-white text-[26px]" style="font-variation-settings:'FILL' 1">fact_check</span>
                 </div>
                 <div>
-                    <h1 class="text-white font-extrabold text-[20px] leading-tight">Approval Izin</h1>
-                    <p class="text-white/60 text-[12px]">Kelola pengajuan izin siswa magang</p>
+                    <h1 class="text-white font-extrabold text-[22px] sm:text-[24px] leading-tight tracking-tight">
+                        Approval Izin Siswa
+                    </h1>
+                    <p class="text-white/80 text-[13px] font-medium mt-0.5">
+                        Kelola dan tinjau pengajuan izin atau sakit siswa magang
+                    </p>
                 </div>
             </div>
 
             {{-- Status tabs --}}
-            <div class="flex gap-2 mt-5 overflow-x-auto hide-scrollbar pb-1">
+            <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar shrink-0">
                 @foreach(['menunggu' => 'Menunggu', 'disetujui' => 'Disetujui', 'ditolak' => 'Ditolak', 'semua' => 'Semua'] as $val => $label)
                 <a href="{{ route('permissions.approvals', ['status' => $val]) }}"
-                   class="px-4 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all
+                   class="px-4 py-2 rounded-xl text-[13px] font-bold whitespace-nowrap transition-all shadow-sm
                           {{ $status === $val
-                              ? 'bg-white text-[#1D4ED8] shadow-md'
-                              : 'bg-white/20 text-white hover:bg-white/30' }}">
+                              ? 'bg-white text-[#1D4ED8] shadow-md font-extrabold'
+                              : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-md border border-white/20' }}">
                     {{ $label }}
-                    @if($val === 'menunggu' && $permissions->where('status','menunggu')->count() > 0 && $status !== 'menunggu')
-                    @endif
                 </a>
                 @endforeach
             </div>
@@ -45,7 +53,7 @@
     {{-- ══════════════════════════════════════════════════════════
          DAFTAR PENGAJUAN
     ══════════════════════════════════════════════════════════ --}}
-    <div class="px-4 pt-5 pb-6 max-w-lg mx-auto">
+    <div class="max-w-4xl mx-auto space-y-4 pt-2">
 
         @if($permissions->count())
         <p class="text-[12px] text-[#94A3B8] mb-3 font-medium">{{ $permissions->total() }} pengajuan ditemukan</p>

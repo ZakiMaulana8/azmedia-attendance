@@ -34,7 +34,7 @@
 @endphp
 
 @section('content')
-<div style="min-height: 100vh; background: #F4F8FF; padding-bottom: 80px; position: relative; overflow: hidden;" x-data="attendanceApp()">
+<div style="min-height: 100vh; background: #F4F8FF; padding-bottom: 80px; position: relative;" x-data="attendanceApp()">
 
     {{-- Watermark logo A halus di background --}}
     <div style="position: absolute; top: -10px; left: -10px; width: 220px; height: 220px; opacity: 0.025; color: #2563EB; pointer-events: none; z-index: 0;">
@@ -43,16 +43,18 @@
         </svg>
     </div>
 
-    <div style="max-width: 672px; margin: 0 auto; padding: 16px; position: relative; z-index: 10;">
+    <div style="max-width: 672px; margin: 0 auto; padding: 24px 16px 16px 16px; position: relative; z-index: 10;">
 
         {{-- ════════════════════════════════════════════════════════════
              1. GREETING CARD — SOLID BLUE GRADIENT (KONTRAS HIGH & RESPONSIVE)
         ════════════════════════════════════════════════════════════ --}}
-        <section style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E40AF 100%); border-radius: 24px; padding: 24px; color: #ffffff; box-shadow: 0 10px 30px rgba(37,99,235,0.25); position: relative; overflow: hidden; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
+        <section style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #1E40AF 100%); border-radius: 24px; padding: 26px 24px; color: #ffffff; box-shadow: 0 10px 30px rgba(37,99,235,0.25); position: relative; margin-top: 4px; margin-bottom: 24px; width: 100%; box-sizing: border-box;">
 
-            {{-- Ornamen Lingkaran Transparan --}}
-            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; border-radius: 9999px; background: rgba(255,255,255,0.1); filter: blur(20px); pointer-events: none;"></div>
-            <div style="position: absolute; bottom: -40px; left: -40px; width: 160px; height: 160px; border-radius: 9999px; background: rgba(59,130,246,0.2); filter: blur(16px); pointer-events: none;"></div>
+            {{-- Ornamen Lingkaran Transparan (overflow hanya pada ornamen, bukan seluruh section) --}}
+            <div style="position: absolute; inset: 0; border-radius: 24px; overflow: hidden; pointer-events: none; z-index: 0;">
+                <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; border-radius: 9999px; background: rgba(255,255,255,0.1); filter: blur(20px);"></div>
+                <div style="position: absolute; bottom: -40px; left: -40px; width: 160px; height: 160px; border-radius: 9999px; background: rgba(59,130,246,0.2); filter: blur(16px);"></div>
+            </div>
 
             <div style="position: relative; z-index: 10; width: 100%;">
                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: nowrap; width: 100%;">

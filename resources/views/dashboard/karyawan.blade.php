@@ -22,63 +22,56 @@
 @endphp
 
 @section('content')
-<div class="max-w-4xl mx-auto pb-24 md:pb-12" x-data="karyawanDashboard()">
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6" x-data="karyawanDashboard()">
 
-    {{-- ════════════════════════════════════════════════════════════
-         HERO HEADER (Gaya Visual Dashboard Siswa)
-    ════════════════════════════════════════════════════════════ --}}
-    <section class="relative bg-primary overflow-hidden shadow-sm" style="border-radius: 0 0 32px 32px;">
+    {{-- ══════════════════════════════════════════════════════════
+         HERO HEADER CARD (seragam dengan Dashboard Guru)
+    ══════════════════════════════════════════════════════════ --}}
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        {{-- Decorative circles --}}
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
+        </div>
 
-        {{-- Ornamen lingkaran dekoratif --}}
-        <div class="pointer-events-none absolute -top-12 -right-12 w-48 h-48 rounded-full"
-             style="background: rgba(255,255,255,0.08)"></div>
-        <div class="pointer-events-none absolute top-8 -right-4 w-28 h-28 rounded-full"
-             style="background: rgba(255,255,255,0.06)"></div>
-        <div class="pointer-events-none absolute bottom-0 left-0 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.04)"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
 
-        <div class="relative z-10 px-md md:px-lg pt-lg pb-lg">
-
-            {{-- Baris Greeting + Kalender --}}
-            <div class="flex items-start justify-between">
-
-                {{-- Kiri: salam & nama --}}
-                <div class="flex-1 min-w-0 pr-md">
-                    <p class="text-white/70 text-[13px] font-medium tracking-wide mb-1">
-                        {{ $greetIcon }} {{ $greeting }}
+            {{-- Greeting --}}
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">
+                        {{ $greetIcon }} {{ $greeting }} · Pembimbing Lapangan
                     </p>
-                    <h2 class="text-white font-extrabold truncate"
-                        style="font-size: 26px; line-height: 32px; letter-spacing: -0.02em;">
-                        Selamat Datang, {{ $user->name }}!
-                    </h2>
-                    <p class="text-white/60 text-[12px] leading-[18px] mt-1.5 flex items-center gap-1.5">
-                        <span class="inline-block w-2 h-2 rounded-full bg-blue-300"></span>
-                        Pembimbing Lapangan · AZ Media
+                    <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight">
+                        Halo, {{ $user->name }}!
+                    </h1>
+                    <p class="text-white/80 text-[13px] font-medium mt-1">
+                        {{ $now->translatedFormat('l, d F Y') }}
                     </p>
                 </div>
+            </div>
 
-                {{-- Kanan: kalender tanggal --}}
-                <div class="flex-shrink-0 text-center rounded-2xl px-3 py-2.5 min-w-[72px]"
-                     style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
-                    <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
-                        {{ $now->translatedFormat('D') }}
-                    </p>
-                    <p class="text-white font-black leading-none"
-                       style="font-size: 38px; letter-spacing: -0.03em; line-height: 1;">
-                        {{ $now->format('d') }}
-                    </p>
-                    <p class="text-white/80 text-[11px] font-semibold uppercase tracking-wider mt-1 leading-none">
-                        {{ $now->translatedFormat('M Y') }}
-                    </p>
-                </div>
+            {{-- Kalender Date Badge Glassmorphism --}}
+            <div class="flex-shrink-0 text-center rounded-2xl px-4 py-3 min-w-[84px] shadow-md"
+                 style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.38); backdrop-filter: blur(10px);">
+                <p class="text-white/90 text-[10px] font-extrabold uppercase tracking-widest leading-none mb-1">
+                    {{ $now->translatedFormat('D') }}
+                </p>
+                <p class="text-white font-black text-[28px] leading-none tracking-tight my-0.5">
+                    {{ $now->day }}
+                </p>
+                <p class="text-white/90 text-[11px] font-bold uppercase tracking-wider leading-none">
+                    {{ $now->translatedFormat('M Y') }}
+                </p>
             </div>
         </div>
     </section>
 
-    {{-- ════════════════════════════════════════════════════════════
-         KONTEN UTAMA
-    ════════════════════════════════════════════════════════════ --}}
-    <div class="px-md md:px-lg pt-lg space-y-xl">
+    {{-- ══════════════════════════════════════════════════════════
+         BODY CONTENT
+    ══════════════════════════════════════════════════════════ --}}
+    <div class="space-y-6 pt-2">
 
         {{-- ── 1. RINGKASAN SISWA PKL HARI INI ── --}}
         <section>

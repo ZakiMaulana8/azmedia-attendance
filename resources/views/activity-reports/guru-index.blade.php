@@ -2,84 +2,83 @@
 @section('title', 'Laporan Kegiatan Siswa')
 
 @section('content')
-<div>
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
     {{-- ══════════════════════════════════════════════════════════
-         HERO HEADER
+         HERO HEADER & FILTER CARD
     ══════════════════════════════════════════════════════════ --}}
-    <section class="relative" style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 0 0 28px 28px;">
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 0 0 28px 28px;">
-            <div class="absolute -top-8 -right-8 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.07)"></div>
-            <div class="absolute -bottom-4 -left-6 w-28 h-28 rounded-full" style="background:rgba(255,255,255,0.05)"></div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        {{-- Decorative circles --}}
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
         </div>
 
-        <div class="relative z-10 px-5 pt-6 pb-7">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-white text-[22px]" style="font-variation-settings:'FILL' 1">photo_library</span>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+
+            {{-- Judul & Subtitle --}}
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-md"
+                     style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(8px);">
+                    <span class="material-symbols-outlined text-white text-[26px]" style="font-variation-settings:'FILL' 1">photo_library</span>
                 </div>
                 <div>
-                    <h1 class="text-white font-extrabold text-[20px] leading-tight">Laporan Kegiatan</h1>
-                    <p class="text-white/60 text-[12px]">Dokumentasi kegiatan magang seluruh siswa</p>
+                    <h1 class="text-white font-extrabold text-[22px] sm:text-[24px] leading-tight tracking-tight">
+                        Laporan Kegiatan Siswa
+                    </h1>
+                    <p class="text-white/80 text-[13px] font-medium mt-0.5">
+                        Dokumentasi dan jurnal kegiatan magang seluruh siswa
+                    </p>
                 </div>
             </div>
+
+            {{-- Filter Form Integrated in Hero Card --}}
+            <form method="GET" action="{{ route('activity-reports.guru') }}" class="flex items-center gap-2.5 flex-wrap shrink-0">
+                {{-- Filter siswa --}}
+                <div class="relative min-w-[180px]">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/80 text-[18px] pointer-events-none">person_search</span>
+                    <select name="siswa"
+                            class="w-full h-11 pl-9 pr-8 rounded-xl text-white text-[13px] font-bold focus:outline-none appearance-none cursor-pointer shadow-sm transition-all"
+                            style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(8px);"
+                            onchange="this.form.submit()">
+                        <option value="" class="text-slate-800 font-semibold">Semua Siswa</option>
+                        @foreach($siswaList as $s)
+                            <option value="{{ $s->id }}" @selected($siswaId == $s->id) class="text-slate-800 font-semibold">
+                                {{ $s->name }}@if($s->jurusan) ({{ $s->jurusan }})@endif
+                            </option>
+                        @endforeach
+                    </select>
+                    <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-white/80 text-[18px]">expand_more</span>
+                </div>
+
+                {{-- Filter tanggal --}}
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/80 text-[18px] pointer-events-none">calendar_today</span>
+                    <input type="date" name="date"
+                           value="{{ $date }}"
+                           max="{{ today()->format('Y-m-d') }}"
+                           class="h-11 pl-9 pr-4 rounded-xl text-white text-[13px] font-bold focus:outline-none shadow-sm cursor-pointer transition-all"
+                           style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(8px);"
+                           onchange="this.form.submit()">
+                </div>
+
+                {{-- Reset --}}
+                @if($siswaId || $date)
+                <a href="{{ route('activity-reports.guru') }}"
+                   class="h-11 px-3.5 flex items-center gap-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white border border-white/30 text-[13px] font-bold transition-all shadow-sm backdrop-blur-md">
+                    <span class="material-symbols-outlined text-[18px]">filter_alt_off</span>
+                    Reset
+                </a>
+                @endif
+            </form>
         </div>
     </section>
 
     {{-- ══════════════════════════════════════════════════════════
-         FILTER BAR
-    ══════════════════════════════════════════════════════════ --}}
-    <div class="px-4 pt-4 pb-3 max-w-screen-xl mx-auto">
-        <form method="GET" action="{{ route('activity-reports.guru') }}" class="flex gap-2 flex-wrap">
-
-            {{-- Filter siswa --}}
-            <div class="flex-1 min-w-40 relative">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] text-[18px] pointer-events-none">person_search</span>
-                <select name="siswa"
-                        class="w-full h-11 pl-9 pr-8 rounded-2xl border border-[#CBD5E1] bg-white
-                               text-[#0F172A] text-[13px] font-semibold focus:outline-none
-                               focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 appearance-none
-                               shadow-sm cursor-pointer transition-all"
-                        onchange="this.form.submit()">
-                    <option value="">Semua Siswa</option>
-                    @foreach($siswaList as $s)
-                        <option value="{{ $s->id }}" @selected($siswaId == $s->id)>
-                            {{ $s->name }}@if($s->jurusan) ({{ $s->jurusan }})@endif
-                        </option>
-                    @endforeach
-                </select>
-                <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#94A3B8] text-[18px]">expand_more</span>
-            </div>
-
-            {{-- Filter tanggal --}}
-            <div class="relative">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8] text-[18px] pointer-events-none">calendar_today</span>
-                <input type="date" name="date"
-                       value="{{ $date }}"
-                       max="{{ today()->format('Y-m-d') }}"
-                       class="h-11 pl-9 pr-4 rounded-2xl border border-[#CBD5E1] bg-white
-                              text-[#0F172A] text-[13px] font-semibold focus:outline-none
-                              focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20
-                              shadow-sm cursor-pointer transition-all"
-                       onchange="this.form.submit()">
-            </div>
-
-            {{-- Reset --}}
-            @if($siswaId || $date)
-            <a href="{{ route('activity-reports.guru') }}"
-               class="h-11 px-4 flex items-center gap-1.5 rounded-2xl border border-[#CBD5E1] bg-white
-                      text-[#64748B] text-[13px] font-semibold hover:bg-[#F1F5F9] transition-colors shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">filter_alt_off</span>
-                Reset
-            </a>
-            @endif
-        </form>
-    </div>
-
-    {{-- ══════════════════════════════════════════════════════════
          LIST LAPORAN
     ══════════════════════════════════════════════════════════ --}}
-    <div class="px-4 pb-6 max-w-screen-xl mx-auto space-y-3">
+    <div class="max-w-4xl mx-auto space-y-4 pt-2">
 
         @forelse($reports as $report)
         @php
