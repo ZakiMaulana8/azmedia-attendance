@@ -16,7 +16,13 @@ class AdminUserController extends Controller
      */
     public function indexSiswa(Request $request): View
     {
-        $query = User::where('role', 'siswa')->withCount('attendances');
+        $currentView = $request->query('view', 'active');
+        if ($currentView === 'deleted') {
+            $query = User::onlyTrashed()->where('role', 'siswa')->withCount('attendances');
+        } else {
+            $query = User::where('role', 'siswa')->withCount('attendances');
+            $currentView = 'active';
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -24,20 +30,29 @@ class AdminUserController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('nis_nip', 'like', "%{$search}%")
-                  ->orWhere('asal_sekolah', 'like', "%{$search}%");
+                  ->orWhere('asal_sekolah', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
         $siswas = $query->orderBy('name')->paginate(10)->withQueryString();
 
-        // Stats (always from full dataset, not just current page)
-        $allSiswa       = User::where('role', 'siswa');
-        $totalSiswa     = $allSiswa->count();
+        // Stats (always from full normal dataset, not just current page)
+        $totalSiswa     = User::where('role', 'siswa')->count();
         $activeSiswa    = User::where('role', 'siswa')->where('is_active', true)->whereNotNull('tanggal_selesai')->where('tanggal_selesai', '>=', today())->count();
         $schoolCount    = User::where('role', 'siswa')->whereNotNull('asal_sekolah')->distinct('asal_sekolah')->count('asal_sekolah');
-        $totalAbsensi   = \App\Models\Attendance::whereHas('user', fn($q) => $q->where('role', 'siswa'))->count();
+        $totalAbsensi   = \App\Models\Attendance::whereHas('user', fn($q) => $q->withoutTrashed()->where('role', 'siswa'))->count();
+        $deletedSiswa   = User::onlyTrashed()->where('role', 'siswa')->count();
 
-        return view('admin.siswa.index', compact('siswas', 'totalSiswa', 'activeSiswa', 'schoolCount', 'totalAbsensi'));
+        return view('admin.siswa.index', compact(
+            'siswas',
+            'totalSiswa',
+            'activeSiswa',
+            'schoolCount',
+            'totalAbsensi',
+            'deletedSiswa',
+            'currentView'
+        ));
     }
 
     /**
