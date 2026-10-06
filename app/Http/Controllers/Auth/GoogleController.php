@@ -39,11 +39,17 @@ class GoogleController extends Controller
                 ->withErrors(['google' => 'Login Google gagal: ' . $e->getMessage()]);
         }
 
-        // Cari user berdasarkan google_id atau email
-        $user = User::where('google_id', $googleUser->getId())->first()
-            ?? User::where('email', $googleUser->getEmail())->first();
+        // Cari user berdasarkan google_id atau email (termasuk user yang diarsipkan/soft deleted)
+        $user = User::withTrashed()->where('google_id', $googleUser->getId())->first()
+            ?? User::withTrashed()->where('email', $googleUser->getEmail())->first();
 
         if ($user) {
+            // Jika akun dalam status diarsipkan (soft deleted), tolak login
+            if ($user->trashed()) {
+                return redirect()->route('login')
+                    ->withErrors(['email' => 'Akun Anda telah diarsipkan. Hubungi Administrator.']);
+            }
+
             // Update google_id dan avatar jika belum ada
             $user->update([
                 'google_id' => $googleUser->getId(),

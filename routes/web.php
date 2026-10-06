@@ -90,6 +90,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/admin/users/{user}/deactivate', [AdminUserController::class, 'deactivate'])->name('admin.users.deactivate');
         Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
         Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::post('/admin/users/{user}/restore', [AdminUserController::class, 'restore'])->name('admin.users.restore')->withTrashed();
     });
 });
 

@@ -127,17 +127,35 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Hapus Pengguna.
+     * Arsipkan Pengguna (Soft Delete).
      */
     public function destroy(User $user): RedirectResponse
     {
         if (auth()->id() === $user->id) {
-            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+            return redirect()->back()->with('error', 'Anda tidak dapat mengarsipkan akun Anda sendiri.');
+        }
+
+        if ($user->isAdmin()) {
+            return redirect()->back()->with('error', 'Akun dengan role Admin tidak dapat diarsipkan.');
         }
 
         $user->delete();
 
-        return redirect()->back()->with('success', 'Pengguna berhasil dihapus.');
+        return redirect()->back()->with('success', "Akun {$user->name} berhasil diarsipkan.");
+    }
+
+    /**
+     * Pulihkan akun pengguna yang diarsipkan (Restore Soft Delete).
+     */
+    public function restore(User $user): RedirectResponse
+    {
+        if (! $user->trashed()) {
+            return redirect()->back()->with('info', "Akun {$user->name} tidak dalam status terarsip.");
+        }
+
+        $user->restore();
+
+        return redirect()->back()->with('success', "Akun {$user->name} berhasil dipulihkan.");
     }
 
     /**
