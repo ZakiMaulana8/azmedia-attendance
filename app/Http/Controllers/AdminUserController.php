@@ -69,6 +69,34 @@ class AdminUserController extends Controller
     }
 
     /**
+     * Tampilkan daftar Karyawan.
+     */
+    public function indexKaryawan(Request $request): View
+    {
+        $query = User::where('role', 'karyawan');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $karyawans = $query->orderBy('name')->paginate(10)->withQueryString();
+
+        // Stats (always from full dataset)
+        $totalKaryawan = User::where('role', 'karyawan')->count();
+        $withPhone     = User::where('role', 'karyawan')->whereNotNull('phone')->where('phone', '!=', '')->count();
+        $withGoogle    = User::where('role', 'karyawan')->whereNotNull('google_id')->count();
+        $withAvatar    = User::where('role', 'karyawan')->whereNotNull('avatar')->where('avatar', '!=', '')->count();
+
+        return view('admin.karyawan.index', compact('karyawans', 'totalKaryawan', 'withPhone', 'withGoogle', 'withAvatar'));
+    }
+
+
+    /**
      * Update data Pengguna.
      */
     public function update(Request $request, User $user): RedirectResponse
@@ -76,7 +104,7 @@ class AdminUserController extends Controller
         $validated = $request->validate([
             'name'            => ['required', 'string', 'max:255'],
             'email'           => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role'            => ['required', 'string', 'in:siswa,guru,admin'],
+            'role'            => ['required', 'string', 'in:siswa,guru,admin,karyawan'],
             'nis_nip'         => ['nullable', 'string', 'max:50'],
             'asal_sekolah'    => ['nullable', 'string', 'max:255'],
             'jurusan'         => ['nullable', 'string', 'max:255'],

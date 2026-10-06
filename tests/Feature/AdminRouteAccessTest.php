@@ -32,7 +32,7 @@ class AdminRouteAccessTest extends TestCase
         foreach (['guru', 'siswa', 'karyawan'] as $role) {
             $user = $this->userWithRole($role);
 
-            foreach (['/admin/siswa', '/admin/guru', '/admin/geofence'] as $url) {
+            foreach (['/admin/siswa', '/admin/guru', '/admin/karyawan', '/admin/geofence'] as $url) {
                 $this->actingAs($user)->get($url)->assertForbidden();
             }
         }
@@ -55,7 +55,7 @@ class AdminRouteAccessTest extends TestCase
 
         // Yang diuji hanya lolos middleware (bukan 403 / redirect login). Status 500 di
         // environment test bisa muncul karena skema migrasi sqlite tidak identik dengan DB tim.
-        foreach (['/admin/siswa', '/admin/guru', '/admin/geofence'] as $url) {
+        foreach (['/admin/siswa', '/admin/guru', '/admin/karyawan', '/admin/geofence'] as $url) {
             $status = $this->actingAs($admin)->get($url)->getStatusCode();
             $this->assertNotContains($status, [301, 302, 401, 403, 404], "Admin ditolak di $url");
         }

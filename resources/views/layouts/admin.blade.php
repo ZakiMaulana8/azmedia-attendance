@@ -19,6 +19,11 @@
         <span class="material-symbols-outlined" @if(request()->routeIs('admin.guru.*')) style="font-variation-settings:'FILL' 1" @endif>school</span>
         <span class="text-body-lg">Guru Pembimbing</span>
     </a>
+    <a href="{{ route('admin.karyawan.index') }}"
+       class="flex items-center gap-md p-sm rounded-xl {{ request()->routeIs('admin.karyawan.*') ? 'bg-blue-50 text-[#2563EB] font-bold border border-blue-100' : 'text-slate-600 hover:bg-slate-50' }} transition-all active:scale-95">
+        <span class="material-symbols-outlined" @if(request()->routeIs('admin.karyawan.*')) style="font-variation-settings:'FILL' 1" @endif>badge</span>
+        <span class="text-body-lg">Karyawan</span>
+    </a>
 
     <p class="text-label-md text-slate-400 px-sm py-xs uppercase tracking-wider mt-md font-bold text-[11px]">Pengaturan</p>
     <a href="{{ route('admin.geofence') }}"

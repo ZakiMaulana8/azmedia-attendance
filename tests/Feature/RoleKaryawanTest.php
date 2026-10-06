@@ -102,7 +102,8 @@ class RoleKaryawanTest extends TestCase
 
         $response->assertOk();
         $response->assertViewIs('dashboard.karyawan');
-        $response->assertSee('Selamat Datang, Karyawan Test!');
+        $response->assertSee('Halo, Karyawan Test!');
+        $response->assertSee('Pembimbing Lapangan');
         $response->assertSee('Ringkasan Siswa PKL Hari Ini');
         $response->assertSee('Daftar Siswa PKL Hari Ini');
         $response->assertSee('Total Siswa');
