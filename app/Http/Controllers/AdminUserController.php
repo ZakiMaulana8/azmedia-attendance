@@ -162,6 +162,10 @@ class AdminUserController extends Controller
             'password'        => ['nullable', 'string', 'min:6'],
         ]);
 
+        if ($user->isAdmin() && $validated['role'] !== 'admin') {
+            return redirect()->back()->with('error', 'Role akun Admin tidak dapat diubah menjadi role lain.');
+        }
+
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
