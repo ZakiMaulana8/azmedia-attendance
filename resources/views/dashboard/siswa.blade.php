@@ -86,32 +86,56 @@
                     </div>
                 </div>
 
-                {{-- Alert Pesan Lokasi / Flash Notification (Modern Soft Red Alert, Dynamic Height & Full Wrapping) --}}
+                {{-- Alert Notifikasi Lokasi / Flash Notification (AZ Media Corporate Theme) --}}
                 @if(session('error'))
-                <div style="background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; box-shadow: 0 4px 14px rgba(220,38,38,0.12); margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; border-radius: 16px; padding: 14px 16px; font-size: 13px; font-weight: 600; line-height: 1.5; width: 100%; box-sizing: border-box; height: auto;">
-                    <span class="material-symbols-outlined" style="color: #DC2626; font-size: 22px; flex-shrink: 0; margin-top: 1px;">error</span>
-                    <span style="flex: 1; word-break: break-word; white-space: normal; height: auto;">{{ session('error') }}</span>
+                <div style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px 16px; margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box;">
+                    <div style="flex: 0 0 36px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                        <span class="material-symbols-outlined" style="color: #D97706; font-size: 22px; line-height: 1; font-variation-settings: 'FILL' 1;">warning</span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; line-height: 1.5; overflow-wrap: anywhere; box-sizing: border-box;">
+                        <p style="color: #92400E; font-size: 13px; font-weight: 600; line-height: 1.5; margin: 0; word-break: break-word; overflow-wrap: anywhere; white-space: normal;">
+                            {{ session('error') }}
+                        </p>
+                    </div>
                 </div>
                 @endif
 
                 @if(session('success'))
-                <div style="background: #FFFFFF; border: 1px solid #93C5FD; color: #1E40AF; box-shadow: 0 4px 14px rgba(37,99,235,0.12); margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; border-radius: 16px; padding: 14px 16px; font-size: 13px; font-weight: 600; line-height: 1.5; width: 100%; box-sizing: border-box; height: auto;">
-                    <span class="material-symbols-outlined" style="color: #2563EB; font-size: 22px; flex-shrink: 0; margin-top: 1px;">check_circle</span>
-                    <span style="flex: 1; word-break: break-word; white-space: normal; height: auto;">{{ session('success') }}</span>
+                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 14px 16px; margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box;">
+                    <div style="flex: 0 0 36px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                        <span class="material-symbols-outlined" style="color: #2563EB; font-size: 22px; line-height: 1; font-variation-settings: 'FILL' 1;">check_circle</span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; line-height: 1.5; overflow-wrap: anywhere; box-sizing: border-box;">
+                        <p style="color: #1E40AF; font-size: 13px; font-weight: 600; line-height: 1.5; margin: 0; word-break: break-word; overflow-wrap: anywhere; white-space: normal;">
+                            {{ session('success') }}
+                        </p>
+                    </div>
                 </div>
                 @endif
 
                 <div x-show="flashMsg"
-                     x-transition
+                     x-cloak
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-1"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
                      :style="flashSuccess
-                        ? 'background: #FFFFFF; border: 1px solid #93C5FD; color: #1E40AF; box-shadow: 0 4px 14px rgba(37,99,235,0.12);'
-                        : 'background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; box-shadow: 0 4px 14px rgba(220,38,38,0.12);'"
-                     style="margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; border-radius: 16px; padding: 14px 16px; font-size: 13px; font-weight: 600; line-height: 1.5; width: 100%; box-sizing: border-box; height: auto;">
-                    <span class="material-symbols-outlined"
-                          :style="flashSuccess ? 'color: #2563EB;' : 'color: #DC2626;'"
-                          style="font-size: 22px; flex-shrink: 0; margin-top: 1px;"
-                          x-text="flashSuccess ? 'check_circle' : 'error'"></span>
-                    <span x-text="flashMsg" style="flex: 1; word-break: break-word; white-space: normal; height: auto; display: block;"></span>
+                        ? 'background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 14px 16px; margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box;'
+                        : 'background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px 16px; margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box;'"
+                     style="background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px 16px; margin-top: 16px; display: flex; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box;">
+                    <div style="flex: 0 0 36px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                        <span class="material-symbols-outlined"
+                              :style="flashSuccess ? 'color: #2563EB;' : 'color: #D97706;'"
+                              style="font-size: 22px; line-height: 1; font-variation-settings: 'FILL' 1;"
+                              x-text="flashSuccess ? 'check_circle' : 'warning'">warning</span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; line-height: 1.5; overflow-wrap: anywhere; box-sizing: border-box;">
+                        <p :style="flashSuccess ? 'color: #1E40AF;' : 'color: #92400E;'"
+                           style="font-size: 13px; font-weight: 600; line-height: 1.5; margin: 0; word-break: break-word; overflow-wrap: anywhere; white-space: normal;"
+                           x-text="flashMsg"></p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -386,46 +410,17 @@ function attendanceApp() {
         },
 
         async doAbsen() {
-            if (!this.locationVerified) {
-                this.showFlash('Izinkan akses lokasi GPS Anda untuk melakukan absensi.', false);
-                return;
-            }
-
             const type = this.buttonLabel === 'Absen Pulang' ? 'pulang' : 'masuk';
 
             if (type === 'masuk') {
-                await this.executeAbsen('masuk');
+                window.location.href = '{{ route('attendance.check-in') }}';
                 return;
             }
 
-            // Modal input logbook kegiatan harian (wajib diisi)
-            const { value: logbook, isConfirmed } = await Swal.fire({
-                title: 'Logbook Kegiatan Hari Ini',
-                text: 'Tuliskan ringkasan kegiatan atau tugas yang Anda selesaikan hari ini sebelum check-out.',
-                input: 'textarea',
-                inputPlaceholder: 'Contoh: Menyelesaikan slicing halaman dashboard dan testing respon API...',
-                inputAttributes: {
-                    'rows': 4,
-                    'maxlength': 1000,
-                },
-                showCancelButton: true,
-                confirmButtonColor: '#2563EB',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Simpan & Check-out',
-                cancelButtonText: 'Batal',
-                reverseButtons: true,
-                inputValidator: (value) => {
-                    if (!value || !value.trim()) {
-                        return 'Logbook kegiatan wajib diisi!';
-                    }
-                }
-            });
-
-            if (!isConfirmed || !logbook || !logbook.trim()) {
+            if (type === 'pulang') {
+                window.location.href = '{{ route('attendance.check-out') }}';
                 return;
             }
-
-            await this.executeAbsen('pulang', logbook.trim());
         },
 
         async executeAbsen(type, logbook = null) {

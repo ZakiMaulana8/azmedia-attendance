@@ -39,8 +39,8 @@ class AttendanceGeofencingTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'success' => true,
-            'message' => 'Absen masuk berhasil!',
         ]);
+        $this->assertStringContainsString('Absen masuk berhasil', $response->json('message'));
 
         $attendance = Attendance::first();
         $this->assertNotNull($attendance);
@@ -63,8 +63,9 @@ class AttendanceGeofencingTest extends TestCase
         $response->assertStatus(422);
         $response->assertJson([
             'success' => false,
-            'message' => 'Anda berada di luar area AZ Media. Silakan lakukan absensi di lokasi kantor.',
         ]);
+        $this->assertStringContainsString('Anda berada di luar area AZ Media', $response->json('message'));
+        $this->assertStringContainsString('m dari kantor', $response->json('message'));
 
         $this->assertDatabaseMissing('attendances', [
             'user_id' => $user->id,
@@ -102,8 +103,9 @@ class AttendanceGeofencingTest extends TestCase
         $response2->assertStatus(422);
         $response2->assertJson([
             'success' => false,
-            'message' => 'Anda berada di luar area Kantor Cabang Jakarta. Silakan lakukan absensi di lokasi kantor.',
         ]);
+        $this->assertStringContainsString('Anda berada di luar area Kantor Cabang Jakarta', $response2->json('message'));
+        $this->assertStringContainsString('m dari kantor', $response2->json('message'));
     }
 
     public function test_checkout_before_16_saves_pulang_cepat(): void
@@ -125,6 +127,7 @@ class AttendanceGeofencingTest extends TestCase
             'latitude'  => -8.031133759026867,
             'longitude' => 111.90199188567162,
             'type'      => 'pulang',
+            'logbook'   => 'Menyelesaikan modul absensi geofencing.',
         ]);
 
         $response->assertOk();
@@ -157,6 +160,7 @@ class AttendanceGeofencingTest extends TestCase
             'latitude'  => -8.031133759026867,
             'longitude' => 111.90199188567162,
             'type'      => 'pulang',
+            'logbook'   => 'Dokumentasi dan testing selesai.',
         ]);
 
         $response->assertOk();

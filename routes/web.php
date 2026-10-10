@@ -54,6 +54,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('activity-reports.store');
 
     // Attendance
+    Route::get('/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+    Route::get('/attendance/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.check-out');
     Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
 
     // Permissions (izin) — siswa
