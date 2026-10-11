@@ -2,42 +2,33 @@
 @section('title', 'Laporan Absensi')
 
 @section('content')
-<div class="max-w-lg mx-auto pt-3">
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
     {{-- ════════════════════════════════════════════════════════════
          HERO HEADER
     ════════════════════════════════════════════════════════════ --}}
-    <section class="relative bg-primary px-md pb-lg pt-6"
-             style="border-radius: 0 0 32px 32px; margin-top: 4px;">
-        {{-- Ornamen --}}
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 0 0 32px 32px;">
-            <div class="absolute -top-10 -right-10 w-44 h-44 rounded-full"
-                 style="background: rgba(255,255,255,0.07)"></div>
-            <div class="absolute top-6 -right-2 w-24 h-24 rounded-full"
-                 style="background: rgba(255,255,255,0.05)"></div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
         </div>
 
-        <div class="relative z-10">
-            <p class="text-white/60 text-[11px] font-semibold uppercase tracking-widest mb-1">
-                Rekap Kehadiran
-            </p>
-            <h2 class="text-white font-extrabold"
-                style="font-size: 24px; line-height: 30px; letter-spacing: -0.02em;">
-                Laporan Absensi
-            </h2>
-            <p class="text-white/60 text-[13px] mt-1">
-                Rekap kehadiran selama magang
-            </p>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div>
+                <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">Rekap Kehadiran</p>
+                <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight">
+                    Laporan Absensi
+                </h1>
+                <p class="text-white/80 text-[13px] font-medium mt-1">Rekap kehadiran selama magang</p>
+            </div>
 
-            {{-- ── Filter Bulan & Tahun ── --}}
-            <form method="GET" action="{{ route('reports.index') }}"
-                  class="flex gap-sm mt-md">
-                {{-- Bulan --}}
+            <form method="GET" action="{{ route('reports.index') }}" class="flex gap-2 md:w-[320px]">
                 <div class="flex-1 relative">
                     <select name="month"
-                            class="w-full h-10 pl-md pr-8 rounded-xl text-[13px] font-semibold
-                                   appearance-none outline-none border-0 cursor-pointer"
-                            style="background: rgba(255,255,255,0.18); color: white;"
+                            class="w-full h-11 pl-4 pr-9 rounded-xl text-[13px] font-bold
+                                   appearance-none outline-none cursor-pointer"
+                            style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.38); color: white;"
                             onchange="this.form.submit()">
                         @foreach(range(1, 12) as $m)
                         <option value="{{ $m }}"
@@ -50,12 +41,11 @@
                     <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2
                                  pointer-events-none text-white/80 text-[18px]">expand_more</span>
                 </div>
-                {{-- Tahun --}}
                 <div class="w-28 relative">
                     <select name="year"
-                            class="w-full h-10 pl-md pr-8 rounded-xl text-[13px] font-semibold
-                                   appearance-none outline-none border-0 cursor-pointer"
-                            style="background: rgba(255,255,255,0.18); color: white;"
+                            class="w-full h-11 pl-4 pr-9 rounded-xl text-[13px] font-bold
+                                   appearance-none outline-none cursor-pointer"
+                            style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.38); color: white;"
                             onchange="this.form.submit()">
                         @foreach(range(now()->year - 1, now()->year + 1) as $y)
                         <option value="{{ $y }}"
@@ -70,7 +60,7 @@
         </div>
     </section>
 
-    <div class="px-md pt-lg pb-xl space-y-lg">
+    <div class="space-y-6">
 
         {{-- ════════════════════════════════════════════════════════
              KARTU STATISTIK
@@ -113,9 +103,9 @@
             ];
         @endphp
 
-        <div class="grid grid-cols-4 gap-sm">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             @foreach($stats as $stat)
-            <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm p-sm text-center">
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 text-center transition-all hover:shadow-md">
                 <div class="w-8 h-8 rounded-xl mx-auto mb-1.5 flex items-center justify-center {{ $stat['color'] }}"
                      style="background: {{ $stat['bg'] }}">
                     <span class="material-symbols-outlined text-[16px]"
@@ -135,7 +125,7 @@
         {{-- ════════════════════════════════════════════════════════
              TINGKAT KEHADIRAN
         ════════════════════════════════════════════════════════ --}}
-        <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm p-md">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
             <div class="flex items-center gap-sm mb-md">
                 <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <span class="material-symbols-outlined text-primary text-[18px]"
@@ -183,7 +173,7 @@
                 Detail Harian
             </h3>
 
-            <div class="space-y-sm">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 @forelse($workdays as $day)
                 @php
                     $key     = $day->format('Y-m-d');
@@ -203,8 +193,8 @@
                     $jamPulang = $att?->jam_pulang ? \Carbon\Carbon::parse($att->jam_pulang)->format('H:i') : null;
                 @endphp
 
-                <div class="bg-white rounded-2xl border shadow-sm overflow-hidden
-                            {{ $isToday ? 'border-primary' : 'border-outline-variant/50' }}">
+                <div class="bg-white rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md
+                            {{ $isToday ? 'border-primary' : 'border-slate-200/80' }}">
                     <div class="flex items-center gap-md px-md py-sm">
 
                         {{-- Tanggal box --}}
@@ -270,7 +260,7 @@
                 </div>
 
                 @empty
-                <div class="flex flex-col items-center justify-center py-12 text-center">
+                <div style="grid-column: 1 / -1;" class="flex flex-col items-center justify-center py-12 text-center">
                     <div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center mb-md">
                         <span class="material-symbols-outlined text-[28px] text-outline">calendar_month</span>
                     </div>
@@ -290,7 +280,7 @@
                 Izin Bulan Ini
             </h3>
 
-            <div class="space-y-sm">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 @foreach($permissions as $perm)
                 @php
                     $iconBg    = match($perm->jenis) { 'sakit' => 'rgba(133,83,0,0.10)', 'dispensasi' => 'rgba(37,99,235,0.10)', default => 'rgba(164,58,58,0.10)' };
@@ -300,7 +290,7 @@
                     $dotColor  = match($perm->status) { 'disetujui' => 'bg-blue-600', 'ditolak' => 'bg-red-500', default => 'bg-amber-500' };
                 @endphp
 
-                <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm px-md py-sm
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm px-md py-sm
                             flex items-center gap-md">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 {{ $iconColor }}"
                          style="background: {{ $iconBg }}">

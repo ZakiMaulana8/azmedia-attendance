@@ -2,31 +2,28 @@
 @section('title', 'Laporan Kegiatan')
 
 @section('content')
-<div class="max-w-lg mx-auto pt-3">
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-    {{-- ── Hero Header ─────────────────────────────────────────────── --}}
-    <section class="relative bg-primary overflow-hidden px-md pt-6 pb-lg"
-             style="border-radius: 0 0 32px 32px; margin-top: 4px;">
-        <div class="pointer-events-none absolute -top-10 -right-10 w-44 h-44 rounded-full"
-             style="background: rgba(255,255,255,0.07)"></div>
-        <div class="pointer-events-none absolute top-6 -right-2 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.05)"></div>
+    {{-- ══ HERO HEADER CARD (seragam dengan halaman lain) ══ --}}
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
+        </div>
 
-        <div class="relative z-10 flex items-center justify-between">
+        <div class="relative z-10 flex items-center justify-between gap-4">
             <div>
-                <p class="text-white/60 text-[11px] font-semibold uppercase tracking-widest mb-1">
-                    Dokumentasi Magang
-                </p>
-                <h2 class="text-white font-extrabold"
-                    style="font-size: 24px; line-height: 30px; letter-spacing: -0.02em;">
+                <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">Dokumentasi Magang</p>
+                <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight">
                     Laporan Kegiatan
-                </h2>
-                <p class="text-white/60 text-[13px] mt-1">Dokumentasi kegiatan magang</p>
+                </h1>
+                <p class="text-white/80 text-[13px] font-medium mt-1">Dokumentasi kegiatan magang</p>
             </div>
             <a href="{{ route('activity-reports.create') }}"
-               class="flex-shrink-0 flex items-center gap-xs rounded-2xl px-md py-sm font-bold text-[13px]
-                      active:scale-95 transition-all duration-150 text-white"
-               style="background: rgba(255,255,255,0.20); border: 1px solid rgba(255,255,255,0.25);">
+               class="flex-shrink-0 flex items-center gap-1.5 rounded-2xl px-4 py-2.5 font-bold text-[13px]
+                      active:scale-95 transition-all duration-150 text-white hover:bg-white/30"
+               style="background: rgba(255,255,255,0.20); border: 1px solid rgba(255,255,255,0.38); backdrop-filter: blur(10px);">
                 <span class="material-symbols-outlined text-[18px]"
                       style="font-variation-settings:'FILL' 1">add_photo_alternate</span>
                 Upload
@@ -34,7 +31,7 @@
         </div>
     </section>
 
-    <div class="px-md pt-lg pb-xl">
+    <div class="space-y-6">
 
         {{-- Flash success --}}
         @if(session('success'))
@@ -46,7 +43,7 @@
         @endif
 
         {{-- List laporan --}}
-        <div class="space-y-md">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             @forelse($reports as $report)
             @php
                 $firstImg = $report->files->firstWhere('mime_type', fn ($m) => str_starts_with($m, 'image/'));
@@ -57,7 +54,7 @@
                 $hasDoc   = $report->files->contains(fn($f) => !str_starts_with($f->mime_type, 'image/') && !str_starts_with($f->mime_type, 'video/'));
             @endphp
 
-            <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all hover:shadow-md">
 
                 {{-- Thumbnail --}}
                 @if($preview)
@@ -147,7 +144,7 @@
             @empty
 
             {{-- Empty state --}}
-            <div class="flex flex-col items-center justify-center py-16 text-center">
+            <div style="grid-column: 1 / -1;" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col items-center justify-center py-16 text-center">
                 <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center mb-md">
                     <span class="material-symbols-outlined text-[32px] text-outline"
                           style="font-variation-settings:'FILL' 1">add_photo_alternate</span>
@@ -170,7 +167,7 @@
 
         {{-- Pagination --}}
         @if($reports->hasPages())
-        <div class="mt-lg">{{ $reports->links() }}</div>
+        <div>{{ $reports->links() }}</div>
         @endif
 
     </div>

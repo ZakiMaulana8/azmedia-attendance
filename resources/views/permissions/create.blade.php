@@ -2,36 +2,46 @@
 @section('title', 'Ajukan Izin')
 
 @section('content')
-<div class="max-w-lg mx-auto pt-3" x-data="permissionForm()">
+@php
+    $hasRecentPerms = auth()->user()->permissions()->exists();
+@endphp
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6"
+     @unless($hasRecentPerms) style="max-width: 760px;" @endunless
+     x-data="permissionForm()">
 
     {{-- ── Header ─────────────────────────────────────────────────── --}}
-    <section class="relative bg-primary overflow-hidden px-md pt-6 pb-lg"
-             style="border-radius: 0 0 32px 32px; margin-top: 4px;">
-        {{-- Ornamen --}}
-        <div class="pointer-events-none absolute -top-10 -right-10 w-44 h-44 rounded-full"
-             style="background: rgba(255,255,255,0.07)"></div>
-        <div class="pointer-events-none absolute top-6 -right-2 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.05)"></div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
+        </div>
 
-        <div class="relative z-10">
-            <p class="text-white/60 text-[11px] font-semibold uppercase tracking-widest mb-1">
-                Manajemen Izin
-            </p>
-            <h2 class="text-white font-extrabold"
-                style="font-size: 24px; line-height: 30px; letter-spacing: -0.02em;">
-                Pengajuan Izin
-            </h2>
-            <p class="text-white/60 text-[13px] mt-1">
-                Lengkapi form di bawah untuk mengajukan izin
-            </p>
+        <div class="relative z-10 flex items-center justify-between gap-4">
+            <div>
+                <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">Manajemen Izin</p>
+                <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight">
+                    Pengajuan Izin
+                </h1>
+                <p class="text-white/80 text-[13px] font-medium mt-1">
+                    Lengkapi form di bawah untuk mengajukan izin
+                </p>
+            </div>
+            <a href="{{ route('permissions.index') }}"
+               class="flex-shrink-0 flex items-center gap-1.5 rounded-2xl px-4 py-2.5 font-bold text-[13px]
+                      active:scale-95 transition-all duration-150 text-white hover:bg-white/30"
+               style="background: rgba(255,255,255,0.20); border: 1px solid rgba(255,255,255,0.38); backdrop-filter: blur(10px);">
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1">history</span>
+                Riwayat
+            </a>
         </div>
     </section>
 
-    <div class="px-md pt-lg pb-xl space-y-lg">
+    <div class="{{ $hasRecentPerms ? 'grid grid-cols-1 lg:grid-cols-12 gap-6 items-start' : 'space-y-6' }}">
 
         {{-- ── Flash success ────────────────────────────────────────── --}}
         @if(session('success'))
-        <div class="flex items-start gap-sm bg-blue-50 border border-blue-200 rounded-2xl p-md">
+        <div class="{{ $hasRecentPerms ? 'lg:col-span-12' : '' }} flex items-start gap-sm bg-blue-50 border border-blue-200 rounded-2xl p-md">
             <span class="material-symbols-outlined text-blue-600 text-[20px] flex-shrink-0 mt-0.5"
                   style="font-variation-settings:'FILL' 1">check_circle</span>
             <p class="text-[13px] text-blue-800 font-semibold leading-relaxed">
@@ -41,7 +51,7 @@
         @endif
 
         @if($errors->any())
-        <div class="flex items-start gap-sm bg-red-50 border border-red-200 rounded-2xl p-md">
+        <div class="{{ $hasRecentPerms ? 'lg:col-span-12' : '' }} flex items-start gap-sm bg-red-50 border border-red-200 rounded-2xl p-md">
             <span class="material-symbols-outlined text-red-600 text-[20px] flex-shrink-0 mt-0.5"
                   style="font-variation-settings:'FILL' 1">error</span>
             <div class="text-[13px] text-red-800 font-medium leading-relaxed">
@@ -56,10 +66,10 @@
         @endif
 
         {{-- ── Form Card ────────────────────────────────────────────── --}}
-        <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm overflow-hidden">
+        <div class="{{ $hasRecentPerms ? 'lg:col-span-8' : '' }} bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
 
             {{-- Header card --}}
-            <div class="flex items-center gap-sm px-md py-md border-b border-outline-variant/40">
+            <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-200/80 bg-slate-50">
                 <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <span class="material-symbols-outlined text-primary text-[18px]"
                           style="font-variation-settings:'FILL' 1">edit_note</span>
@@ -72,7 +82,7 @@
 
             <form method="POST" action="{{ route('permissions.store') }}"
                   enctype="multipart/form-data"
-                  class="p-md space-y-md"
+                  class="p-6 space-y-6"
                   @submit="submitting = true">
                 @csrf
 
@@ -136,14 +146,14 @@
                         Tanggal Izin <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">
-                            calendar_today
-                        </span>
+                        <span class="material-symbols-outlined absolute text-slate-400 pointer-events-none"
+                              style="left:16px; top:50%; transform:translateY(-50%); font-size:20px; line-height:1;">calendar_today</span>
                         <input id="tanggal" type="date" name="tanggal"
                                value="{{ old('tanggal') }}"
-                               class="w-full h-touch-target pl-10 pr-md rounded-2xl border border-outline-variant/60
-                                      bg-surface-container/30 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20
-                                      text-[14px] font-semibold text-on-surface transition-all duration-150 outline-none"
+                               style="padding-left:48px; padding-right:16px;"
+                               class="w-full h-12 rounded-xl border border-slate-300
+                                      bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20
+                                      text-[14px] font-bold text-slate-900 transition-all outline-none"
                                required>
                     </div>
                     @error('tanggal')
@@ -168,9 +178,9 @@
                               maxlength="500"
                               x-model="alasan"
                               @input="alasanLen = alasan.length"
-                              class="w-full p-md rounded-2xl border border-outline-variant/60
-                                     bg-surface-container/30 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20
-                                     text-[14px] text-on-surface resize-none transition-all duration-150 outline-none leading-relaxed"
+                              class="w-full p-4 rounded-xl border border-slate-300
+                                     bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20
+                                     text-[14px] text-slate-900 resize-none transition-all outline-none leading-relaxed"
                               required>{{ old('alasan') }}</textarea>
                     @error('alasan')
                     <p class="mt-1.5 text-[12px] text-red-500 flex items-center gap-1">
@@ -224,7 +234,7 @@
 
                 {{-- ── Submit ───────────────────────────────────────── --}}
                 <button type="submit"
-                        class="w-full h-touch-target rounded-2xl font-extrabold text-[14px] text-white
+                        class="w-full h-12 rounded-xl font-extrabold text-[14px] text-white
                                flex items-center justify-center gap-sm
                                transition-all duration-200 active:scale-[0.98]
                                disabled:opacity-50 disabled:cursor-not-allowed"
@@ -248,7 +258,7 @@
         @endphp
 
         @if($recentPerms->isNotEmpty())
-        <div>
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
             <div class="flex items-center justify-between mb-md">
                 <h3 class="text-[13px] font-bold text-on-surface">Pengajuan Terakhir</h3>
                 <a href="{{ route('permissions.index') }}"
@@ -268,7 +278,7 @@
                     $dotColor  = match($perm->status) { 'disetujui' => 'bg-blue-600', 'ditolak' => 'bg-red-500', default => 'bg-amber-500' };
                 @endphp
 
-                <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm px-md py-sm
+                <div class="bg-slate-50 rounded-xl border border-slate-200/60 px-md py-sm
                             flex items-center gap-md">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 {{ $iconColor }}"
                          style="background: {{ $iconBg }}">

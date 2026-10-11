@@ -61,18 +61,50 @@
 
             {{-- Kanan: Notifikasi + Avatar Profile User --}}
             <div class="flex items-center gap-2">
-                <button type="button"
-                        class="w-8 h-8 rounded-full flex items-center justify-center text-slate-600 hover:text-[#2563EB] hover:bg-blue-50 transition-colors active:scale-95"
-                        title="Notifikasi">
-                    <span class="material-symbols-outlined text-[18px]">notifications</span>
-                </button>
-                <div class="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
-                     style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); border: 1px solid #BFDBFE; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
-                    @if(auth()->user()->foto && auth()->user()->foto !== 'default.png')
-                        <img class="w-full h-full object-cover" src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->name }}">
-                    @else
-                        <span class="font-extrabold text-white text-[11px] uppercase leading-none">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
-                    @endif
+                <div class="relative" style="position: relative;"
+                     x-data="{ open: false }"
+                     @click.outside="open = false"
+                     @keydown.escape.window="open = false">
+                    <button type="button" @click="open = !open"
+                            aria-label="Menu akun" :aria-expanded="open"
+                            class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 transition-all active:scale-95 focus:outline-none"
+                            style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); border: 2px solid #BFDBFE; box-shadow: 0 2px 6px rgba(37,99,235,0.25); cursor: pointer;">
+                        @if(auth()->user()->foto && auth()->user()->foto !== 'default.png')
+                            <img class="w-full h-full object-cover" src="{{ auth()->user()->photo_url }}" alt="{{ auth()->user()->name }}">
+                        @else
+                            <span class="font-extrabold text-white text-[12px] uppercase leading-none">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                        @endif
+                    </button>
+
+                    {{-- Dropdown akun --}}
+                    <div x-show="open" style="display: none; position: absolute; right: 0; top: 44px; width: 240px; z-index: 70;
+                                              background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+                                              box-shadow: 0 12px 32px rgba(15,23,42,0.14); overflow: hidden;"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100">
+                        <div style="padding: 14px 16px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                            <p style="font-size: 13px; font-weight: 800; color: #0F172A; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->name }}</p>
+                            <p style="font-size: 11px; color: #64748B; margin: 2px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->email }}</p>
+                        </div>
+                        <div style="padding: 6px;">
+                            <a href="{{ route('profile.edit') }}"
+                               class="hover:bg-slate-50 transition-colors"
+                               style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; color: #334155; text-decoration: none;">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">person</span>
+                                Profil Saya
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                                @csrf
+                                <button type="submit"
+                                        class="hover:bg-red-50 transition-colors"
+                                        style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 13px; font-weight: 700; color: #DC2626; background: transparent; border: 0; cursor: pointer; text-align: left;">
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

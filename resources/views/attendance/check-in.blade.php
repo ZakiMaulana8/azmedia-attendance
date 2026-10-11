@@ -125,14 +125,14 @@
 
                 {{-- State Belum Aktif --}}
                 <div x-show="!cameraActive && !capturedPhoto"
-                     style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: #FFFFFF;">
-                    <div style="width: 64px; height: 64px; border-radius: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                     style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: #FFFFFF; box-sizing: border-box;">
+                    <div style="width: 64px; height: 64px; flex-shrink: 0; margin: 0 auto 14px auto; border-radius: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
                         <span class="material-symbols-outlined" style="font-size: 32px; color: #BFDBFE;">photo_camera_front</span>
                     </div>
                     <p style="margin: 0; font-size: 14px; font-weight: 700; color: #FFFFFF;">
                         Kamera Belum Aktif
                     </p>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #94A3B8; max-width: 260px;">
+                    <p style="margin: 4px auto 0 auto; font-size: 12px; line-height: 1.5; color: #94A3B8; max-width: 260px; text-align: center;">
                         Klik tombol di bawah untuk membuka kamera depan dan mengambil foto kehadiran.
                     </p>
                 </div>
