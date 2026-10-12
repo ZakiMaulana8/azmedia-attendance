@@ -271,9 +271,18 @@
                             </td>
                             {{-- Role --}}
                             <td class="py-md px-md">
-                                <span class="inline-flex items-center gap-1 text-[12px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg">
-                                    <span class="material-symbols-outlined text-[13px]">badge</span>
-                                    Karyawan
+                                @php
+                                    $roleMap = [
+                                        'admin'    => ['label' => 'Admin',    'icon' => 'shield_person', 'class' => 'text-red-700 bg-red-50 border border-red-200'],
+                                        'guru'     => ['label' => 'Guru',     'icon' => 'school',        'class' => 'text-amber-700 bg-amber-50 border border-amber-200'],
+                                        'karyawan' => ['label' => 'Karyawan', 'icon' => 'badge',         'class' => 'text-primary bg-primary/10 border border-primary/20'],
+                                        'siswa'    => ['label' => 'Siswa',    'icon' => 'person',        'class' => 'text-emerald-700 bg-emerald-50 border border-emerald-200'],
+                                    ];
+                                    $rd = $roleMap[$karyawan->role] ?? ['label' => ucfirst($karyawan->role ?: '—'), 'icon' => 'help_outline', 'class' => 'text-slate-600 bg-slate-100 border border-slate-200'];
+                                @endphp
+                                <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap {{ $rd['class'] }}">
+                                    <span class="material-symbols-outlined shrink-0" style="font-size:13px; line-height:1;">{{ $rd['icon'] }}</span>
+                                    <span>{{ $rd['label'] }}</span>
                                 </span>
                             </td>
                             {{-- Aksi --}}
@@ -371,35 +380,43 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-2xl text-center">
-                                <div class="flex flex-col items-center gap-md">
-                                    <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-[36px] text-outline">
-                                            {{ ($currentView ?? 'active') === 'deleted' ? 'delete_sweep' : 'person_search' }}
-                                        </span>
+                            <td colspan="5">
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 56px 24px; gap: 0;">
+
+                                    {{-- Icon container --}}
+                                    <div style="width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;"
+                                         class="{{ ($currentView ?? 'active') === 'deleted' ? 'bg-red-50' : 'bg-slate-100' }}">
+                                        <span class="material-symbols-outlined {{ ($currentView ?? 'active') === 'deleted' ? 'text-red-400' : 'text-slate-400' }}" style="font-size: 36px; line-height: 1; font-variation-settings:'FILL' 1">{{ ($currentView ?? 'active') === 'deleted' ? 'delete_sweep' : 'person_search' }}</span>
                                     </div>
-                                    <div>
-                                        <p class="text-[14px] font-bold text-on-surface mb-1">
-                                            @if(($currentView ?? 'active') === 'deleted')
-                                                @if(request('search'))
-                                                    Karyawan Soft Deleted tidak ditemukan
-                                                @else
-                                                    Tidak ada data karyawan yang Soft Deleted
-                                                @endif
+
+                                    {{-- Heading --}}
+                                    <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #0F172A; text-align: center;">
+                                        @if(($currentView ?? 'active') === 'deleted')
+                                            @if(request('search'))
+                                                Karyawan Soft Deleted tidak ditemukan
                                             @else
-                                                @if(request('search'))
-                                                    Karyawan tidak ditemukan
-                                                @else
-                                                    Belum ada data karyawan
-                                                @endif
+                                                Tidak ada karyawan yang dihapus sementara
                                             @endif
-                                        </p>
-                                        @if(request('search'))
-                                            <p class="text-[12px] text-on-surface-variant">
-                                                Coba ubah kata kunci pencarian.
-                                            </p>
+                                        @else
+                                            @if(request('search'))
+                                                Karyawan tidak ditemukan
+                                            @else
+                                                Belum ada data karyawan
+                                            @endif
                                         @endif
-                                    </div>
+                                    </p>
+
+                                    {{-- Subtext --}}
+                                    <p style="margin: 0; font-size: 12px; color: #94A3B8; text-align: center; max-width: 280px; line-height: 1.5;">
+                                        @if(request('search'))
+                                            Coba ubah kata kunci pencarian.
+                                        @elseif(($currentView ?? 'active') === 'deleted')
+                                            Karyawan yang di-soft delete akan muncul di sini.
+                                        @else
+                                            Tambahkan akun karyawan untuk mulai memantau siswa PKL.
+                                        @endif
+                                    </p>
+
                                 </div>
                             </td>
                         </tr>

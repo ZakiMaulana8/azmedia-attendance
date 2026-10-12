@@ -1,12 +1,28 @@
 @extends('layouts.app')
 @section('title', 'Foto Absensi Masuk')
 
+@push('styles')
+<style>
+    /*
+     * Wrapper bagian setelah foto diambil. Layout flex + gap sengaja ditaruh di class (bukan inline style)
+     * karena Alpine x-show menghapus properti inline `display` saat elemen ditampilkan, sehingga
+     * `display:flex` inline hilang dan `gap` tidak berlaku (semua box jadi menempel).
+     */
+    .checkin-after-capture {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+</style>
+@endpush
+
 @php
     $now = \Carbon\Carbon::now('Asia/Jakarta');
 @endphp
 
 @section('content')
-<div style="min-height: 100vh; background: #F4F8FF; padding-bottom: 96px; position: relative;" x-data="checkInApp()">
+<div style="min-height: 100vh; background: #F4F8FF; padding-bottom: 120px; position: relative;" x-data="checkInApp()">
 
     <div style="max-width: 600px; margin: 0 auto; padding: 16px; position: relative; z-index: 10;">
 
@@ -156,7 +172,7 @@
             </div>
 
             {{-- ── Tombol Aksi Kamera ── --}}
-            <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 14px;" x-show="!capturedPhoto">
 
                 {{-- 1. Tombol Aktifkan Kamera --}}
                 <button type="button"
@@ -178,33 +194,69 @@
                     <span class="material-symbols-outlined" style="font-size: 22px;">photo_camera</span>
                     <span>Ambil Foto</span>
                 </button>
-
-                {{-- 3. Aksi Setelah Foto Berhasil Diambil: Ambil Ulang & Kirim Absensi --}}
-                <div x-show="capturedPhoto" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
-
-                    <button type="button"
-                            @click="retakePhoto"
-                            :disabled="submitting"
-                            style="width: 100%; height: 46px; border-radius: 16px; background: #F1F5F9; color: #334155; font-size: 13.5px; font-weight: 700; border: 1px solid #CBD5E1; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;"
-                            class="hover:bg-slate-200 active:scale-98 disabled:opacity-50">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">replay</span>
-                        <span>Ambil Ulang Foto</span>
-                    </button>
-
-                    <button type="button"
-                            @click="submitAbsen"
-                            :disabled="submitting || !locationVerified || !photoBlob"
-                            style="width: 100%; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFFFFF; font-size: 15px; font-weight: 900; letter-spacing: 0.02em; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 8px 24px rgba(37,99,235,0.38); transition: all 0.2s;"
-                            class="hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span class="material-symbols-outlined" style="font-size: 22px;"
-                              x-text="submitting ? 'hourglass_top' : 'send'">send</span>
-                        <span x-text="submitting ? 'Memproses Absensi...' : 'Kirim Absensi'">Kirim Absensi</span>
-                    </button>
-                </div>
-
             </div>
 
         </section>
+
+        {{-- ── Bagian Setelah Foto Diambil: Konfirmasi Foto & Tombol Aksi (box terpisah dari card kamera) ── --}}
+        <div x-show="capturedPhoto" x-cloak class="checkin-after-capture">
+
+                    {{-- Card Ringkasan Konfirmasi Foto Masuk --}}
+                    <div style="width: 100%; background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 20px; box-shadow: 0 4px 16px rgba(37,99,235,0.05); box-sizing: border-box;">
+                        {{-- Baris Label & Badge --}}
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+                            <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 800; color: #0F172A;">
+                                <span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">verified_user</span>
+                                <span>Konfirmasi Foto Masuk</span>
+                            </div>
+
+                            <span style="font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;">
+                                Foto Siap
+                            </span>
+                        </div>
+
+                        {{-- Teks Petunjuk --}}
+                        <p style="margin: 0 0 14px 0; font-size: 12.5px; color: #475569; line-height: 1.55;">
+                            Foto wajah berhasil diambil. Pastikan wajah terlihat jelas dan posisi berada di area kantor sebelum menekan Kirim Absensi.
+                        </p>
+
+                        {{-- Info Ringkas Jam & Lokasi --}}
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-outlined" style="font-size: 18px; color: #2563EB;">schedule</span>
+                                <span style="font-size: 12px; font-weight: 700; color: #334155;">Waktu Absen:</span>
+                                <span style="font-size: 12.5px; font-weight: 800; color: #0F172A;" x-text="liveClock">{{ $now->format('H:i') }} WIB</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-outlined" style="font-size: 16px; color: #16A34A;">check_circle</span>
+                                <span style="font-size: 11.5px; font-weight: 700; color: #15803D;">GPS Terverifikasi</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ── Kontainer Tombol Aksi (Jarak Vertikal Konsisten 16px & Lebar Penuh) ── --}}
+                    <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+
+                        <button type="button"
+                                @click="retakePhoto"
+                                :disabled="submitting"
+                                style="width: 100%; height: 46px; border-radius: 16px; background: #F1F5F9; color: #334155; font-size: 13.5px; font-weight: 700; border: 1px solid #CBD5E1; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;"
+                                class="hover:bg-slate-200 active:scale-98 disabled:opacity-50">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">replay</span>
+                            <span>Ambil Ulang Foto</span>
+                        </button>
+
+                        <button type="button"
+                                @click="submitAbsen"
+                                :disabled="submitting || !locationVerified || !photoBlob"
+                                style="width: 100%; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFFFFF; font-size: 15px; font-weight: 900; letter-spacing: 0.02em; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 8px 24px rgba(37,99,235,0.38); transition: all 0.2s;"
+                                class="hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span class="material-symbols-outlined" style="font-size: 22px;"
+                                  x-text="submitting ? 'hourglass_top' : 'send'">send</span>
+                            <span x-text="submitting ? 'Memproses Absensi...' : 'Kirim Absensi'">Kirim Absensi</span>
+                        </button>
+                    </div>
+        </div>
 
     </div>
 

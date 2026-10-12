@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(auth()->user()?->isAdmin() ? 'layouts.admin' : 'layouts.app')
 @section('title', 'Profil Saya')
 
 @section('content')
@@ -358,6 +358,8 @@
 </div>
 @endsection
 
+@if(!auth()->user()?->isAdmin())
 @section('bottom-nav')
     <x-bottom-nav active="profile" :role="auth()->user()->role" />
 @endsection
+@endif

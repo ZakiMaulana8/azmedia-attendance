@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ActivityReport extends Model
 {
+    protected $table = 'laporan_kegiatan';
+
     protected $fillable = [
         'user_id',
         'tanggal',
@@ -29,6 +31,11 @@ class ActivityReport extends Model
 
     public function files(): HasMany
     {
-        return $this->hasMany(ActivityReportFile::class);
+        return $this->hasMany(ActivityReportFile::class, 'laporan_kegiatan_id');
+    }
+
+    public function lampiran(): HasMany
+    {
+        return $this->files();
     }
 }

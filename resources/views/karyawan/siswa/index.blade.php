@@ -137,8 +137,9 @@
                     $jamPulang = $att?->jam_pulang ? \Carbon\Carbon::parse($att->jam_pulang)->format('H:i') : null;
                 @endphp
 
-                <div x-show="matchesFilter('{{ strtolower($siswa->name) }}', '{{ strtolower($siswa->jurusan ?? '') }}', '{{ strtolower($siswa->asal_sekolah ?? '') }}', '{{ $statusKey }}')"
-                     class="bg-white border border-outline-variant/60 rounded-2xl p-md shadow-sm transition-all hover:border-primary/40">
+                <a href="{{ route('siswa.logbook', $siswa) }}"
+                   x-show="matchesFilter('{{ strtolower($siswa->name) }}', '{{ strtolower($siswa->jurusan ?? '') }}', '{{ strtolower($siswa->asal_sekolah ?? '') }}', '{{ $statusKey }}')"
+                   class="block bg-white border border-outline-variant/60 rounded-2xl p-md shadow-sm transition-all hover:border-primary/40 hover:shadow-md active:scale-[0.99]">
                     <div class="flex items-center justify-between gap-md">
 
                         {{-- Avatar & Info Siswa --}}
@@ -177,7 +178,7 @@
                             </span>
                         </div>
                     </div>
-                </div>
+                </a>
             @empty
                 <div class="bg-white border border-outline-variant/60 rounded-2xl p-xl text-center shadow-sm">
                     <div class="w-12 h-12 rounded-full bg-surface-container mx-auto flex items-center justify-center text-outline mb-2">

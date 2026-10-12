@@ -140,9 +140,10 @@
                         default     => ['bg'=>'#FEE2E2','text'=>'#991B1B','dot'=>'#EF4444','label'=>'Alpa'],
                     };
                 @endphp
-                <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm flex items-center gap-3
-                            hover:shadow-md hover:border-[#BFDBFE] transition-all duration-200"
-                     x-show="showSiswa('{{ $siswa->jurusan }}', '{{ $status }}', '{{ strtolower($siswa->name) }}')">
+                <a href="{{ route('siswa.logbook', $siswa) }}"
+                   class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm flex items-center gap-3
+                          hover:shadow-md hover:border-[#BFDBFE] active:scale-[0.99] transition-all duration-200"
+                   x-show="showSiswa('{{ $siswa->jurusan }}', '{{ $status }}', '{{ strtolower($siswa->name) }}')">
                     <div class="relative shrink-0">
                         <div class="w-11 h-11 rounded-full overflow-hidden ring-2 ring-[#DBEAFE]">
                             <img src="{{ $siswa->photo_url }}" alt="{{ $siswa->name }}" class="w-full h-full object-cover">
@@ -166,7 +167,7 @@
                           style="background:{{ $statusConfig['bg'] }};color:{{ $statusConfig['text'] }}">
                         {{ $statusConfig['label'] }}
                     </span>
-                </div>
+                </a>
                 @empty
                 <div class="bg-white border border-dashed border-[#CBD5E1] rounded-2xl p-8 text-center">
                     <div class="w-14 h-14 bg-[#EFF6FF] rounded-full flex items-center justify-center mx-auto mb-3">

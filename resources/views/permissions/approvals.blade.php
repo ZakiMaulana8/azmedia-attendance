@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(auth()->user()?->isAdmin() ? 'layouts.admin' : 'layouts.app')
 @section('title', 'Approval Izin Siswa')
 
 @section('content')
@@ -325,9 +325,11 @@
 </div>
 @endsection
 
+@if(!auth()->user()?->isAdmin())
 @section('bottom-nav')
     <x-bottom-nav active="approval" :role="auth()->user()->role" />
 @endsection
+@endif
 
 @push('scripts')
 <script>

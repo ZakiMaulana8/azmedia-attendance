@@ -9,6 +9,7 @@ use App\Http\Controllers\KaryawanSiswaController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SiswaLogbookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
@@ -58,6 +59,9 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/attendance/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.check-out');
     Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
 
+    // Detail siswa: riwayat absensi, foto & logbook (guru pembimbing & karyawan; dicek di controller)
+    Route::get('/siswa/{siswa}/logbook', [SiswaLogbookController::class, 'show'])->name('siswa.logbook');
+
     // Permissions (izin) — siswa
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
     Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create');
@@ -71,9 +75,10 @@ Route::middleware(['auth', 'active'])->group(function () {
         ->name('permissions.approve')
         ->middleware('can:update,permission');
 
-    // Karyawan area — pemantauan siswa PKL (middleware: auth + karyawan)
+    // Karyawan area — pemantauan siswa PKL & laporan kegiatan (middleware: auth + karyawan)
     Route::middleware('karyawan')->group(function () {
         Route::get('/karyawan/siswa', [KaryawanSiswaController::class, 'index'])->name('karyawan.siswa.index');
+        Route::get('/karyawan/activity-reports', [ActivityReportController::class, 'karyawanIndex'])->name('karyawan.activity-reports.index');
     });
 
     // Admin area — hanya role `admin` (middleware: auth + admin)

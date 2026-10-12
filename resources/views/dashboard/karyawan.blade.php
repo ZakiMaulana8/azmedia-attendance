@@ -22,7 +22,7 @@
 @endphp
 
 @section('content')
-<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6" x-data="karyawanDashboard()">
+<div class="max-w-6xl mx-auto p-4 sm:p-6 pb-28 sm:pb-28 space-y-6" x-data="karyawanDashboard()">
 
     {{-- ══════════════════════════════════════════════════════════
          HERO HEADER CARD (seragam dengan Dashboard Guru)
@@ -288,8 +288,9 @@
                         $jamPulang = $att?->jam_pulang ? \Carbon\Carbon::parse($att->jam_pulang)->format('H:i') : null;
                     @endphp
 
-                    <div x-show="matchesFilter('{{ strtolower($siswa->name) }}', '{{ strtolower($siswa->jurusan ?? '') }}', '{{ $statusKey }}')"
-                         class="bg-white border border-outline-variant/60 rounded-2xl p-md shadow-sm transition-all hover:border-primary/40">
+                    <a href="{{ route('siswa.logbook', $siswa) }}"
+                       x-show="matchesFilter('{{ strtolower($siswa->name) }}', '{{ strtolower($siswa->jurusan ?? '') }}', '{{ $statusKey }}')"
+                       class="block bg-white border border-outline-variant/60 rounded-2xl p-md shadow-sm transition-all hover:border-primary/40 hover:shadow-md active:scale-[0.99]">
                         <div class="flex items-center justify-between gap-md">
 
                             {{-- Avatar & Info Siswa --}}
@@ -328,7 +329,7 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <div class="bg-white border border-outline-variant/60 rounded-2xl p-xl text-center shadow-sm">
                         <div class="w-12 h-12 rounded-full bg-surface-container mx-auto flex items-center justify-center text-outline mb-2">

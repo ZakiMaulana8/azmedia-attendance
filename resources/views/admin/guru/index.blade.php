@@ -385,27 +385,37 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-2xl text-center">
-                                <div class="flex flex-col items-center gap-md">
-                                    <div class="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center">
-                                        <span class="material-symbols-outlined text-[36px] text-outline">{{ ($currentView ?? 'active') === 'deleted' ? 'delete_sweep' : 'person_search' }}</span>
+                            <td colspan="6">
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 56px 24px; gap: 0;">
+
+                                    {{-- Icon container --}}
+                                    <div style="width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;"
+                                         class="{{ ($currentView ?? 'active') === 'deleted' ? 'bg-red-50' : 'bg-amber-50' }}">
+                                        <span class="material-symbols-outlined {{ ($currentView ?? 'active') === 'deleted' ? 'text-red-400' : 'text-amber-400' }}" style="font-size: 36px; line-height: 1; font-variation-settings:'FILL' 1">{{ ($currentView ?? 'active') === 'deleted' ? 'delete_sweep' : 'school' }}</span>
                                     </div>
-                                    <div>
-                                        <p class="text-[14px] font-bold text-on-surface mb-1">
-                                            @if(request('search'))
-                                                Guru tidak ditemukan
-                                            @elseif(($currentView ?? 'active') === 'deleted')
-                                                Tidak ada data guru soft deleted
-                                            @else
-                                                Belum ada data guru pembimbing
-                                            @endif
-                                        </p>
+
+                                    {{-- Heading --}}
+                                    <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 700; color: #0F172A; text-align: center;">
                                         @if(request('search'))
-                                            <p class="text-[12px] text-on-surface-variant">
-                                                Coba ubah kata kunci pencarian.
-                                            </p>
+                                            Guru tidak ditemukan
+                                        @elseif(($currentView ?? 'active') === 'deleted')
+                                            Tidak ada guru yang dihapus sementara
+                                        @else
+                                            Belum ada data guru pembimbing
                                         @endif
-                                    </div>
+                                    </p>
+
+                                    {{-- Subtext --}}
+                                    <p style="margin: 0; font-size: 12px; color: #94A3B8; text-align: center; max-width: 280px; line-height: 1.5;">
+                                        @if(request('search'))
+                                            Coba ubah kata kunci pencarian.
+                                        @elseif(($currentView ?? 'active') === 'deleted')
+                                            Guru yang di-soft delete akan muncul di sini.
+                                        @else
+                                            Tambahkan akun guru pembimbing untuk memantau siswa PKL.
+                                        @endif
+                                    </p>
+
                                 </div>
                             </td>
                         </tr>

@@ -41,6 +41,17 @@
         border-color: #10B981 !important;
         box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
     }
+    /*
+     * Wrapper bagian setelah foto diambil. Layout flex + gap sengaja ditaruh di class (bukan inline style)
+     * karena Alpine x-show menghapus properti inline `display` saat elemen ditampilkan, sehingga
+     * `display:flex` inline hilang dan `gap` tidak berlaku (semua box jadi menempel).
+     */
+    .checkout-after-capture {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
 </style>
 @endpush
 
@@ -49,7 +60,7 @@
 @endphp
 
 @section('content')
-<div style="min-height: 100vh; background: #F4F8FF; padding-bottom: 96px; position: relative;" x-data="checkOutApp()">
+<div style="min-height: 100vh; background: #F4F8FF; padding-bottom: 120px; position: relative;" x-data="checkOutApp()">
 
     <div style="max-width: 600px; margin: 0 auto; padding: 16px; position: relative; z-index: 10;">
 
@@ -199,7 +210,7 @@
             </div>
 
             {{-- ── Tombol Sebelum & Saat Kamera Aktif ── --}}
-            <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 14px;" x-show="!capturedPhoto">
 
                 {{-- 1. Tombol Aktifkan Kamera --}}
                 <button type="button"
@@ -221,93 +232,125 @@
                     <span class="material-symbols-outlined" style="font-size: 22px;">photo_camera</span>
                     <span>Ambil Foto</span>
                 </button>
-
-                {{-- ── Bagian Setelah Foto Berhasil Diambil: Logbook & Tombol Aksi ── --}}
-                <div x-show="capturedPhoto" x-cloak style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
-
-                    {{-- Form Logbook Aktivitas Harian (Wajib minimal 20 karakter) --}}
-                    <div style="width: 100%; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 20px; padding: 18px 18px; box-sizing: border-box;">
-                        {{-- 1. Baris Label & Counter --}}
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
-                            <label for="logbook-textarea" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 800; color: #0F172A; cursor: pointer;">
-                                <span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">edit_note</span>
-                                <span>Logbook Aktivitas Harian</span>
-                                <span style="color: #EF4444; font-size: 14px; font-weight: 900;">*</span>
-                            </label>
-
-                            <span :style="logbookTrimmedLength >= 20 ? 'background: #DCFCE7; color: #15803D; border-color: #86EFAC;' : 'background: #F1F5F9; color: #475569; border-color: #CBD5E1;'"
-                                  style="font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; border-width: 1px; border-style: solid; transition: all 0.2s;"
-                                  x-text="`${logbookTrimmedLength} karakter · minimal 20`">
-                                0 karakter · minimal 20
-                            </span>
-                        </div>
-
-                        {{-- 2. Teks Petunjuk Tepat di Bawah Label --}}
-                        <p style="margin: 0 0 12px 0; font-size: 12.5px; color: #475569; line-height: 1.55;">
-                            Tuliskan aktivitas atau tugas yang dikerjakan, hal yang dipelajari, serta hasil pekerjaan atau kemajuan hari ini (minimal 20 karakter).
-                        </p>
-
-                        {{-- 3. Textarea Memenuhi Lebar Kontainer (100%), Tinggi 120-140px, Nyaman, Focus Ring Halus --}}
-                        <textarea id="logbook-textarea"
-                                  x-model="logbook"
-                                  placeholder="Contoh: Mempelajari pengolahan data absensi, menguji validasi GPS, dan memahami alur penyimpanan data ke database."
-                                  :class="logbookTrimmedLength >= 20 ? 'state-valid' : ''"
-                                  class="logbook-textarea-field"></textarea>
-
-                        {{-- 4. Status Validasi di Bawah Textarea (Netral sebelum 20 karakter, Sukses halus setelah mencapai 20 karakter) --}}
-                        <div style="margin-top: 10px; min-height: 22px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                            <div>
-                                <template x-if="logbookTrimmedLength === 0">
-                                    <span style="font-size: 12px; color: #64748B; display: inline-flex; align-items: center; gap: 6px;">
-                                        <span class="material-symbols-outlined" style="font-size: 16px; color: #94A3B8;">info</span>
-                                        <span>Tuliskan minimal 20 karakter.</span>
-                                    </span>
-                                </template>
-                                <template x-if="logbookTrimmedLength > 0 && logbookTrimmedLength < 20">
-                                    <span style="font-size: 12px; color: #475569; display: inline-flex; align-items: center; gap: 6px;">
-                                        <span class="material-symbols-outlined" style="font-size: 16px; color: #64748B;">edit_note</span>
-                                        <span>Tersisa <strong style="color: #1E40AF;" x-text="20 - logbookTrimmedLength"></strong> karakter lagi untuk mencapai batas minimal.</span>
-                                    </span>
-                                </template>
-                                <template x-if="logbookTrimmedLength >= 20">
-                                    <span style="font-size: 12px; color: #15803D; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                                        <span class="material-symbols-outlined" style="font-size: 16px; color: #16A34A;">check_circle</span>
-                                        <span>Logbook telah memenuhi syarat minimal penulisan.</span>
-                                    </span>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- ── Kontainer Tombol Aksi (Jarak Vertikal Konsisten 14px & Lebar Penuh) ── --}}
-                    <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
-
-                        {{-- Tombol Ambil Ulang Foto --}}
-                        <button type="button"
-                                @click="retakePhoto"
-                                :disabled="submitting"
-                                style="width: 100%; height: 46px; border-radius: 16px; background: #F1F5F9; color: #334155; font-size: 13.5px; font-weight: 700; border: 1px solid #CBD5E1; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;"
-                                class="hover:bg-slate-200 active:scale-98 disabled:opacity-50">
-                            <span class="material-symbols-outlined" style="font-size: 18px;">replay</span>
-                            <span>Ambil Ulang Foto</span>
-                        </button>
-
-                        {{-- Tombol Kirim Absensi Pulang --}}
-                        <button type="button"
-                                @click="submitAbsen"
-                                :disabled="submitting || !locationVerified || !photoBlob || logbookTrimmedLength < 20"
-                                style="width: 100%; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFFFFF; font-size: 15px; font-weight: 900; letter-spacing: 0.02em; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 8px 24px rgba(37,99,235,0.38); transition: all 0.2s;"
-                                class="hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span class="material-symbols-outlined" style="font-size: 22px;"
-                                  x-text="submitting ? 'hourglass_top' : 'send'">send</span>
-                            <span x-text="submitting ? 'Memproses Absensi Pulang...' : 'Kirim Absensi Pulang'">Kirim Absensi Pulang</span>
-                        </button>
-                    </div>
-                </div>
-
             </div>
 
         </section>
+
+        {{-- ── Bagian Setelah Foto Berhasil Diambil: Konfirmasi Foto, Logbook & Tombol Aksi ── --}}
+        <div x-show="capturedPhoto" x-cloak class="checkout-after-capture">
+
+            {{-- 1. Card Ringkasan Konfirmasi Foto Pulang --}}
+            <section style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 20px; box-shadow: 0 4px 16px rgba(37,99,235,0.05); box-sizing: border-box;">
+                {{-- Baris Label & Badge --}}
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 800; color: #0F172A;">
+                        <span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">verified_user</span>
+                        <span>Konfirmasi Foto Pulang</span>
+                    </div>
+
+                    <span style="font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;">
+                        Foto Siap
+                    </span>
+                </div>
+
+                {{-- Teks Petunjuk --}}
+                <p style="margin: 0 0 14px 0; font-size: 12.5px; color: #475569; line-height: 1.55;">
+                    Foto kepulangan berhasil diambil. Pastikan wajah terlihat jelas, lalu lengkapi logbook aktivitas harian di bawah ini sebelum mengirim absensi.
+                </p>
+
+                {{-- Info Ringkas Jam & Lokasi --}}
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px; color: #2563EB;">schedule</span>
+                        <span style="font-size: 12px; font-weight: 700; color: #334155;">Waktu Pulang:</span>
+                        <span style="font-size: 12.5px; font-weight: 800; color: #0F172A;" x-text="liveClock">{{ $now->format('H:i') }} WIB</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; color: #16A34A;">check_circle</span>
+                        <span style="font-size: 11.5px; font-weight: 700; color: #15803D;">GPS Terverifikasi</span>
+                    </div>
+                </div>
+            </section>
+
+            {{-- 2. Form Logbook Aktivitas Harian (Wajib minimal 20 karakter) --}}
+            <section style="background: #FFFFFF; border: 1px solid #DBEAFE; border-radius: 20px; padding: 20px; box-sizing: border-box; box-shadow: 0 4px 16px rgba(37,99,235,0.05);">
+                {{-- 1. Baris Label & Counter --}}
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <label for="logbook-textarea" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 800; color: #0F172A; cursor: pointer;">
+                        <span class="material-symbols-outlined" style="font-size: 20px; color: #2563EB;">edit_note</span>
+                        <span>Logbook Aktivitas Harian</span>
+                        <span style="color: #EF4444; font-size: 14px; font-weight: 900;">*</span>
+                    </label>
+
+                    <span :style="logbookTrimmedLength >= 20 ? 'background: #DCFCE7; color: #15803D; border-color: #86EFAC;' : 'background: #F1F5F9; color: #475569; border-color: #CBD5E1;'"
+                          style="font-size: 11.5px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; border-width: 1px; border-style: solid; transition: all 0.2s;"
+                          x-text="`${logbookTrimmedLength} karakter · minimal 20`">
+                        0 karakter · minimal 20
+                    </span>
+                </div>
+
+                {{-- 2. Teks Petunjuk Tepat di Bawah Label --}}
+                <p style="margin: 0 0 14px 0; font-size: 12.5px; color: #475569; line-height: 1.55;">
+                    Tuliskan aktivitas atau tugas yang dikerjakan, hal yang dipelajari, serta hasil pekerjaan atau kemajuan hari ini (minimal 20 karakter).
+                </p>
+
+                {{-- 3. Textarea Memenuhi Lebar Kontainer (100%), Tinggi 120-140px, Nyaman, Focus Ring Halus --}}
+                <textarea id="logbook-textarea"
+                          x-model="logbook"
+                          placeholder="Contoh: Mempelajari pengolahan data absensi, menguji validasi GPS, dan memahami alur penyimpanan data ke database."
+                          :class="logbookTrimmedLength >= 20 ? 'state-valid' : ''"
+                          class="logbook-textarea-field"></textarea>
+
+                {{-- 4. Status Validasi di Bawah Textarea (Netral sebelum 20 karakter, Sukses halus setelah mencapai 20 karakter) --}}
+                <div style="margin-top: 14px; min-height: 22px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div>
+                        <template x-if="logbookTrimmedLength === 0">
+                            <span style="font-size: 12px; color: #64748B; display: inline-flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-outlined" style="font-size: 16px; color: #94A3B8;">info</span>
+                                <span>Tuliskan minimal 20 karakter.</span>
+                            </span>
+                        </template>
+                        <template x-if="logbookTrimmedLength > 0 && logbookTrimmedLength < 20">
+                            <span style="font-size: 12px; color: #475569; display: inline-flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-outlined" style="font-size: 16px; color: #64748B;">edit_note</span>
+                                <span>Tersisa <strong style="color: #1E40AF;" x-text="20 - logbookTrimmedLength"></strong> karakter lagi untuk mencapai batas minimal.</span>
+                            </span>
+                        </template>
+                        <template x-if="logbookTrimmedLength >= 20">
+                            <span style="font-size: 12px; color: #15803D; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <span class="material-symbols-outlined" style="font-size: 16px; color: #16A34A;">check_circle</span>
+                                <span>Logbook telah memenuhi syarat minimal penulisan.</span>
+                            </span>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            {{-- 3. Kontainer Tombol Aksi --}}
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+
+                {{-- Tombol Ambil Ulang Foto --}}
+                <button type="button"
+                        @click="retakePhoto"
+                        :disabled="submitting"
+                        style="width: 100%; height: 48px; border-radius: 16px; background: #FFFFFF; color: #334155; font-size: 13.5px; font-weight: 700; border: 1px solid #CBD5E1; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;"
+                        class="hover:bg-slate-50 active:scale-98 disabled:opacity-50">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">replay</span>
+                    <span>Ambil Ulang Foto</span>
+                </button>
+
+                {{-- Tombol Kirim Absensi Pulang --}}
+                <button type="button"
+                        @click="submitAbsen"
+                        :disabled="submitting || !locationVerified || !photoBlob || logbookTrimmedLength < 20"
+                        style="width: 100%; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFFFFF; font-size: 15px; font-weight: 900; letter-spacing: 0.02em; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 8px 24px rgba(37,99,235,0.38); transition: all 0.2s;"
+                        class="hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="material-symbols-outlined" style="font-size: 22px;"
+                          x-text="submitting ? 'hourglass_top' : 'send'">send</span>
+                    <span x-text="submitting ? 'Memproses Absensi Pulang...' : 'Kirim Absensi Pulang'">Kirim Absensi Pulang</span>
+                </button>
+            </div>
+        </div>
 
     </div>
 

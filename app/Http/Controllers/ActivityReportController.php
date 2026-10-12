@@ -57,7 +57,7 @@ class ActivityReportController extends Controller
             $path = $file->store('activity-reports/' . $request->user()->id, 'public');
 
             ActivityReportFile::create([
-                'activity_report_id' => $report->id,
+                'laporan_kegiatan_id' => $report->id,
                 'original_name'      => $file->getClientOriginalName(),
                 'path'               => $path,
                 'mime_type'          => $file->getMimeType(),
@@ -101,10 +101,10 @@ class ActivityReportController extends Controller
         return back()->with('success', 'Laporan berhasil dihapus.');
     }
 
-    // ── Guru ───────────────────────────────────────────────────────────────────
+    // ── Helper Pembimbing (Guru & Karyawan) ───────────────────────────────────
 
-    /** Guru: daftar laporan semua siswa, digroup per siswa */
-    public function guruIndex(Request $request): View
+    /** Ambil data laporan kegiatan seluruh siswa PKL dengan filter */
+    private function getActivityReportsData(Request $request): array
     {
         $siswaId = $request->get('siswa');
         $date    = $request->get('date');
@@ -121,6 +121,34 @@ class ActivityReportController extends Controller
             ->latest('tanggal')
             ->paginate(15);
 
+        return [$reports, $siswaList, $siswaId, $date];
+    }
+
+    // ── Guru ───────────────────────────────────────────────────────────────────
+
+    /** Guru: daftar laporan semua siswa */
+    public function guruIndex(Request $request): View
+    {
+        if ($request->user()->isSiswa()) {
+            abort(403);
+        }
+
+        [$reports, $siswaList, $siswaId, $date] = $this->getActivityReportsData($request);
+
         return view('activity-reports.guru-index', compact('reports', 'siswaList', 'siswaId', 'date'));
+    }
+
+    // ── Karyawan ───────────────────────────────────────────────────────────────
+
+    /** Karyawan: daftar laporan kegiatan seluruh siswa PKL */
+    public function karyawanIndex(Request $request): View
+    {
+        if (! $request->user()->isKaryawan() && ! $request->user()->isAdmin()) {
+            abort(403);
+        }
+
+        [$reports, $siswaList, $siswaId, $date] = $this->getActivityReportsData($request);
+
+        return view('karyawan.activity-reports.index', compact('reports', 'siswaList', 'siswaId', 'date'));
     }
 }

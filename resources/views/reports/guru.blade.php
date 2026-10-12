@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(auth()->user()?->isAdmin() ? 'layouts.admin' : 'layouts.app')
 @section('title', 'Rekap Absensi')
 
 @section('content')
@@ -284,6 +284,8 @@
 </div>
 @endsection
 
+@if(!auth()->user()?->isAdmin())
 @section('bottom-nav')
     <x-bottom-nav active="reports" role="guru" />
 @endsection
+@endif

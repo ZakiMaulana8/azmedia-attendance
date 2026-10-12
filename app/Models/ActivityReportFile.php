@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ActivityReportFile extends Model
 {
+    protected $table = 'lampiran_laporan_kegiatan';
+
     protected $fillable = [
+        'laporan_kegiatan_id',
         'activity_report_id',
         'original_name',
         'path',
@@ -18,7 +21,22 @@ class ActivityReportFile extends Model
 
     public function report(): BelongsTo
     {
-        return $this->belongsTo(ActivityReport::class, 'activity_report_id');
+        return $this->belongsTo(ActivityReport::class, 'laporan_kegiatan_id');
+    }
+
+    public function activityReport(): BelongsTo
+    {
+        return $this->report();
+    }
+
+    public function setActivityReportIdAttribute($value): void
+    {
+        $this->attributes['laporan_kegiatan_id'] = $value;
+    }
+
+    public function getActivityReportIdAttribute(): ?int
+    {
+        return $this->attributes['laporan_kegiatan_id'] ?? null;
     }
 
     /** URL publik file */

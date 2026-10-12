@@ -1,71 +1,77 @@
-@extends('layouts.app')
+@extends(auth()->user()?->isAdmin() ? 'layouts.admin' : 'layouts.app')
 @section('title', $activityReport->judul)
 
 @section('content')
-<div class="max-w-lg mx-auto" x-data="{ lightbox: null }">
+<div class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6"
+     style="max-width: 760px;"
+     x-data="{ lightbox: null }">
 
     {{-- ── Hero Header ─────────────────────────────────────────────── --}}
-    <section class="relative bg-primary overflow-hidden px-md pt-lg pb-lg"
-             style="border-radius: 0 0 32px 32px;">
-        <div class="pointer-events-none absolute -top-10 -right-10 w-44 h-44 rounded-full"
-             style="background: rgba(255,255,255,0.07)"></div>
-        <div class="pointer-events-none absolute top-6 -right-2 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.05)"></div>
+    <section class="relative overflow-hidden shadow-lg"
+             style="background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 55%, #3B82F6 100%); border-radius: 24px; padding: 28px 24px;">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden" style="border-radius: 24px;">
+            <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full" style="background:rgba(255,255,255,0.08); filter: blur(20px);"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full" style="background:rgba(255,255,255,0.06); filter: blur(16px);"></div>
+        </div>
 
-        <div class="relative z-10">
-            <div class="flex items-center gap-sm mb-2">
-                <a href="{{ auth()->user()->isGuru() ? route('activity-reports.guru') : route('activity-reports.index') }}"
-                   class="w-8 h-8 rounded-xl flex items-center justify-center transition-colors flex-shrink-0"
-                   style="background: rgba(255,255,255,0.15)">
-                    <span class="material-symbols-outlined text-white text-[18px]">arrow_back</span>
-                </a>
-                <p class="text-white/60 text-[11px] font-semibold uppercase tracking-widest">Detail Laporan</p>
+        <div class="relative z-10 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-white/80 text-[12px] font-bold uppercase tracking-wider mb-1">Dokumentasi Magang</p>
+                <h1 class="text-white font-extrabold text-[22px] sm:text-[26px] leading-tight tracking-tight line-clamp-2">
+                    {{ $activityReport->judul }}
+                </h1>
+                <p class="text-white/80 text-[13px] font-medium mt-1">
+                    {{ $activityReport->tanggal->translatedFormat('l, d F Y') }}
+                </p>
             </div>
-            <h2 class="text-white font-extrabold line-clamp-2"
-                style="font-size: 20px; line-height: 26px; letter-spacing: -0.01em;">
-                {{ $activityReport->judul }}
-            </h2>
+            <a href="{{ auth()->user()->isKaryawan() ? route('karyawan.activity-reports.index') : ((auth()->user()->isGuru() || auth()->user()->isAdmin()) ? route('activity-reports.guru') : route('activity-reports.index')) }}"
+               class="flex-shrink-0 flex items-center gap-1.5 rounded-2xl px-4 py-2.5 font-bold text-[13px]
+                      active:scale-95 transition-all duration-150 text-white hover:bg-white/30"
+               style="background: rgba(255,255,255,0.20); border: 1px solid rgba(255,255,255,0.38); backdrop-filter: blur(10px);">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                Kembali
+            </a>
         </div>
     </section>
 
-    <div class="px-md pt-lg pb-xl space-y-lg">
+    <div class="space-y-6">
 
         {{-- ── Info Card ─────────────────────────────────────────────── --}}
-        <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
 
             {{-- Profil siswa (untuk guru/admin) --}}
             @if(auth()->user()->isGuru() || auth()->user()->isAdmin())
-            <div class="flex items-center gap-md px-md py-md border-b border-outline-variant/40">
+            <div class="flex items-center gap-3 px-6 py-4 border-b border-slate-200/80 bg-slate-50">
                 <img src="{{ $activityReport->user->photo_url }}"
                      class="w-10 h-10 rounded-full object-cover flex-shrink-0"
                      alt="{{ $activityReport->user->name }}">
                 <div>
-                    <p class="text-[14px] font-bold text-on-surface">{{ $activityReport->user->name }}</p>
-                    <p class="text-[12px] text-on-surface-variant">{{ $activityReport->user->jurusan ?? '—' }}</p>
+                    <p class="text-[14px] font-bold text-slate-800">{{ $activityReport->user->name }}</p>
+                    <p class="text-[12px] text-slate-500">{{ $activityReport->user->jurusan ?? '—' }}</p>
                 </div>
             </div>
             @endif
 
             {{-- Detail info --}}
-            <div class="grid grid-cols-2 gap-sm p-md">
-                <div class="bg-surface-container/50 rounded-xl p-sm">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Tanggal</p>
-                    <p class="text-[13px] font-semibold text-on-surface leading-tight">
+            <div class="grid grid-cols-2 gap-3 p-6">
+                <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3.5">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Tanggal</p>
+                    <p class="text-[13px] font-semibold text-slate-800 leading-tight">
                         {{ $activityReport->tanggal->translatedFormat('l, d F Y') }}
                     </p>
                 </div>
-                <div class="bg-surface-container/50 rounded-xl p-sm">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1">Jumlah File</p>
-                    <p class="text-[13px] font-semibold text-on-surface">
+                <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3.5">
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Jumlah File</p>
+                    <p class="text-[13px] font-semibold text-slate-800">
                         {{ $activityReport->files->count() }} file
                     </p>
                 </div>
             </div>
 
             @if($activityReport->deskripsi)
-            <div class="px-md pb-md border-t border-outline-variant/30 pt-sm">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-outline mb-1.5">Deskripsi Kegiatan</p>
-                <p class="text-[13px] text-on-surface leading-relaxed">{{ $activityReport->deskripsi }}</p>
+            <div class="px-6 pb-6 border-t border-slate-100 pt-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Deskripsi Kegiatan</p>
+                <p class="text-[13px] text-slate-800 leading-relaxed">{{ $activityReport->deskripsi }}</p>
             </div>
             @endif
         </div>
@@ -79,20 +85,20 @@
 
         @if($images->count())
         <div>
-            <div class="flex items-center gap-sm mb-md">
-                <div class="w-7 h-7 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary text-[15px]"
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-7 h-7 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[#2563EB] text-[16px]"
                           style="font-variation-settings:'FILL' 1">image</span>
                 </div>
-                <h3 class="text-[13px] font-bold text-on-surface">
-                    Foto <span class="text-on-surface-variant font-normal">({{ $images->count() }})</span>
+                <h3 class="text-[13px] font-bold text-slate-800">
+                    Foto <span class="text-slate-400 font-normal">({{ $images->count() }})</span>
                 </h3>
             </div>
-            <div class="grid grid-cols-3 gap-sm">
+            <div class="grid grid-cols-3 gap-3">
                 @foreach($images as $img)
                 <button @click="lightbox = '{{ $img->url }}'"
-                        class="aspect-square rounded-2xl overflow-hidden border border-outline-variant/40
-                               active:scale-95 transition-all duration-150 shadow-sm">
+                        class="aspect-square rounded-2xl overflow-hidden border border-slate-200
+                               active:scale-95 transition-all duration-150 shadow-sm hover:shadow">
                     <img src="{{ $img->url }}" alt="{{ $img->original_name }}"
                          class="w-full h-full object-cover">
                 </button>
@@ -104,26 +110,26 @@
         {{-- ── Video ─────────────────────────────────────────────────── --}}
         @if($videos->count())
         <div>
-            <div class="flex items-center gap-sm mb-md">
-                <div class="w-7 h-7 rounded-xl bg-secondary/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-secondary text-[15px]"
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-7 h-7 rounded-xl bg-indigo-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-indigo-600 text-[16px]"
                           style="font-variation-settings:'FILL' 1">videocam</span>
                 </div>
-                <h3 class="text-[13px] font-bold text-on-surface">
-                    Video <span class="text-on-surface-variant font-normal">({{ $videos->count() }})</span>
+                <h3 class="text-[13px] font-bold text-slate-800">
+                    Video <span class="text-slate-400 font-normal">({{ $videos->count() }})</span>
                 </h3>
             </div>
-            <div class="space-y-sm">
+            <div class="space-y-3">
                 @foreach($videos as $vid)
-                <div class="bg-white rounded-2xl border border-outline-variant/50 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                     <video controls class="w-full max-h-60 bg-black" preload="metadata">
                         <source src="{{ $vid->url }}" type="{{ $vid->mime_type }}">
                         Browser Anda tidak mendukung pemutaran video.
                     </video>
-                    <div class="flex items-center gap-sm px-md py-sm">
-                        <span class="material-symbols-outlined text-outline text-[15px]">videocam</span>
-                        <p class="text-[12px] text-on-surface-variant truncate flex-1">{{ $vid->original_name }}</p>
-                        <span class="text-[11px] text-outline flex-shrink-0">{{ $vid->formatted_size }}</span>
+                    <div class="flex items-center gap-2 px-4 py-3 border-t border-slate-100">
+                        <span class="material-symbols-outlined text-slate-400 text-[16px]">videocam</span>
+                        <p class="text-[12px] text-slate-600 truncate flex-1 font-medium">{{ $vid->original_name }}</p>
+                        <span class="text-[11px] text-slate-400 flex-shrink-0">{{ $vid->formatted_size }}</span>
                     </div>
                 </div>
                 @endforeach
@@ -134,16 +140,16 @@
         {{-- ── Dokumen ────────────────────────────────────────────────── --}}
         @if($documents->count())
         <div>
-            <div class="flex items-center gap-sm mb-md">
+            <div class="flex items-center gap-2 mb-3">
                 <div class="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-slate-500 text-[15px]"
+                    <span class="material-symbols-outlined text-slate-500 text-[16px]"
                           style="font-variation-settings:'FILL' 1">attach_file</span>
                 </div>
-                <h3 class="text-[13px] font-bold text-on-surface">
-                    Dokumen <span class="text-on-surface-variant font-normal">({{ $documents->count() }})</span>
+                <h3 class="text-[13px] font-bold text-slate-800">
+                    Dokumen <span class="text-slate-400 font-normal">({{ $documents->count() }})</span>
                 </h3>
             </div>
-            <div class="space-y-sm">
+            <div class="space-y-3">
                 @foreach($documents as $doc)
                 @php
                     $icon = match(true) {
@@ -158,18 +164,18 @@
                     };
                 @endphp
                 <a href="{{ $doc->url }}" target="_blank"
-                   class="flex items-center gap-md bg-white rounded-2xl border border-outline-variant/50
-                          shadow-sm px-md py-sm active:scale-[0.98] transition-all duration-150 group">
-                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span class="material-symbols-outlined text-primary text-[20px]"
+                   class="flex items-center gap-3 bg-white rounded-2xl border border-slate-200/80
+                          shadow-sm px-4 py-3 active:scale-[0.98] transition-all duration-150 group hover:border-blue-300">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-[#2563EB] text-[20px]"
                               style="font-variation-settings:'FILL' 1">{{ $icon }}</span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-[13px] font-semibold text-on-surface truncate">{{ $doc->original_name }}</p>
-                        <p class="text-[11px] text-outline">{{ $doc->formatted_size }}</p>
+                        <p class="text-[13px] font-semibold text-slate-800 truncate group-hover:text-[#2563EB] transition-colors">{{ $doc->original_name }}</p>
+                        <p class="text-[11px] text-slate-400">{{ $doc->formatted_size }}</p>
                     </div>
-                    <span class="material-symbols-outlined text-[18px] text-outline/60
-                                 group-active:translate-x-0.5 transition-transform">open_in_new</span>
+                    <span class="material-symbols-outlined text-[18px] text-slate-400
+                                 group-hover:translate-x-0.5 group-hover:text-[#2563EB] transition-all">open_in_new</span>
                 </a>
                 @endforeach
             </div>
@@ -202,6 +208,8 @@
 </div>
 @endsection
 
+@if(!auth()->user()?->isAdmin())
 @section('bottom-nav')
     <x-bottom-nav :active="'activity'" :role="auth()->user()->role" />
 @endsection
+@endif
